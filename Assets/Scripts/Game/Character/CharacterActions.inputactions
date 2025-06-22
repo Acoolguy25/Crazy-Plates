@@ -1,0 +1,62 @@
+{
+    "name": "CharacterActions",
+    "maps": [
+        {
+            "name": "Character",
+            "id": "af32227f-99fc-47fa-829b-954ce7391366",
+            "actions": [
+                {
+                    "name": "Camera",
+                    "type": "Button",
+                    "id": "d918aecc-e281-4625-bde9-dc6e9960c8cc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "c66cc301-db91-47a1-baa9-2d04317e154a",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Camera",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Menu",
+            "id": "c67cc02e-9c21-4c80-98aa-8bf755239098",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "d83feab6-337b-4dbe-bd34-ac12d53e87d2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "e2ffbe9f-e885-41bb-9f94-2a9b49bd18f2",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

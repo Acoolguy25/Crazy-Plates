@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: bc9f0a0fe4124424b8f9d4927795ee01
+AssetOrigin:
+  serializedVersion: 1
+  productId: 129321
+  packageName: Mirror
+  packageVersion: 96.0.1
+  assetPath: Assets/Mirror/Components/NetworkDiagnosticsDebugger.cs
+  uploadId: 736421
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

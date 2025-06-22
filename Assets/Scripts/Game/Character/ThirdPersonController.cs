@@ -1,0 +1,88 @@
+using UnityEngine;
+using System.Collections;
+using Unity.Cinemachine;
+using UnityEngine.InputSystem;
+
+public class ThirdPersonController : MonoBehaviour
+{
+    [Header("Scrollwheel Settings")]
+    public float MinZoom = 1f;
+    public float MaxZoom = 20.0f;
+    public float ZoomMultiplier = 300.0f;
+    public float ZoomPercentage = 0.3f;
+    [Header("Force Scroll Settings")]
+    public float ForceScrollOffset = 0.5f;
+    public float ForceScrollPercentage = 0.1f;
+
+    private CinemachineCamera cinemachineCamera;
+    private CinemachineInputAxisController cinemachineInputAxisController;
+    private CinemachineOrbitalFollow orbitalFollow;
+    private float newScroll;
+    private float forceScroll;
+    public InputAction rightClick;
+    public InputAction scrollWheel;
+
+    private LayerMask layerMask;
+    void Start()
+    {
+        forceScroll = MaxZoom;
+        layerMask = ~LayerMask.GetMask("Character");
+        orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
+        cinemachineInputAxisController = GetComponent<CinemachineInputAxisController>();
+        newScroll = orbitalFollow.Radius;
+        cinemachineCamera = GetComponent<CinemachineCamera>();
+        UpdateCameraZoom(true);
+    }
+    void OnEnable()
+    {
+        rightClick.Enable();
+        rightClick.performed += OnRightClick;
+        rightClick.canceled += OnRightClickRelease;
+        scrollWheel.Enable();
+    }
+
+    void OnDisable()
+    {
+        rightClick.performed -= OnRightClick;
+        rightClick.canceled -= OnRightClickRelease;
+        OnRightClickRelease(new InputAction.CallbackContext());
+        rightClick.Disable();
+        scrollWheel.Disable();
+    }
+    void OnRightClick(InputAction.CallbackContext context)
+    {
+        cinemachineInputAxisController.enabled = true;
+    }
+    void OnRightClickRelease(InputAction.CallbackContext context)
+    {
+        cinemachineInputAxisController.enabled = false;
+    }
+    void Update()
+    {
+        UpdateCameraZoom();
+    }
+    void UpdateCameraZoom(bool started = false) { 
+        if (cinemachineCamera.Follow == null) return;
+        float zoomDelta = Time.deltaTime * scrollWheel.ReadValue<float>() * ZoomMultiplier;
+        if (zoomDelta != 0)
+        {
+            newScroll += zoomDelta;
+            newScroll = Mathf.Clamp(newScroll, MinZoom, MaxZoom);
+        }
+        RaycastHit hit;
+        if (Physics.Raycast(cinemachineCamera.Follow.position, 
+            transform.TransformDirection(Vector3.back), 
+            out hit, 
+            MaxZoom, layerMask)){
+            forceScroll = Mathf.Clamp(newScroll, 0, hit.distance - ForceScrollOffset);
+            //Debug.Log("Hit: " + hit.collider.name + " at distance: " + hit.distance);
+            orbitalFollow.Radius = Mathf.Lerp(orbitalFollow.Radius, forceScroll, started? 1: ForceScrollPercentage);
+        }
+        else
+        {
+            orbitalFollow.Radius = Mathf.Lerp(orbitalFollow.Radius, newScroll, started ? 1 : ZoomPercentage);
+            //Debug.DrawRay(cinemachineCamera.Follow.position, transform.TransformDirection(Vector3.back) * 1000, Color.white);
+            //Debug.Log("Did not Hit");
+        }
+    }
+}
