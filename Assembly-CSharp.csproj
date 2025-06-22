@@ -9,7 +9,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{92DC6ED1-61E1-9BCA-B9BA-6F149E59E829}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -80,7 +81,7 @@
     <Compile Include="Assets\Scripts\Menu\DummyTransport.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualButton.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\InputSystem\StarterAssetsInputs.cs" />
-    <Compile Include="Assets\Scripts\Game\Game\CameraController.cs" />
+    <Compile Include="Assets\Scripts\Game\Character\CameraController.cs" />
     <Compile Include="Assets\Scripts\Game\Network\CustomNetworkManager.cs" />
     <Compile Include="Assets\Scripts\Game\Game\ThirdPersonCharController.cs" />
     <Compile Include="Assets\Scripts\Game\Game\PlateProperties.cs" />
