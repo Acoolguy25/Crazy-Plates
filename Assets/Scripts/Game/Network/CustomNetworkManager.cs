@@ -10,13 +10,14 @@ public class CustomNetworkManager : NetworkManager
     public override void OnStartServer()
     {
         base.OnStartServer();
-        Debug.Log("Server started and ready to accept connections.");
+        //Debug.Log("Server started and ready to accept connections.");
         gameRunner.StartGame();
     }
     public override void OnClientConnect()
     {
         base.OnClientConnect();
-        Debug.Log("Client connected to server.");
+        //Debug.Log("Client connected to server.");
+        GameEvents.Instance.OnClientBegin();
     }
     public override void Awake()
     {

@@ -859,7 +859,7 @@ MonoBehaviour:
     - line: '|     ReservedCFE: DOTWEEN'
     - line: '|     Standalone: DOTWEEN'
     - line: '|     VisionOS: DOTWEEN'
-    - line: '|     WebGL: DOTWEEN;MIRROR;MIRROR_89_OR_NEWER;MIRROR_90_OR_NEWER;MIRROR_93_OR_NEWER;MIRROR_96_OR_NEWER;EDGEGAP_PLUGIN_SERVERS'
+    - line: '|     WebGL: MIRROR;MIRROR_89_OR_NEWER;MIRROR_90_OR_NEWER;MIRROR_93_OR_NEWER;MIRROR_96_OR_NEWER;EDGEGAP_PLUGIN_SERVERS;DOTWEEN'
     - line: '|     Windows Store Apps: DOTWEEN'
     - line: '|     XboxOne: DOTWEEN'
     - line: '|     iPhone: DOTWEEN'

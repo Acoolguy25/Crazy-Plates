@@ -1298,7 +1298,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 1.85
-  m_Radius: 0
+  m_Radius: 0.18
   m_SlopeLimit: 45
   m_StepOffset: 0.25
   m_SkinWidth: 0.02
@@ -1333,7 +1333,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 274649b0e221539409070ebf6c18918b, type: 3}
   - {fileID: 8300000, guid: a3194b8bbc96ef84fab1f98f4b7dae3e, type: 3}
   FootstepAudioVolume: 0.3
-  JumpHeight: 1.2
+  JumpHeight: 3.6
   Gravity: -15
   JumpTimeout: 0
   FallTimeout: 0.15
@@ -2644,7 +2644,7 @@ Transform:
   m_GameObject: {fileID: 9053250293666259648}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -0.4517206, y: -0.0011526048, z: -0.031144565}
+  m_LocalPosition: {x: -0.45172143, y: -0.0011526048, z: -0.031144565}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3154,7 +3154,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.12111684
+  m_Radius: 0.05
   m_Height: 0.48446736
   m_Direction: 0
   m_Center: {x: -0.24223368, y: 0, z: 0}
@@ -3467,8 +3467,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.35933003, y: 0.4864946, z: 0.25471866}
-  m_Center: {x: -0.1796651, y: 0.00000020861626, z: -0.024623603}
+  m_Size: {x: 0.33, y: 0.25, z: 0.22}
+  m_Center: {x: -0.27, y: 0, z: -0.024623603}
 --- !u!54 &1748079560704790756
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3566,7 +3566,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.121116854
+  m_Radius: 0.05
   m_Height: 0.48446742
   m_Direction: 0
   m_Center: {x: 0.24223371, y: 0, z: 0}
@@ -3667,7 +3667,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.08965059
+  m_Radius: 0.05
   m_Height: 0.44825295
   m_Direction: 0
   m_Center: {x: -0.22412647, y: 0, z: 0}
@@ -3768,7 +3768,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.105571605
+  m_Radius: 0.05
   m_Height: 0.35190535
   m_Direction: 0
   m_Center: {x: -0.17595267, y: 0, z: 0}
@@ -3869,7 +3869,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.10557155
+  m_Radius: 0.05
   m_Height: 0.35190517
   m_Direction: 0
   m_Center: {x: 0.17595258, y: 0, z: 0}
@@ -3970,7 +3970,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.08965027
+  m_Radius: 0.05
   m_Height: 0.44825137
   m_Direction: 0
   m_Center: {x: 0.22412568, y: 0, z: 0}
@@ -4071,8 +4071,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.15010731, y: 0.4864946, z: 0.25471866}
-  m_Center: {x: -0.034546964, y: 0.00000020861626, z: -0.024623603}
+  m_Size: {x: 0.15010731, y: 0.2, z: 0.2}
+  m_Center: {x: -0.034546964, y: 0.00000020861626, z: 0.01}
 --- !u!54 &1408360630921619200
 Rigidbody:
   m_ObjectHideFlags: 0
