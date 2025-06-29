@@ -132,7 +132,7 @@ public class Events : MonoBehaviour
                     //PlateProperties prop = target.GetComponent<PlateProperties>();
                     //prop.setPlateShake(prop.plateShake + new Vector3(variant/4, 0, variant/4));
                     PlateProperties2 prop = target.GetComponent<PlateProperties2>();
-                    prop.CreateShakeTween(self.name, new Vector3(variant*40, 0, variant*40));
+                    prop.CreateShakeTween(self.name, new Vector3(variant*4, 0, variant*4));
                 }
             },
             new GameEvent // idx 4

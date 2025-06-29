@@ -138,7 +138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   events: []
   eventColors: []
-  debugEventNo: 0300
+  debugEventNo: 03000400ffff
 --- !u!114 &253970553 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2157727070607826934, guid: ff06ebad3a829cd439dcbe46ee282b6e, type: 3}

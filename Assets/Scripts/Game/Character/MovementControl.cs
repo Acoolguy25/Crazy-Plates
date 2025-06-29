@@ -36,16 +36,25 @@ public class MovementControl : MonoBehaviour {
     // Update is called once per frame
     void FixedUpdate() {
         LateUpdate();
-        if (charCntl.isRagdoll) // || !unityCharCntl.isGrounded
+        if (charCntl.isRagdoll || !unityCharCntl.isGrounded)
         {
             //Debug.Log($"No longer touching ground!!");
             followInstance = null;
             IsGrounded = false;
             return;
         }
-        Collider[] hitColliders = Physics.OverlapSphere(
-                transform.position + unityCharCntl.center - Vector3.up * unityCharCntl.height / 2,
-                unityCharCntl.radius, layerMask);
+        Vector3 center = transform.position + unityCharCntl.center;
+        float height = unityCharCntl.height;
+        float radius = unityCharCntl.radius;
+
+        Vector3 p1 = transform.position + unityCharCntl.center + Vector3.up * -unityCharCntl.height * 0.5F;
+        Vector3 p2 = p1 + Vector3.up * unityCharCntl.height;
+        RaycastHit[] hits = Physics.CapsuleCastAll(p1, p2, unityCharCntl.radius, -transform.up, 0.15f);
+        Collider[] hitColliders = hits.Select(h => h.collider).ToArray();
+        if (IsGrounded && hitColliders.Length == 0) {
+            Debug.Log($"NO MORE GROUND!");
+            return;
+        }
         IsGrounded = hitColliders.LongLength > 0;
         Transform newFollow = null;
         if (!followInstance || !hitColliders.Contains(followInstance.GetComponent<Collider>())) {

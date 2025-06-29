@@ -1,12 +1,11 @@
 using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Core.Enums;
-using NUnit.Framework;
+//using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.MaterialProperty;
 
 
 public class PlateProperties2 : MonoBehaviour {
@@ -47,12 +46,12 @@ public class PlateProperties2 : MonoBehaviour {
             dir.y * normStrength.y,
             dir.z * normStrength.z
         ) * Mathf.Sqrt(2);
-        Debug.Log($"strength - {strength.sqrMagnitude} | newvec - {newVec.sqrMagnitude}");
+        //Debug.Log($"strength - {strength.sqrMagnitude} | newvec - {newVec.sqrMagnitude}");
         return newVec;
     }
 
-    void Awake() {
-        rb = GetComponent<Rigidbody>();
+    void OnEnable() {
+        //rb = GetComponent<Rigidbody>();
         tweenEnumerators = new Dictionary<string, TweenEnumerator>
         {
             ["localScale"] = new TweenEnumerator {
@@ -73,28 +72,49 @@ public class PlateProperties2 : MonoBehaviour {
             },
             ["position"] = new TweenEnumerator {
                 name = "position",
-                absoluteValue = rb.position,
+                absoluteValue = transform.position,
                 callback = (TweenEnumerator self, Vector3 value) => {
                     //rb.position = value;
                     transform.localPosition = value;
                     //rb.MovePosition(value);
+
                 }
             },
             ["rotation"] = new TweenEnumerator
             {
                 name = "rotation",
-                absoluteValue = rb.rotation.eulerAngles,
+                absoluteValue = transform.rotation.eulerAngles,
                 callback = (TweenEnumerator self, Vector3 value) =>
                 {
-                    rb.MoveRotation(Quaternion.Euler(value));
+                    transform.localRotation = Quaternion.Euler(value);
                 }
             }
         };
     }
     IEnumerator Run(TweenEnumerator enumerator) {
-        while (enumerator.activeInstances.Count > 0) {
+        //while (enumerator.activeInstances.Count > 0) {
+        //    enumerator.tempOffset = Vector3.zero;
+        //    for (int i = enumerator.activeInstances.Count - 1; i >= 0; i--){
+        //        TweenInstance tweenInst = enumerator.activeInstances[i];
+        //        tweenInst.tween.ManualUpdate(Time.deltaTime, Time.unscaledDeltaTime);
+        //        if (!tweenInst.isComplete) {
+        //            if (tweenInst.isRelative)
+        //                enumerator.tempOffset += tweenInst.value;
+        //            else
+        //                enumerator.absoluteValue = tweenInst.value;
+        //        }
+        //    }
+        //    Vector3 summation = enumerator.absoluteValue + enumerator.tempOffset + enumerator.permOffset;
+        //    enumerator.callback(enumerator, summation);
+        //    yield return null;
+        //}
+        //enumerator.enumerator = null;
+        yield break;
+    }
+    private void Update() {
+        foreach (var enumerator in tweenEnumerators.Values) {
             enumerator.tempOffset = Vector3.zero;
-            for (int i = enumerator.activeInstances.Count - 1; i >= 0; i--){
+            for (int i = enumerator.activeInstances.Count - 1; i >= 0; i--) {
                 TweenInstance tweenInst = enumerator.activeInstances[i];
                 tweenInst.tween.ManualUpdate(Time.deltaTime, Time.unscaledDeltaTime);
                 if (!tweenInst.isComplete) {
@@ -106,9 +126,7 @@ public class PlateProperties2 : MonoBehaviour {
             }
             Vector3 summation = enumerator.absoluteValue + enumerator.tempOffset + enumerator.permOffset;
             enumerator.callback(enumerator, summation);
-            yield return null;
         }
-        enumerator.enumerator = null;
     }
     private void FindTweenInList(string name, Func<TweenInstance, bool> check, out TweenInstance found) {
         found = null;
@@ -124,7 +142,7 @@ public class PlateProperties2 : MonoBehaviour {
     private void AddTweenToList(string name, TweenInstance tweenInstance) {
         //Debug.Log($"Adding tween to {name} list: {tweenInstance.name}");
         TweenEnumerator enumer = tweenEnumerators[name];
-        Assert.IsNotNull(enumer, $"No enumerator found for {name}");
+        //Assert.IsNotNull(enumer, $"No enumerator found for {name}");
         tweenInstance.tween.SetUpdate(UpdateType.Manual);
         enumer.activeInstances.Add(tweenInstance);
         if (!tweenInstance.isPermanent)
@@ -175,9 +193,9 @@ public class PlateProperties2 : MonoBehaviour {
         }, to, duration)
         .SetEase(easeMethod).SetLoops(2, LoopType.Yoyo)
         .SetTarget(transform).SetAutoKill(true);
-        AddTweenToList("position", tweenInstance);
         tweenInstance.tween.onComplete = () => CreateShakeTween(fromName, tweenInstance.strength, duration, easeMethod, true);
-        Debug.Log($"Creating shake tween {fromName} with strength {strength} to point {to}");
+        AddTweenToList("position", tweenInstance);
+        //Debug.Log($"Creating shake tween {fromName} with strength {strength} to point {to}");
     }
     public Tween CreateRelMoveTween(string fromName,
         Vector3 to, float time = 1f, Ease easeMethod = Ease.Linear) {

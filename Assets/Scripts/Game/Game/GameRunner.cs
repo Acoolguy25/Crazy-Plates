@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEditor.UIElements.ToolbarMenu;
 
 public class GameRunner : MonoBehaviour
 {
@@ -170,7 +169,7 @@ public class GameRunner : MonoBehaviour
             {
                 Vector3 pos = new Vector3(
                     x * (w + sep_x) - gridOffsetX,
-                    plateSize.y/2,
+                    0,
                     z * (h + sep_z) - gridOffsetZ
                 );
 

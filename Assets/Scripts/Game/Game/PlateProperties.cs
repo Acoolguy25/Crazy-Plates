@@ -87,7 +87,7 @@ public class PlateProperties : MonoBehaviour
         {
             time = computeTime(newPos, platePos);
         }
-        Debug.Log($"Setting plate position to {newPos}");
+        //Debug.Log($"Setting plate position to {newPos}");
         if (platePosTween_ != null)
         {
             time += Mathf.Max(0f, platePosTween_.Duration() - platePosTween_.Elapsed());
