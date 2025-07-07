@@ -19,9 +19,9 @@ public class CharacterControl : NetworkBehaviour
     private Rigidbody rootRigidbody;
 
     [Header("Character Components")]
-    private CharacterController characterController;
+    private Collider main_collider;
     private Animator charAnimator;
-    private ThirdPersonCharController thirdPersonController;
+    private CharMovement thirdPersonController;
     [Client]
     void Awake()
     {
@@ -32,17 +32,17 @@ public class CharacterControl : NetworkBehaviour
     void Start()
     {
         if (!isLocalPlayer) return;
-        characterController = GetComponent<CharacterController>();
+        main_collider = GetComponent<Collider>();
         charAnimator = GetComponent<Animator>();
         rootRigidbody = GetComponent<Rigidbody>();
-        thirdPersonController = GetComponent<ThirdPersonCharController>();
+        thirdPersonController = GetComponent<CharMovement>();
         charAnimator.keepAnimatorStateOnDisable = false;
 
         rigidBodies = transform.GetChild(0).GetComponentsInChildren<Rigidbody>();
         colliders = transform.GetChild(0).GetComponentsInChildren<Collider>();
         joints = GetComponentsInChildren<Joint>();
         
-        SetRagdoll(false);
+        SetRagdoll(false, true);
 
         mainCam = Camera.main;
         var vcam = mainCam.GetComponent<CinemachineCamera>();
@@ -63,18 +63,12 @@ public class CharacterControl : NetworkBehaviour
     {
         SetRagdoll(set);
     }
-    void SetRagdoll(bool ragdollActive)
+    void SetRagdoll(bool ragdollActive, bool started = false)
     {
-        if (isRagdoll == ragdollActive) return; // No change needed
-        if (ragdollActive)
-        {
-            charAnimator.enabled = false;
-            characterController.enabled = false;
-            thirdPersonController.enabled = false;
-        }
-        else
-        {
-        }
+        if (!started && isRagdoll == ragdollActive) return; // No change needed
+        thirdPersonController.enabled = !ragdollActive;
+        main_collider.enabled = !ragdollActive;
+        charAnimator.enabled = !ragdollActive;
         foreach (CharacterJoint joint in joints)
         {
             joint.enableCollision = ragdollActive;
@@ -88,14 +82,11 @@ public class CharacterControl : NetworkBehaviour
             rigidbody.linearVelocity = Vector3.zero;
             rigidbody.angularVelocity = Vector3.zero;
             rigidbody.detectCollisions = ragdollActive;
+            rigidbody.isKinematic = ragdollActive;
             rigidbody.useGravity = ragdollActive;
         }
         if (!ragdollActive)
         {
-            thirdPersonController.enabled = true;
-            characterController.enabled = true;
-            charAnimator.enabled = true;
-
             // Reset Animator state
             charAnimator.SetFloat("Speed", 0f);
             charAnimator.SetFloat("MotionSpeed", 0f);

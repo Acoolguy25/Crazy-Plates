@@ -73,8 +73,8 @@ public class GameRunner : MonoBehaviour
             yield return new WaitForSeconds(gameStartDelay);
         #endif
 
-        if (debugMode && !runGame)
-            yield break;
+        while (debugMode && !runGame)
+            yield return null;
         while (true){
         startOfLoop: while (transform.childCount == 0) {
                 GameEvents.Instance.GameMessage = new GameMessage(
@@ -91,7 +91,8 @@ public class GameRunner : MonoBehaviour
                         break;
                     yield return null;  
                 }
-                ushort platesAffected = (ushort)UnityEngine.Random.Range(selEvent.affectRange.Item1, selEvent.affectRange.Item2 + 1);
+                ushort percentage = (ushort) UnityEngine.Random.Range(selEvent.affectRange.Item1, selEvent.affectRange.Item2 + 1);
+                ushort platesAffected = (ushort) Mathf.Ceil((float) ServerProperties.Instance.PlayerCount * percentage / 100);
                 float variant = -69f;
                 if (selEvent.variantRange.Item3 != 0)
                     variant =

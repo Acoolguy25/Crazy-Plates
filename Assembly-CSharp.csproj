@@ -67,9 +67,11 @@
     <Compile Include="Assets\Scripts\Menu\LobbyRunner.cs" />
     <Compile Include="Assets\Scripts\Game\UI\GameCanvasMain.cs" />
     <Compile Include="Assets\Scripts\Game\Game\GameRunner.cs" />
+    <Compile Include="Assets\Scripts\Game\Server\ServerProperties.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\ThirdPersonController\Scripts\BasicRigidBodyPush.cs" />
     <Compile Include="Assets\QuickOutline\Scripts\Outline.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualJoystick.cs" />
+    <Compile Include="Assets\Scripts\Game\Character\CharMovement.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\CanvasInputs\UICanvasControllerInput.cs" />
     <Compile Include="Assets\Scripts\Game\UI\GameCanvasElems.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CharacterControl.cs" />
@@ -77,7 +79,6 @@
     <Compile Include="Assets\Scripts\Debug\DebugCharacter.cs" />
     <Compile Include="Assets\Scripts\Game\Game\Events.cs" />
     <Compile Include="Assets\Scripts\Menu\LobbyUI.cs" />
-    <Compile Include="Assets\Scripts\Game\Game\PlateConf.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\Utilities\MobileDisableAutoSwitchControls.cs" />
     <Compile Include="Assets\Scripts\Game\Events\Elevator.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualTouchZone.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Assets\UnityTechnologies\StarterAssets\InputSystem\StarterAssetsInputs.cs" />
     <Compile Include="Assets\Scripts\Game\GameEvents.cs" />
     <Compile Include="Assets\Scripts\Game\Network\CustomNetworkManager.cs" />
+    <Compile Include="Assets\Scripts\Game\Game\PlateAddableProperties.cs" />
     <Compile Include="Assets\Scripts\Game\Character\OldMovementControl.cs" />
     <Compile Include="Assets\Scripts\Game\Game\PlateProperties.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CameraController.cs" />

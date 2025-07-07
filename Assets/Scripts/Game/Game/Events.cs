@@ -65,10 +65,10 @@ public class Events : MonoBehaviour
                 eventColor = EventColor.green,
                 displayText = "linearly expand by {0} {1}",
                 description = "The plate increases in size.",
-                gameMultiplier = 4, debugMultiplier = 40,
-                affectRange = new Tuple<ushort, ushort>(1, 3),
+                gameMultiplier = 20, debugMultiplier = 40,
+                affectRange = new Tuple<ushort, ushort>(30, 50),
                 displayUnits = new Tuple<string, string>("meter", "meters"),
-                variantRange = new Tuple<ushort, ushort, ushort>(2, 8, 4),
+                variantRange = new Tuple<ushort, ushort, ushort>(2, 8, 10),
                 Activate = (GameEvent self, GameObject target, float variant) =>
                 {
                     PlateProperties2 prop = target.GetComponent<PlateProperties2>();
@@ -83,7 +83,7 @@ public class Events : MonoBehaviour
                 eventColor = EventColor.red,
                 displayText = "linearly shrink by {0} {1}",
                 description = "The plate decreases in size along the horizontal axes.",
-                gameMultiplier = 4, debugMultiplier = 0,
+                gameMultiplier = 30, debugMultiplier = 0,
                 affectRange = new Tuple<ushort, ushort>(1, 3),
                 displayUnits = new Tuple<string, string>("meter", "meters"),
                 variantRange = new Tuple<ushort, ushort, ushort>(4, 12, 4),
@@ -102,7 +102,7 @@ public class Events : MonoBehaviour
                 displayText = "grow tall by {0} {1}",
                 description = "The plate increases in height along the vertical axis.",
                 gameMultiplier = 4, debugMultiplier = 40,
-                affectRange = new Tuple<ushort, ushort>(1, 3),
+                affectRange = new Tuple<ushort, ushort>(10, 30),
                 displayUnits = new Tuple<string, string>("meter", "meters"),
                 variantRange = new Tuple<ushort, ushort, ushort>(4, 12, 4),
                 Activate = (GameEvent self, GameObject target, float variant) =>
@@ -124,15 +124,17 @@ public class Events : MonoBehaviour
                 displayText = "start dancing with a shake of x{0} {1}",
                 description = "The plate shakes continuously in the horizontal axes.",
                 gameMultiplier = 4, debugMultiplier = 40,
-                affectRange = new Tuple<ushort, ushort>(1, 3),
+                affectRange = new Tuple<ushort, ushort>(10, 30),
                 displayUnits = new Tuple<string, string>("magnitude", "magnitude"),
-                variantRange = new Tuple<ushort, ushort, ushort>(3, 6, 4),
+                variantRange = new Tuple<ushort, ushort, ushort>(1, 4, 10),
                 Activate = (GameEvent self, GameObject target, float variant) =>
                 {
                     //PlateProperties prop = target.GetComponent<PlateProperties>();
                     //prop.setPlateShake(prop.plateShake + new Vector3(variant/4, 0, variant/4));
                     PlateProperties2 prop = target.GetComponent<PlateProperties2>();
-                    prop.CreateShakeTween(self.name, new Vector3(variant*4, 0, variant*4));
+                    prop.CreateShakeTween(self.name, new Vector3(variant, 0, variant),
+                        delayRange: new Tuple<float, float>(0.005f, 0.0125f)
+                    );
                 }
             },
             new GameEvent // idx 4
@@ -143,7 +145,7 @@ public class Events : MonoBehaviour
                 displayText = "spin at a rate of {0} {1}",
                 description = "The plate spins continuously in the horizontal direction.",
                 gameMultiplier = 4, debugMultiplier = 40,
-                affectRange = new Tuple<ushort, ushort>(1, 3),
+                affectRange = new Tuple<ushort, ushort>(10, 30),
                 displayUnits = new Tuple<string, string>("rpm", "rpm"),
                 variantRange = new Tuple<ushort, ushort, ushort>(5, 15, 1),
                 Activate = (GameEvent self, GameObject target, float variant) =>
@@ -164,7 +166,7 @@ public class Events : MonoBehaviour
                 displayText = "flip at a rate of {0} {1}",
                 description = "The plate spins continuously in the horizontal direction.",
                 gameMultiplier = 4, debugMultiplier = 40,
-                affectRange = new Tuple<ushort, ushort>(1, 3),
+                affectRange = new Tuple<ushort, ushort>(10, 30),
                 displayUnits = new Tuple<string, string>("rpm", "rpm"),
                 variantRange = new Tuple<ushort, ushort, ushort>(12, 23, 1),
                 Activate = (GameEvent self, GameObject target, float variant) =>
@@ -188,7 +190,7 @@ public class Events : MonoBehaviour
                 displayText = "become an elevator",
                 description = "Elevator cycles through 2–6 floors.",
                 gameMultiplier = 4, debugMultiplier = 40,
-                affectRange = new Tuple<ushort, ushort>(1, 3),
+                affectRange = new Tuple<ushort, ushort>(10, 30),
                 displayUnits = new Tuple<string, string>("rpm", "rpm"),
                 variantRange = new Tuple<ushort, ushort, ushort>(1, 10, 2),
                 Activate = (GameEvent self, GameObject target, float variant) =>
@@ -196,8 +198,44 @@ public class Events : MonoBehaviour
                     Elevator elev = target.GetOrAddComponent<Elevator>();
                     elev.floors = (ushort) 
                         Math.Min(6, elev.floors + UnityEngine.Random.Range(2, 6)); // Random number of floors between 2 and 5
+                    //elev.floors = 2;
                     elev.SetValues(elev.deltaElevation + variant,
                         elev.speedPerSecond + variant);
+                }
+            },
+            new GameEvent // idx 7
+            {
+                name = "Unstable",
+                eventType = EventType.Plate,
+                eventColor = EventColor.red,
+                displayText = "become unstable",
+                description = "The will rotate based on physics",
+                gameMultiplier = 0, debugMultiplier = 0,
+                affectRange = new Tuple<ushort, ushort>(10, 30),
+                displayUnits = new Tuple<string, string>("rpm", "rpm"),
+                variantRange = new Tuple<ushort, ushort, ushort>(1, 10, 0),
+                Activate = (GameEvent self, GameObject target, float variant) =>
+                {
+                    PlateProperties2 prop = target.GetComponent<PlateProperties2>();
+                    prop.SetPlateUnstable(true, prop.stability / 1.1f);
+                }
+            },
+            new GameEvent // idx 8
+            {
+                name = "Lava Spinner",
+                eventType = EventType.Plate,
+                eventColor = EventColor.red,
+                displayText = "get a lava spinner",
+                description = "A lava beam will spin across the top of the plate",
+                gameMultiplier = 0, debugMultiplier = 0,
+                affectRange = new Tuple<ushort, ushort>(10, 30),
+                displayUnits = new Tuple<string, string>("rpm", "rpm"),
+                variantRange = new Tuple<ushort, ushort, ushort>(1, 10, 0),
+                Activate = (GameEvent self, GameObject target, float variant) =>
+                {
+                    PlateProperties2 prop = target.GetComponent<PlateProperties2>();
+                    Transform orgObj = Resources.Load<GameObject>("Game/Events/LavaSpinner").transform;
+                    prop.InsertPlateAddable(orgObj);
                 }
             }
         };
@@ -224,11 +262,13 @@ public class Events : MonoBehaviour
         if (debugEventNo.Length > 0)
         {
             short eventNO = debugEventNo[(debugEventIndex) % debugEventNo.Length];
-            if (eventNO < 0) {
-                return null;
+            if (eventNO != -2) {
+                if (eventNO < 0) {
+                    return null;
+                }
+                debugEventIndex++;
+                return events[eventNO];
             }
-            debugEventIndex++;
-            return events[eventNO];
         }
         int rand = UnityEngine.Random.Range(0, totalWeight);
 

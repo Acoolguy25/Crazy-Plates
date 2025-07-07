@@ -37,8 +37,11 @@ public class Elevator : MonoBehaviour
             do
             {
                 tween = MoveYBy(cur_floor * deltaElevation - currentElevation);
-                yield return tween.WaitForKill();
-            } while (tween == null);
+                if (tween != null)
+                    yield return tween.WaitForKill();
+                else
+                    break;
+            } while (true);
             yield return new WaitForSeconds(UnityEngine.Random.Range(1f, 4f));
             if (cur_floor == 0 && !upDirection)
             {
