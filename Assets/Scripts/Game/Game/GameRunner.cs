@@ -73,10 +73,10 @@ public class GameRunner : MonoBehaviour
             yield return new WaitForSeconds(gameStartDelay);
         #endif
 
-        while (debugMode && !runGame)
-            yield return null;
         while (true){
-        startOfLoop: while (transform.childCount == 0) {
+        startOfLoop: while (debugMode && !runGame)
+                yield return null;
+            while (transform.childCount == 0) {
                 GameEvents.Instance.GameMessage = new GameMessage(
                     "No Plates Found!", 0d);
                 GameEvents.Instance.DescMessage = "Good luck surviving";

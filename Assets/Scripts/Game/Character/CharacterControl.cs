@@ -82,7 +82,7 @@ public class CharacterControl : NetworkBehaviour
             rigidbody.linearVelocity = Vector3.zero;
             rigidbody.angularVelocity = Vector3.zero;
             rigidbody.detectCollisions = ragdollActive;
-            rigidbody.isKinematic = ragdollActive;
+            rigidbody.isKinematic = !ragdollActive;
             rigidbody.useGravity = ragdollActive;
         }
         if (!ragdollActive)

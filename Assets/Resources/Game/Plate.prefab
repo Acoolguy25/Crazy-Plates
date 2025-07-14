@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7466008188644173414}
   - component: {fileID: 2168263728637886486}
   - component: {fileID: 3687893236585470879}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Render
   m_TagString: Plate
   m_Icon: {fileID: 0}
@@ -66,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 6897366fd511dfb468db0c57e15b8067, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -152,7 +152,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4570453694161463397}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PositionAddables
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -185,7 +185,7 @@ GameObject:
   - component: {fileID: 865548197192391323}
   - component: {fileID: 3447961234640397420}
   - component: {fileID: 7267170613638559035}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Physics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -279,7 +279,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1327569687545428618}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Rotation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -312,7 +312,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5928030020264322383}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RotationAddables
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -343,7 +343,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4770189700239443397}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PhysicsAddables
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -378,7 +378,7 @@ GameObject:
   - component: {fileID: 1858065568063066759}
   - component: {fileID: 7701455319190225923}
   - component: {fileID: 1367075662236616008}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Plate
   m_TagString: Plate
   m_Icon: {fileID: 0}

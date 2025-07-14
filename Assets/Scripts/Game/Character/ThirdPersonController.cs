@@ -21,6 +21,8 @@ public class ThirdPersonController : MonoBehaviour
     private float forceScroll;
     public InputAction rightClick;
     public InputAction scrollWheel;
+    private bool isRotating = false;
+    private Vector2 cursor_pos;
 
     private LayerMask layerMask;
     void Start()
@@ -49,21 +51,34 @@ public class ThirdPersonController : MonoBehaviour
         rightClick.Disable();
         scrollWheel.Disable();
     }
+    void ToggleRightClick(bool newVal) {
+        isRotating = newVal;
+        cinemachineInputAxisController.enabled = newVal;
+        Cursor.lockState = newVal ? CursorLockMode.Confined : CursorLockMode.None;
+        Cursor.visible = !newVal;
+        //Mouse.current.position.value;
+        cursor_pos = Mouse.current.position.value;
+    }
     void OnRightClick(InputAction.CallbackContext context)
     {
-        cinemachineInputAxisController.enabled = true;
+        ToggleRightClick(true);
     }
     void OnRightClickRelease(InputAction.CallbackContext context)
     {
-        cinemachineInputAxisController.enabled = false;
+        ToggleRightClick(false);
     }
     void Update()
     {
         UpdateCameraZoom();
+        if (isRotating)
+            SetCameraPos();
+    }
+    void SetCameraPos() {
+        Mouse.current.WarpCursorPosition(cursor_pos);
     }
     void UpdateCameraZoom(bool started = false) { 
         if (cinemachineCamera.Follow == null) return;
-        float zoomDelta = Time.deltaTime * scrollWheel.ReadValue<float>() * ZoomMultiplier;
+        float zoomDelta = scrollWheel.ReadValue<float>() * ZoomMultiplier;
         if (zoomDelta != 0)
         {
             newScroll += zoomDelta;

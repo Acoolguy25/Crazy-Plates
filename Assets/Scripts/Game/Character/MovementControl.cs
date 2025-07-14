@@ -33,10 +33,15 @@ public class MovementControl : MonoBehaviour {
             IsGrounded = false;
             return;
         }
+        //else if (true) {
+        //    IsGrounded = true;
+        //    followInstance = null;
+        //    return;
+        //}
         // Calculate vertical speed manually since there's no Rigidbody
         float platformVerticalSpeed = 0f;
         if (followInstance != null) {
-            platformVerticalSpeed = Mathf.Abs((followInstance.position.y - lastFollowPos.y) / Time.fixedDeltaTime);
+            platformVerticalSpeed = 1.5f * Mathf.Abs((followInstance.position.y - lastFollowPos.y) * Time.fixedDeltaTime * 50f);
         }
 
         Vector3 targetPosition = ApplyPlatformMotion();
@@ -48,13 +53,14 @@ public class MovementControl : MonoBehaviour {
             0.05f,
             boxCollider.size.z * transform.lossyScale.z * 0.9f
         );
-
         // Dynamic parameters based on speed
-        float offsetUp = Mathf.Clamp(0.3f + platformVerticalSpeed, 0.1f, 6.0f);       // e.g. from 0.1 to 1.0
+        float offsetUp = Mathf.Clamp(0.3f + platformVerticalSpeed/2, 0.1f, 6.0f);       // e.g. from 0.1 to 1.0
         float castDistance = Mathf.Clamp(0.45f + platformVerticalSpeed, 0.45f, 12.0f); // e.g. from 0.65 to 2.0
 
-        Vector3 boxCenter = targetPosition + boxCollider.center - Vector3.up * bounds.size.y / 2
+        Vector3 boxCenter = targetPosition + boxCollider.center - Vector3.up * (boxCollider.size.y * 0.5f - 0.025f)
             + Vector3.up * offsetUp;
+
+        //Debug.Log($"Platform vertical speed: {platformVerticalSpeed}, up {offsetUp} x{castDistance}");
 
         RaycastHit hit;
         IsGrounded = Physics.BoxCast(
@@ -70,7 +76,7 @@ public class MovementControl : MonoBehaviour {
 
 #if UNITY_EDITOR
         // Draw the cast box
-        DrawBoxCast(boxCenter, boxSize, Color.red, castDistance);
+        DrawBoxCast(boxCenter, boxSize, rb.rotation, Color.red, castDistance);
 #endif
         // Update follow instance
         Transform newFollow = null;
@@ -137,10 +143,9 @@ public class MovementControl : MonoBehaviour {
         return newPosition;
     }
 #if UNITY_EDITOR
-    void DrawBoxCast(Vector3 center, Vector3 size, Color color, float castDistance) {
+    void DrawBoxCast(Vector3 center, Vector3 size, Quaternion rotation, Color color, float castDistance) {
         Vector3 halfExtents = size * 0.5f;
         Vector3[] corners = new Vector3[8];
-        Quaternion rotation = Quaternion.identity;
 
         // Calculate the 8 corners of the box
         for (int i = 0; i < 8; i++) {
