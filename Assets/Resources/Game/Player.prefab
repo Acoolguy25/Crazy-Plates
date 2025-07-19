@@ -1480,7 +1480,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
@@ -1519,7 +1519,7 @@ MonoBehaviour:
   FootstepAudioVolume: 0.05
   JumpHeight: 3.5
   Gravity: -18
-  JumpTimeout: 0
+  JumpTimeout: 0.5
   FallTimeout: 0.4
   Grounded: 1
 --- !u!114 &4052442500363247711
@@ -1569,13 +1569,13 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.3, y: 1.85, z: 0.2}
+  m_Size: {x: 0.35, y: 1.85, z: 0.35}
   m_Center: {x: 0, y: 0.93, z: 0}
 --- !u!1 &4072265639379859564
 GameObject:

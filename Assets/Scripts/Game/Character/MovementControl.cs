@@ -62,17 +62,16 @@ public class MovementControl : MonoBehaviour {
 
         //Debug.Log($"Platform vertical speed: {platformVerticalSpeed}, up {offsetUp} x{castDistance}");
 
-        RaycastHit hit;
-        IsGrounded = Physics.BoxCast(
+        RaycastHit[] hits = Physics.BoxCastAll(
             boxCenter,
             boxSize * 0.5f,
             Vector3.down,
-            out hit,
             rb.rotation,
             castDistance,
             layerMask,
             QueryTriggerInteraction.Ignore
         );
+        IsGrounded = hits.Length > 0;
 
 #if UNITY_EDITOR
         // Draw the cast box
@@ -80,9 +79,16 @@ public class MovementControl : MonoBehaviour {
 #endif
         // Update follow instance
         Transform newFollow = null;
-        if (IsGrounded && hit.collider.CompareTag("Plate")) {
-            newFollow = hit.collider.transform;
+
+        foreach (RaycastHit hit in hits) {
+            if (IsGrounded && hit.collider.CompareTag("Plate")) {
+                newFollow = hit.collider.transform;
+                if (newFollow == followInstance) {
+                    return; // Already following this platform
+                }
+            }
         }
+        
 
         if (newFollow != followInstance) {
             if (newFollow == null && noTouchingCount < 5) {
