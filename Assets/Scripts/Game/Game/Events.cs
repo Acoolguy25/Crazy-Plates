@@ -132,7 +132,7 @@ public class Events : MonoBehaviour
                     //PlateProperties prop = target.GetComponent<PlateProperties>();
                     //prop.setPlateShake(prop.plateShake + new Vector3(variant/4, 0, variant/4));
                     PlateProperties2 prop = target.GetComponent<PlateProperties2>();
-                    prop.CreateShakeTween(self.name, new Vector3(variant, 0, variant),
+                    prop.CreateShakeTween(self.name, prop.shakeStrength + new Vector3(variant, 0, variant),
                         delayRange: new Tuple<float, float>(0.005f, 0.0125f)
                     );
                 }

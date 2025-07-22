@@ -4,6 +4,7 @@ using Mirror;
 
 public class LobbyRunner : MonoBehaviour
 {
+    public GameRunner gameRunner;
     public Transform moon;
     public Transform planet;
 
@@ -15,6 +16,8 @@ public class LobbyRunner : MonoBehaviour
     }
     void Start()
     {
-        NetworkManager.singleton.StartHost();
+        //NetworkManager.singleton.StartHost();
+        //StartCoroutine(gameRunner.runGame());
+        gameRunner.StartGame();
     }
 }

@@ -29,7 +29,7 @@ public class GameEvents : NetworkBehaviour
         DontDestroyOnLoad(gameObject); // Optional: persist between scenes
     }
     [Client]
-    public void OnClientBegin()
+    public virtual void OnClientBegin()
     {
         if (!isLocalPlayer) return;
         OnNewGameMessage(GameMessage, GameMessage);
@@ -40,12 +40,14 @@ public class GameEvents : NetworkBehaviour
     public GameMessage GameMessage = new GameMessage( "", 0d );
     [SyncVar(hook = nameof(OnDescMessageChanged))]
     public string DescMessage = "";
-    void OnNewGameMessage(GameMessage _, GameMessage newString)
+    public virtual void OnNewGameMessage(GameMessage _, GameMessage newString)
     {
-        StartCoroutine(gameCanvasMain.UpdateTopBar(newString));
+        if (gameCanvasMain)
+            StartCoroutine(gameCanvasMain.UpdateTopBar(newString));
     }
-    void OnDescMessageChanged(string _, string newString)
+    public virtual void OnDescMessageChanged(string _, string newString)
     {
-        gameCanvasMain.UpdateDescBar(newString);
+        if (gameCanvasMain)
+            gameCanvasMain.UpdateDescBar(newString);
     }
 }

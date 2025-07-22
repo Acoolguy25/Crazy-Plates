@@ -29,6 +29,7 @@ public class GameRunner : MonoBehaviour
     public bool runGame = true; // Whether to run the game automatically
     public int debugFrameRate = -1;
     private float TimeBetweenEvents;
+    public bool activeServer;
     string GetDescMessage(string[] messages, ushort length) {
         string retStr = string.Empty;
         ushort messagesLength = (ushort)messages.Length;
@@ -65,7 +66,8 @@ public class GameRunner : MonoBehaviour
     }
     IEnumerator RunGame()
     {
-        yield return new WaitUntil(() => NetworkServer.active && NetworkTime.time > 0);
+        if (activeServer)
+            yield return new WaitUntil(() => NetworkServer.active && NetworkTime.time > 0);
         #if !UNITY_EDITOR
             GameEvents.Instance.GameMessage = new GameMessage(
                 "Game will begin in {0}",
@@ -101,10 +103,12 @@ public class GameRunner : MonoBehaviour
 
                 string typeText = selEvent.eventType == EventType.Plate ? "plates" : selEvent.eventType == EventType.Player ? "players" : "the world";
                 //Debug.Log($"{platesAffected} {typeText} will {string.Format(selEvent.displayText, variant, variant == 1 ? selEvent.displayUnits.Item1 : selEvent.displayUnits.Item2)}");
-                GameEvents.Instance.GameMessage = new GameMessage(
-                $"{platesAffected} {typeText} will {string.Format(selEvent.displayText, variant, variant == 1 ? selEvent.displayUnits.Item1 : selEvent.displayUnits.Item2)}" + " in {0}",
-                NetworkTime.time + TimeBetweenEvents);
-                GameEvents.Instance.DescMessage = selEvent.description;
+                if (activeServer) {
+                    GameEvents.Instance.GameMessage = new GameMessage(
+                    $"{platesAffected} {typeText} will {string.Format(selEvent.displayText, variant, variant == 1 ? selEvent.displayUnits.Item1 : selEvent.displayUnits.Item2)}" + " in {0}",
+                    NetworkTime.time + TimeBetweenEvents);
+                    GameEvents.Instance.DescMessage = selEvent.description;
+                }
                 yield return new WaitForSeconds(TimeBetweenEvents);
                 string[] targets = new string[platesAffected];
                 for (ushort i = 0; i < platesAffected; i++)
@@ -125,24 +129,27 @@ public class GameRunner : MonoBehaviour
                     if (plate && plate.transform.parent != null)
                         selEvent.Activate(selEvent, plate, variant);
                     if (!allEventsAtOnce){
-                        GameEvents.Instance.DescMessage = GetDescMessage(targets, platesAffected);
+                        if (activeServer)
+                            GameEvents.Instance.DescMessage = GetDescMessage(targets, platesAffected);
                         yield return new WaitForSeconds(0.65f);
                     }
                 }
                 if (allEventsAtOnce) {
-                    GameEvents.Instance.DescMessage = GetDescMessage(targets, platesAffected);
+                    if (activeServer)
+                        GameEvents.Instance.DescMessage = GetDescMessage(targets, platesAffected);
                     yield return new WaitForSeconds(0.5f);
                 }
                 else
                     yield return new WaitForSeconds(0.3f);
-                GameEvents.Instance.DescMessage += ".";
+                if (activeServer)
+                    GameEvents.Instance.DescMessage += ".";
                 yield return new WaitForSeconds(0.5f);
             }
         }
     }
-    [Server]
     public void StartGame()
     {
+        activeServer = NetworkServer.active;
         if (platePrefab == null)
         {
             Debug.LogError("Plate prefab is not assigned.");
@@ -176,7 +183,8 @@ public class GameRunner : MonoBehaviour
 
                 GameObject plate = Instantiate(platePrefab, pos, Quaternion.identity, transform);
                 plate.name = $"Plate_{++plateCount}";
-                NetworkServer.Spawn(plate);
+                if (activeServer)
+                    NetworkServer.Spawn(plate);
             }
         }
 

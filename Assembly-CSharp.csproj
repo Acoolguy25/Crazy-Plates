@@ -73,6 +73,7 @@
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualJoystick.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CharMovement.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\CanvasInputs\UICanvasControllerInput.cs" />
+    <Compile Include="Assets\Scripts\Menu\LobbyEvents.cs" />
     <Compile Include="Assets\Scripts\Game\UI\GameCanvasElems.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CharacterControl.cs" />
     <Compile Include="Assets\Scripts\Game\Character\ThirdPersonController.cs" />

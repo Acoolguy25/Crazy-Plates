@@ -1,38 +1,45 @@
 using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Core.Enums;
+using Mirror;
 //using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static PlateProperties2.PlateAddable;
-using static UnityEngine.Rendering.DebugUI;
-using Mirror;
 
 
 public class PlateProperties2 : NetworkBehaviour {
-
+    private class CustomTweenParams {
+        [SyncVar] public Ease ease;
+        [SyncVar] public int loops;
+        [SyncVar] public LoopType loopType;
+        [SyncVar] public Vector3 strength = Vector3.zero;
+    }
     private class TweenInstance {
-        public string name = "<unk>";
+        [SyncVar] public string name = "<unk>";
         public Tween tween;
         public Vector3 value = Vector3.zero;
-        public bool isRelative = true;
-        public bool isComplete => tween == null || !tween.IsActive() || !tween.IsPlaying();
-        public Vector3 strength = Vector3.zero;
-        public bool isPermanent = false;
+        [SyncVar] public CustomTweenParams tweenParams;
+        [SyncVar] public bool isRelative = true;
+        [SyncVar] public Vector3 goal;
+        [SyncVar] public double startTime;
+        [SyncVar] public float duration;
+
+        public Action onFinished;
     };
     private class TweenEnumerator {
         public string name;
         //public Coroutine enumerator = null;
-        public List<TweenInstance> activeInstances = new List<TweenInstance>();
+        public SyncList<TweenInstance> activeInstances = new();
         public Action<TweenEnumerator, Vector3, Vector3> callback;
         public Vector3 absoluteValue;
         public Vector3 tempOffset = Vector3.zero;
-        public Vector3 permOffset = Vector3.zero;
+        [SyncVar] public Vector3 permOffset = Vector3.zero;
         public Vector3 prevValue = Vector3.zero;
     };
     private Dictionary<Transform, PlateAddable> addables_list = new();
+    public Vector3 shakeStrength { get; private set; } = Vector3.zero;
     public Transform[] addable_containers;
     public class PlateAddable {
         public PlateAddable(Transform trans, Vector3 scalePos, Vector3 offsetPos, PlateAddableType new_type) {
@@ -62,25 +69,26 @@ public class PlateProperties2 : NetworkBehaviour {
                 + scalePosition.y * Vector3.up * transform.localScale.y;
         }
     }
-    [Server]
     public void InsertPlateAddable(PlateAddable addable) {
         addables_list.Add(addable.transform, addable);
         addable.transform.SetParent((Transform) addable_containers.GetValue((int) addable.type));
         addable.Update(tweenEnumerators["localScale"].absoluteValue);
-        NetworkServer.Spawn(addable.transform.gameObject);
+        if (NetworkServer.active)
+            NetworkServer.Spawn(addable.transform.gameObject);
     }
-    [Server]
     public void InsertPlateAddable(Transform newTrans) {
         Transform instance = Instantiate(newTrans);
         PlateAddable addable = new(instance);
         InsertPlateAddable(addable);
     }
-    [Server]
     public void RemovePlateAddable(PlateAddable addable, bool delete = true) {
         addables_list.Remove(addable.transform);
         if (delete) {
             Destroy(addable.transform);
         }
+    }
+    private double GetNetworkTime() {
+        return (NetworkServer.active || NetworkClient.active) ? NetworkTime.time : Time.timeAsDouble;
     }
     private Rigidbody rb;
     public Rigidbody physics_rb;
@@ -113,7 +121,41 @@ public class PlateProperties2 : NetworkBehaviour {
         rb.mass = value.x * value.y * value.z * mass_density;
         physics_rb.mass = rb.mass * stability;
     }
+    private void TweenCompleted(TweenEnumerator tweenEnum, TweenInstance tweenInstance) {
+        if (tweenInstance.tweenParams.loopType != LoopType.Yoyo) {
+            if (tweenInstance.isRelative)
+                tweenEnum.permOffset += tweenInstance.goal;
+            else
+                tweenEnum.absoluteValue = tweenInstance.goal;
+        }
 
+        if (!isClient) {
+            tweenEnum.activeInstances.Remove(tweenInstance);
+            tweenInstance.onFinished?.Invoke();
+        }
+        tweenInstance.tween = null;
+    }
+    void OnAddToSyncList(TweenEnumerator tweenEnum, TweenInstance tweenInstance) {
+        CustomTweenParams my_params = tweenInstance.tweenParams;
+        float timeProgressed = (float)(GetNetworkTime() - tweenInstance.startTime);
+        tweenInstance.tween = DOTween.To(() => tweenInstance.value, delegate (Vector3 x) {
+            tweenInstance.value = x;
+        }, tweenInstance.goal, tweenInstance.duration)
+        .SetEase(my_params.ease).SetLoops(my_params.loops, my_params.loopType)
+        .SetTarget(transform).SetAutoKill(true)
+        .SetUpdate(UpdateType.Manual)
+        .OnComplete(() => TweenCompleted(tweenEnum, tweenInstance));
+        //Debug.Log($"Adding tween {tweenInstance.name} to {tweenEnum.name} list with duration" +
+            //$"{tweenInstance.duration}, timeProgressed {timeProgressed}");
+        if (timeProgressed < 0)
+            tweenInstance.tween.SetDelay(-timeProgressed);
+        else
+            tweenInstance.tween.ManualUpdate(timeProgressed, timeProgressed);
+    }
+    [Client]
+    void OnAddToSyncListClient(TweenEnumerator tweenEnum, TweenInstance tweenInstance) {
+        OnAddToSyncList(tweenEnum, tweenInstance);
+    }
     void Start() {
         rb = GetComponent<Rigidbody>();
         tweenEnumerators = new Dictionary<string, TweenEnumerator>
@@ -170,124 +212,74 @@ public class PlateProperties2 : NetworkBehaviour {
             tweenEnum.callback(tweenEnum, tweenEnum.absoluteValue, tweenEnum.prevValue);
             tweenEnum.prevValue = tweenEnum.absoluteValue;
             //}
+            if (isClient) {
+                tweenEnum.activeInstances.OnAdd += ((int idx) => {
+                    //Debug.Log($"Adding tween {tweenInstance.name} to {tweenEnum.name} list");
+                    OnAddToSyncList(tweenEnum, tweenEnum.activeInstances[idx]);
+                });
+                foreach (TweenInstance tweenInstance in tweenEnum.activeInstances) {
+                    //Debug.Log($"Adding existing tween {tweenInstance.name} to {tweenEnum.name} list");
+                    OnAddToSyncList(tweenEnum, tweenInstance);
+                }
+            }
         }
-    }
-    IEnumerator Run(TweenEnumerator enumerator) {
-        //while (enumerator.activeInstances.Count > 0) {
-        //    enumerator.tempOffset = Vector3.zero;
-        //    for (int i = enumerator.activeInstances.Count - 1; i >= 0; i--){
-        //        TweenInstance tweenInst = enumerator.activeInstances[i];
-        //        tweenInst.tween.ManualUpdate(Time.deltaTime, Time.unscaledDeltaTime);
-        //        if (!tweenInst.isComplete) {
-        //            if (tweenInst.isRelative)
-        //                enumerator.tempOffset += tweenInst.value;
-        //            else
-        //                enumerator.absoluteValue = tweenInst.value;
-        //        }
-        //    }
-        //    Vector3 summation = enumerator.absoluteValue + enumerator.tempOffset + enumerator.permOffset;
-        //    enumerator.callback(enumerator, summation);
-        //    yield return null;
-        //}
-        //enumerator.enumerator = null;
-        yield break;
     }
     private void FixedUpdate() {
         foreach (var enumerator in tweenEnumerators.Values) {
             enumerator.tempOffset = Vector3.zero;
             for (int i = enumerator.activeInstances.Count - 1; i >= 0; i--) {
                 TweenInstance tweenInst = enumerator.activeInstances[i];
-                tweenInst.tween.ManualUpdate(Time.fixedDeltaTime, Time.fixedUnscaledDeltaTime);
-                if (!tweenInst.isComplete) {
-                    if (tweenInst.isRelative)
-                        enumerator.tempOffset += tweenInst.value;
-                    else
-                        enumerator.absoluteValue = tweenInst.value;
+                if (isClient) {
+                    tweenInst.tween.ManualUpdate(Time.fixedDeltaTime, Time.fixedUnscaledDeltaTime);
+                    if (tweenInst.tween != null) {
+                        if (tweenInst.isRelative)
+                            enumerator.tempOffset += tweenInst.value;
+                        else
+                            enumerator.absoluteValue = tweenInst.value;
+                    }
+                }
+                else {
+                    if (tweenInst.duration * tweenInst.tweenParams.loops + tweenInst.startTime < GetNetworkTime()) {
+                        enumerator.activeInstances.RemoveAt(i);
+                        continue;
+                    }
                 }
             }
-            Vector3 summation = enumerator.absoluteValue + enumerator.tempOffset + enumerator.permOffset;
-            if (enumerator.prevValue != summation) {
-                enumerator.callback(enumerator, summation, enumerator.prevValue);
-                enumerator.prevValue = summation;
-            }
-        }
-    }
-    //private void FixedUpdate() {
-        //rotation_rb.transform.localPosition = Vector3.zero;
-    //}
-    private void FindTweenInList(string name, Func<TweenInstance, bool> check, out TweenInstance found) {
-        found = null;
-        List<TweenInstance> checkList = tweenEnumerators[name].activeInstances;
-        for (int i = checkList.Count - 1; i >= 0; i--) {
-            TweenInstance tweenInst = checkList[i];
-            if (check(tweenInst)) {
-                found = tweenInst;
-                return;
+            if (isClient) {
+                Vector3 summation = enumerator.absoluteValue + enumerator.tempOffset + enumerator.permOffset;
+                if (enumerator.prevValue != summation) {
+                    enumerator.callback(enumerator, summation, enumerator.prevValue);
+                    enumerator.prevValue = summation;
+                }
             }
         }
     }
     private void AddTweenToList(string name, TweenInstance tweenInstance) {
         //Debug.Log($"Adding tween to {name} list: {tweenInstance.name}");
         TweenEnumerator enumer = tweenEnumerators[name];
-        //Assert.IsNotNull(enumer, $"No enumerator found for {name}");
-        tweenInstance.tween.SetUpdate(UpdateType.Manual);
         enumer.activeInstances.Add(tweenInstance);
-        if (!tweenInstance.isPermanent)
-            tweenInstance.tween.OnComplete(() => {
-                //tweenInstance.tween.Kill();
-                RemoveTweenFromList(name, (theirInstance) => theirInstance == tweenInstance);
-                enumer.permOffset += tweenInstance.value;
-            });
-        //if (enumer.enumerator == null) {
-            //enumer.enumerator = StartCoroutine(Run(enumer));
-        //}
-    }
-    private void RemoveTweenFromList(string name, Func<TweenInstance, bool> check) {
-        List<TweenInstance> checkList = tweenEnumerators[name].activeInstances;
-        for (int i = checkList.Count - 1; i >= 0; i--) {
-            TweenInstance tweenInst = checkList[i];
-            if (check(tweenInst)) {
-                tweenInst.tween.Kill();
-                tweenEnumerators[name].activeInstances.Remove(tweenInst);
-            }
-        }
+        if (!NetworkServer.active)
+            OnAddToSyncList(enumer, tweenInstance);
     }
     public void CreateShakeTween(string fromName,
-        Vector3 strength, float duration = 0.3f, Tuple<float, float> delayRange = null, bool forceStart = false) {
-        bool doBreak = false;
-        RemoveTweenFromList("position", (TweenInstance theirInstance) =>
-        {
-            if (theirInstance.name == fromName) {
-                if (!forceStart) {
-                    theirInstance.strength += strength;
-                    doBreak = true;
-                }
-                return forceStart;
-            }
-            return false;
-        });
-        if (doBreak)
+        Vector3 strength, float duration = 0.3f, Tuple<float, float> delayRange = null, bool forceOverride = false) {
+        if (shakeStrength != Vector3.zero && !forceOverride) {
+            shakeStrength = strength;
             return;
-        TweenInstance tweenInstance = new TweenInstance {
-            name = fromName,
-            isRelative = true,
-            strength = strength,
-            isPermanent = true,
-        };
-        Vector3 to = GetPointOnValidAxes(strength);
-        tweenInstance.tween = DOTween.To(() => tweenInstance.value, delegate (Vector3 x) {
-            tweenInstance.value = x;
-        }, to, duration)
-        .SetEase(Ease.OutQuad).SetLoops(2, LoopType.Yoyo)
-        .SetDelay(UnityEngine.Random.Range(delayRange.Item1, delayRange.Item2))
-        .SetTarget(transform).SetAutoKill(true);
-        tweenInstance.tween.onComplete = () => CreateShakeTween(fromName, tweenInstance.strength, duration, delayRange, true);
-        AddTweenToList("position", tweenInstance);
+        }
+        shakeStrength = strength;
+
+        float delay = UnityEngine.Random.Range(delayRange.Item1, delayRange.Item2);
+        Vector3 to = GetPointOnValidAxes(shakeStrength);
         //Debug.Log($"Creating shake tween {fromName} with strength {strength} to point {to}");
+
+        TweenInstance tweenInstance =
+            CreateBasicTween("position", fromName, to, duration, Ease.OutQuad, 2, LoopType.Yoyo, true, delay);
+        tweenInstance.onFinished += () => CreateShakeTween(fromName, shakeStrength, duration, delayRange, forceOverride=true);
     }
-    public Tween CreateRelMoveTween(string fromName,
+    public void CreateRelMoveTween(string fromName,
         Vector3 to, float time = 1f, Ease easeMethod = Ease.Linear) {
-        return CreateBasicTween("position", fromName, to, time, easeMethod, isRel: true);
+        CreateBasicTween("position", fromName, to, time, easeMethod, isRel: true);
     }
     public void CreateAbsMoveTween(string fromName,
         Vector3 to, float time = 1f, Ease easeMethod = Ease.Linear) {
@@ -305,22 +297,27 @@ public class PlateProperties2 : NetworkBehaviour {
         int loops = 0, LoopType loopType = LoopType.Restart) {
         CreateBasicTween("rotation", fromName, to, time, easeMethod, loops, loopType, isRel: true);
     }
-    public Tween CreateBasicTween(string name, string fromName,
+    TweenInstance CreateBasicTween(string name, string fromName,
         Vector3 to, float time = 1f, Ease easeMethod = Ease.Linear,
-        int loops = 0, LoopType loopType = LoopType.Restart, bool isRel = true) {
+        int loops = 0, LoopType loopType = LoopType.Restart, bool isRel = true,
+        float delay = 0f) {
         TweenInstance tweenInstance = new TweenInstance
         {
             name = fromName,
             isRelative = isRel,
-            value = Vector3.zero
+            value = Vector3.zero,
+            duration = time,
         };
-        tweenInstance.tween = DOTween.To(() => tweenInstance.value, delegate (Vector3 x) {
-            tweenInstance.value = x;
-        }, to, time)
-        .SetEase(easeMethod).SetLoops(loops, loopType)
-        .SetTarget(transform).SetAutoKill(true);
+        tweenInstance.tweenParams = new CustomTweenParams
+        {
+            ease = easeMethod,
+            loops = loops,
+            loopType = loopType
+        };
+        tweenInstance.goal = to;
+        tweenInstance.startTime = GetNetworkTime() - delay;
         AddTweenToList(name, tweenInstance);
-        return tweenInstance.tween;
+        return tweenInstance;
     }
     public void SetPlateUnstable(bool unstable, float stability) {
         stability = Mathf.Min(0.25f, stability);

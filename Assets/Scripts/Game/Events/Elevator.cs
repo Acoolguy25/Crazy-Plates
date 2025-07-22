@@ -15,30 +15,29 @@ public class Elevator : MonoBehaviour
     private ushort cur_floor = 0;
     private PlateProperties2 plateProperties;
     private Coroutine moveRoutine = null;
-    private Tween MoveYBy(float deltaElevatorChange)
+    private float MoveYBy(float deltaElevatorChange)
     {
         float timeChange = Mathf.Abs(deltaElevatorChange / speedPerSecond);
         //plateProperties.setPlateSizePosOffset(deltaElevatorChange,
         //timeChange, Ease.Linear);
         if (timeChange == 0) {
-            return null;
+            return 0f;
         }
-        Tween tweenRes = plateProperties.CreateRelMoveTween("elevator_move",
+        plateProperties.CreateRelMoveTween("elevator_move",
             new Vector3(0f, deltaElevatorChange, 0f),
             timeChange, Ease.Linear);
         currentElevation += deltaElevatorChange;
-        return tweenRes;
+        return timeChange;
     }
     private IEnumerator moveCoroutine()
     {
-        Tween tween;
         while (floors > 0){
             cur_floor = (ushort)math.clamp(cur_floor + (upDirection ? 1 : -1), 0, floors - 1);
             do
             {
-                tween = MoveYBy(cur_floor * deltaElevation - currentElevation);
-                if (tween != null)
-                    yield return tween.WaitForKill();
+                float timeWait = MoveYBy(cur_floor * deltaElevation - currentElevation);
+                if (timeWait != 0f)
+                    yield return new WaitForSeconds(timeWait);
                 else
                     break;
             } while (true);
