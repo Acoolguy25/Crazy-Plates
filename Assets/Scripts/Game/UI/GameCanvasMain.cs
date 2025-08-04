@@ -19,7 +19,7 @@ public class GameCanvasMain : MonoBehaviour
             float timeToWait, roundedTime;
             do
             {
-                timeToWait = (float) (newText.Duration - NetworkTime.time);
+                timeToWait = (float) (newText.Duration - SharedFunctions.GetNetworkTime());
                 roundedTime = Mathf.Max(0f, Mathf.Floor(timeToWait * 10f) / 10f); // Round to 1 decimal place
                 _gameCanvasElements.title.text = string.Format(newText.Message, roundedTime.ToString("F1"));
                 if (roundedTime <= 0f)

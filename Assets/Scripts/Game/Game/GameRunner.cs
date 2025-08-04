@@ -106,7 +106,7 @@ public class GameRunner : MonoBehaviour
                 if (activeServer) {
                     GameEvents.Instance.GameMessage = new GameMessage(
                     $"{platesAffected} {typeText} will {string.Format(selEvent.displayText, variant, variant == 1 ? selEvent.displayUnits.Item1 : selEvent.displayUnits.Item2)}" + " in {0}",
-                    NetworkTime.time + TimeBetweenEvents);
+                    SharedFunctions.GetNetworkTime() + TimeBetweenEvents);
                     GameEvents.Instance.DescMessage = selEvent.description;
                 }
                 yield return new WaitForSeconds(TimeBetweenEvents);

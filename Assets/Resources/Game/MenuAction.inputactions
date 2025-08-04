@@ -1,0 +1,45 @@
+{
+    "name": "MenuAction",
+    "maps": [
+        {
+            "name": "Menu",
+            "id": "4e18b0a0-b798-445b-803a-a5fc4941311e",
+            "actions": [
+                {
+                    "name": "ToggleMenu",
+                    "type": "Button",
+                    "id": "5fb2e99e-3e2f-47ba-bfa1-3fcb01adf487",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "34b9453b-1bd5-4a10-8719-32e0975daace",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "02724468-f772-43ee-b8f4-1b6962dd28d0",
+                    "path": "<TrackedDevice>/{Back}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

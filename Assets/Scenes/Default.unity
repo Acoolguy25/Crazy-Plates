@@ -150,6 +150,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2032968bff1daf46bf59897264064a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &453107221 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2623707027666238710, guid: 81afa5174e9d70c4b81ae4e4ea80414c, type: 3}
+  m_PrefabInstance: {fileID: 6694951606646749656}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &453107225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453107221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cabf83c195140a14d9aa6bf414bb8e60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &466732518
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,6 +217,7 @@ MonoBehaviour:
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs:
+  - {fileID: 2623707027666238710, guid: 81afa5174e9d70c4b81ae4e4ea80414c, type: 3}
   - {fileID: 4208224386297644175, guid: 6b8e8f340bcc72242931c94b22444cf7, type: 3}
   - {fileID: 9102512124408570787, guid: 52ca5a9742c2d034ea905ef3e2d7d16b, type: 3}
   - {fileID: 9102512124408570787, guid: 9b48bc5f737e57e4895ee7c3dfcf1d00, type: 3}
@@ -207,6 +225,7 @@ MonoBehaviour:
   - {fileID: 3862277631971027947, guid: 0691d24e1f35bc4489644b0861b323fc, type: 3}
   - {fileID: 3862277631971027947, guid: 3b8a1b7fa8ab63844a4dbf91fb40f749, type: 3}
   - {fileID: 3862277631971027947, guid: 7ae956b4f54394e80818898d8f4d30c6, type: 3}
+  - {fileID: 3178038205933030832, guid: 2202de448a074ca4bb9a7041d0f853a0, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -510,6 +529,139 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!1 &852930084 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7117107553915152129, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+  m_PrefabInstance: {fileID: 7563297367007977144}
+  m_PrefabAsset: {fileID: 0}
+--- !u!225 &852930089
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852930084}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &852930090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852930084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 6c3771c0fd5b06e43acae02bc0bc1cdd, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: InputMove
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 6bc1aaf4-b110-4ff7-891e-5b9fe6f32c4d
+    m_ActionName: 'Player/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow,/XInputControllerWindows/leftStick]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: InputLook
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 2690c379-f54d-45be-a724-414123833eb4
+    m_ActionName: 'Player/Look[/Mouse/delta,/XInputControllerWindows/rightStick]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: InputJump
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 8c4abdf8-4099-493a-aa1a-129acec7c3df
+    m_ActionName: 'Player/Jump[/Keyboard/space,/XInputControllerWindows/buttonSouth]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: InputSprint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 980e881e-182c-404c-8cbf-3d09fdb48fef
+    m_ActionName: 'Player/Sprint[/Keyboard/leftShift,/XInputControllerWindows/leftTrigger]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e4ce1614-c754-48c1-9103-33130441661f
+    m_ActionName: UI/New action
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Menu
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!114 &852930091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852930084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a55e2de7def37c64c8ac6fe62cbf84ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameCanvas: {fileID: 1743131875}
+--- !u!1 &1185033839 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2653502429592654882, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+  m_PrefabInstance: {fileID: 6764020353849695833}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1251684133
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1271,12 +1423,29 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6115224181169384078, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
   m_PrefabInstance: {fileID: 6764020353849695833}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1185033839}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e93fb5ecfdbcf244be7c0eb0b6679ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!223 &1743131875 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 8043675089747732146, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+  m_PrefabInstance: {fileID: 6764020353849695833}
+  m_PrefabAsset: {fileID: 0}
+--- !u!225 &1743131877
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1185033839}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1791605969
 GameObject:
   m_ObjectHideFlags: 0
@@ -1617,7 +1786,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2623707027666238710, guid: 81afa5174e9d70c4b81ae4e4ea80414c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 453107225}
   m_SourcePrefab: {fileID: 100100000, guid: 81afa5174e9d70c4b81ae4e4ea80414c, type: 3}
 --- !u!1001 &6764020353849695833
 PrefabInstance:
@@ -1714,7 +1886,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2653502429592654882, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1743131877}
   m_SourcePrefab: {fileID: 100100000, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
 --- !u!1001 &7563297367007977144
 PrefabInstance:
@@ -1724,6 +1899,50 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2818449629115772778, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2818449629115772778, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2818449629115772778, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 852930091}
+    - target: {fileID: 2818449629115772778, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2818449629115772778, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CloseMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 2818449629115772778, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GameMenuUI, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2818449629115772778, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921617480826742766, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5053291147959376146, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5053291147959376146, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5053291147959376146, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 7108012417348596944, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1808,10 +2027,23 @@ PrefabInstance:
       propertyPath: m_Name
       value: MenuCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 7117107553915152129, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7117107553915152129, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 852930089}
+    - targetCorrespondingSourceObject: {fileID: 7117107553915152129, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 852930091}
+    - targetCorrespondingSourceObject: {fileID: 7117107553915152129, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 852930090}
   m_SourcePrefab: {fileID: 100100000, guid: 2ce807603acb7434ab8ec0c25fdf6ee5, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

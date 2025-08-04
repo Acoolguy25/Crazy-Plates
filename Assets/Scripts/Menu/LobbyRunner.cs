@@ -18,6 +18,6 @@ public class LobbyRunner : MonoBehaviour
     {
         //NetworkManager.singleton.StartHost();
         //StartCoroutine(gameRunner.runGame());
-        gameRunner.StartGame();
+        //gameRunner.StartGame();
     }
 }

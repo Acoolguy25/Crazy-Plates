@@ -19,29 +19,4 @@ public class CustomNetworkManager : NetworkManager
         //Debug.Log("Client connected to server.");
         GameEvents.Instance.OnClientBegin();
     }
-    public override void Awake()
-    {
-        //if (transport == null)
-        //{
-        //    if (SceneManager.GetActiveScene().name == "MainMenu" || isDedicatedServer)
-        //    {
-        //        transport = gameObject.AddComponent<DummyTransport>();
-        //    }
-        //    else
-        //    {
-        //        transport = gameObject.AddComponent<KcpTransport>();
-        //    }
-        //}
-        base.Awake();
-    }
-    public override void Start() {
-        //gameRunner = GetComponent<GameRunner>();
-        base.Start();
-    }
-    public override void Update() {
-        if (NetworkClient.active) {
-            //Debug.Log($"Ping: {NetworkTime.rtt * 1000f:F0} ms");
-        }
-        base.Update();
-    }
 }
