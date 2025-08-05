@@ -1,7 +1,10 @@
 using DG.Tweening; // Required for DOTween
+using Mirror;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LobbyUI : MonoBehaviour
@@ -75,5 +78,55 @@ public class LobbyUI : MonoBehaviour
         Assert.IsTrue(UILockCount >= 1);
         _SetUILocked(false);
         UILockCount--;
+    }
+    public void BackToLobby(bool Instant = false)
+    {
+        StartCoroutine(_BackToLobby(Instant));
+    }
+    private IEnumerator _BackToLobby(bool Instant)
+    {
+        if (GameMenuUI.Instance)
+            GameMenuUI.Instance.DisableAllUI();
+
+
+        if (!Instant)
+        {
+            LobbyUI.Instance.FadeBlackScreen(1);
+            yield return new WaitForSecondsRealtime(2f); // wait for screen to fade to black
+        }
+        if (NetworkServer.active && NetworkClient.isConnected)
+        {
+            // Host mode
+            NetworkManager.singleton.StopHost();
+        }
+        else if (NetworkServer.active)
+        {
+            // Dedicated server
+            NetworkManager.singleton.StopServer();
+        }
+        else if (NetworkClient.isConnected)
+        {
+            // Client only
+            NetworkManager.singleton.StopClient();
+        }
+
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+        {
+            Scene scene = SceneManager.GetSceneAt(i);
+            if (scene != gameObject.scene && scene.isLoaded)
+            {
+                var op = SceneManager.UnloadSceneAsync(scene);
+                yield return op;
+            }
+        }
+
+        LobbyUI.Instance.RemoveLock();
+        Time.timeScale = 1f;
+        LobbyUI.Instance.SetCanvasVisibility(true); // re-enable everything!
+        if (!Instant)
+        {
+            LobbyUI.Instance.FadeBlackScreen(0);
+            yield return new WaitForSeconds(2f);
+        }
     }
 }

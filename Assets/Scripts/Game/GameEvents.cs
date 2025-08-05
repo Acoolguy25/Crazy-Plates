@@ -26,7 +26,6 @@ public class GameEvents : NetworkBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject); // Optional: persist between scenes
     }
     [Client]
     public virtual void OnClientBegin()

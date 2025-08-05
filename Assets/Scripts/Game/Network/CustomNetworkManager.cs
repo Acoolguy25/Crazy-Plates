@@ -7,6 +7,14 @@ public class CustomNetworkManager : NetworkManager
 {
     public bool isDedicatedServer = true;
     public GameRunner gameRunner;
+    public override void Start()
+    {
+        base.Start();
+        if (!ServerProperties.Instance.SinglePlayer)
+        {
+            DontDestroyOnLoad(this);
+        }
+    }
     public override void OnStartServer()
     {
         base.OnStartServer();

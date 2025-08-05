@@ -14,7 +14,6 @@ public class ServerProperties : NetworkBehaviour
     void Awake()
     {
         Instance = this;
-        DontDestroyOnLoad(Instance);
     }
     private void Start()
     {
