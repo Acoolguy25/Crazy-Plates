@@ -1,4 +1,5 @@
 using DG.Tweening;
+using StarterAssets;
 using UnityEngine;
 
 public class GameMenuUI : MonoBehaviour
@@ -8,21 +9,28 @@ public class GameMenuUI : MonoBehaviour
     public Canvas gameCanvas;
     private Canvas menuCanvas;
     private CanvasGroup menuGroup;
+    private CanvasGroup gameGroup;
     private void Start()
     {
         menuCanvas = GetComponent<Canvas>();
-        menuGroup = GetComponent<CanvasGroup>();
+        menuGroup = menuCanvas.GetComponent<CanvasGroup>();
+        gameGroup = gameCanvas.GetComponent<CanvasGroup>();
         MenuActive = menuGroup.alpha == 1f;
+        StarterAssetsInputs.Instance.menuToggledEvent += ToggleMenu;
     }
     private void SetMenuEnabled(bool enabled, float duration = 0.5f)
     {
         if (MenuActive == enabled)
             return;
         MenuActive = enabled;
-        gameCanvas.GetComponent<CanvasGroup>().interactable = !enabled;
-        menuGroup.DOFade(enabled? 0: 1, duration);
+        menuGroup.DOFade(enabled? 1: 0, duration).SetUpdate(true);
+        menuGroup.interactable = enabled;
+        gameGroup.interactable = !enabled;
         if (ServerProperties.Instance.SinglePlayer)
-            DOTween.To(() => Time.timeScale, x => Time.timeScale = x, enabled? 1f: 0f, duration);
+        {
+            Tween tween = DOTween.To(() => Time.timeScale, x => Time.timeScale = x, enabled ? 0f : 1f, duration);
+            tween.SetUpdate(true);
+        }
     }
     public void CloseMenu()
     {
@@ -35,9 +43,5 @@ public class GameMenuUI : MonoBehaviour
     public void ToggleMenu()
     {
         SetMenuEnabled(!MenuActive);
-    }
-    public void OnToggleMenu()
-    {
-        ToggleMenu();
     }
 }
