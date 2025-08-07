@@ -4,37 +4,41 @@ using Mirror;
 using Unity.Cinemachine;
 using System.Collections;
 using StarterAssets;
+using UnityEngine.Assertions;
 
 
 public class CharacterControl : NetworkBehaviour
 {
-    private Camera mainCam;
-    public GameObject cineObject;
-    [SyncVar]
-    public bool isRagdoll = false;
+    //private Camera mainCam;
+    //public GameObject cineObject;
+    [Header("Public Variables")]
+    [SyncVar] public bool isRagdoll = true;
+    [SyncVar] public bool isDead = false;
+    [SyncVar] public uint health = 0;
+    [SyncVar] public uint maxHealth = 0;
 
+    [Header("Ragdoll variables")]
     private Rigidbody[] rigidBodies;
     private Collider[] colliders;
     private Joint[] joints;
     private Rigidbody rootRigidbody;
 
+
     [Header("Character Components")]
     private Collider main_collider;
     private Animator charAnimator;
+    private NetworkIdentity networkIdentity;
     private CharMovement thirdPersonController;
-    [Client]
-    void Awake()
-    {
-        if (!isLocalPlayer) return;
-        transform.position = new Vector3(0, 10, 0);
-    }
-    [Client]
     void Start()
     {
-        if (!isLocalPlayer) return;
+        //Debug.Log($"START CALLED: AUTHORITY: {authority} | {isServer} | {isClient}");
+        if (!authority)
+            return;
+        transform.position = new Vector3(0, 10, 0);
         main_collider = GetComponent<Collider>();
         charAnimator = GetComponent<Animator>();
         rootRigidbody = GetComponent<Rigidbody>();
+        networkIdentity = GetComponent<NetworkIdentity>();
         thirdPersonController = GetComponent<CharMovement>();
         charAnimator.keepAnimatorStateOnDisable = false;
 
@@ -42,30 +46,61 @@ public class CharacterControl : NetworkBehaviour
         colliders = transform.GetChild(0).GetComponentsInChildren<Collider>();
         joints = GetComponentsInChildren<Joint>();
         
-        SetRagdoll(false, true);
+        SetRagdoll(false);
 
-        mainCam = Camera.main;
-        var vcam = mainCam.GetComponent<CinemachineCamera>();
-        vcam.Follow = cineObject.transform;
+        //mainCam = Camera.main;
+        //var vcam = mainCam.GetComponent<CinemachineCamera>();
+        //vcam.Follow = cineObject.transform;
     }
-    [Server]
-    void FixedUpdate()
+    [ServerCallback]
+    private void FixedUpdate()
     {
         if ((transform.position.y < -10 && !isRagdoll))
         {
-            Debug.Log("CharacterControl: Resetting character position due to falling below ground level.");
-            SetRagdoll_FromServer(!isRagdoll);
-            SetRagdoll(!isRagdoll);
+            //Debug.Log($"DIED ON: {isServer} | {isClient} | {authority}");
+            //Debug.Log("CharacterControl: Resetting character position due to falling below ground level.");
+            KillCharacter();
+        }
+    }
+    [Server]
+    public void KillCharacter() {
+        if (isDead)
+            return;
+        health = 0;
+        isDead = true;
+        SetRagdoll(true);
+        gameObject.SendMessage("OnDied", SendMessageOptions.DontRequireReceiver);
+        Assert.IsTrue(connectionToClient == networkIdentity.connectionToClient);
+        if (isServer && connectionToClient != null) { // player died
+            ServerProperties.Instance.AlivePlayers--;
+            ServerEvents.Instance.PlayerDied?.Invoke(GetComponent<PlayerController>());
+            KillCharacterRpc(connectionToClient);
+        }
+    }
+    [TargetRpc]
+    public void KillCharacterRpc(NetworkConnectionToClient _) {
+        SetRagdoll(true);
+        gameObject.SendMessage("OnDiedRpc", SendMessageOptions.DontRequireReceiver);
+    }
+    [Server]
+    public void TakeDamage(uint damage) {
+        if (health <= damage)
+            health = 0;
+        else
+            health -= damage;
+        if (health == 0 && maxHealth != 0) {
+            KillCharacter();
         }
     }
     [ClientRpc]
-    void SetRagdoll_FromServer(bool set)
+    public void SetRagdoll_FromServer(bool set)
     {
         SetRagdoll(set);
     }
-    void SetRagdoll(bool ragdollActive, bool started = false)
+    void SetRagdoll(bool ragdollActive)
     {
-        if (!started && isRagdoll == ragdollActive) return; // No change needed
+        ragdollActive = ragdollActive || isDead;
+        if (isRagdoll == ragdollActive) return; // No change needed
         thirdPersonController.enabled = !ragdollActive;
         main_collider.enabled = !ragdollActive;
         charAnimator.enabled = !ragdollActive;
@@ -79,10 +114,12 @@ public class CharacterControl : NetworkBehaviour
         }
         foreach (Rigidbody rigidbody in rigidBodies)
         {
-            rigidbody.linearVelocity = Vector3.zero;
-            rigidbody.angularVelocity = Vector3.zero;
-            rigidbody.detectCollisions = ragdollActive;
             rigidbody.isKinematic = !ragdollActive;
+            if (!rigidbody.isKinematic) {
+                rigidbody.linearVelocity = Vector3.zero;
+                rigidbody.angularVelocity = Vector3.zero;
+            }
+            rigidbody.detectCollisions = ragdollActive;
             rigidbody.useGravity = ragdollActive;
         }
         if (!ragdollActive)

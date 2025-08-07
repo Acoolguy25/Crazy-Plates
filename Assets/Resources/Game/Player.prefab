@@ -1222,12 +1222,13 @@ GameObject:
   m_Component:
   - component: {fileID: 1114260476483171701}
   - component: {fileID: 5615815007780928290}
-  - component: {fileID: 6496407181625420628}
   - component: {fileID: -3117277551466288336}
   - component: {fileID: 942732747656815188}
+  - component: {fileID: 6496407181625420628}
   - component: {fileID: 69335294869066208}
   - component: {fileID: 8219298950522445721}
   - component: {fileID: 7283483618825566209}
+  - component: {fileID: -8474470083103740203}
   - component: {fileID: 4052442500363247711}
   - component: {fileID: 9021339348686680498}
   m_Layer: 3
@@ -1276,23 +1277,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &6496407181625420628
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3862277631971027947}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneId: 0
-  _assetId: 3470608439
-  serverOnly: 1
-  visibility: 0
-  hasSpawned: 0
 --- !u!114 &-3117277551466288336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1325,8 +1309,27 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  cineObject: {fileID: 9053250293666259648}
   isRagdoll: 0
+  isDead: 0
+  health: 0
+  maxHealth: 0
+--- !u!114 &6496407181625420628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3862277631971027947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 3470608439
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
 --- !u!114 &69335294869066208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1342,6 +1345,7 @@ MonoBehaviour:
   IsGrounded: 0
   radiusMultiple: 1
   heightMultiple: 1
+  noTouchDelay: 0
 --- !u!54 &8219298950522445721
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1403,6 +1407,22 @@ MonoBehaviour:
   JumpTimeout: 0.5
   FallTimeout: 0.4
   Grounded: 1
+--- !u!114 &-8474470083103740203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3862277631971027947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fae587f38ffcd4c4aa0fae2c93d85825, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  cineObject: {fileID: 7978810107987169270}
 --- !u!114 &4052442500363247711
 MonoBehaviour:
   m_ObjectHideFlags: 0

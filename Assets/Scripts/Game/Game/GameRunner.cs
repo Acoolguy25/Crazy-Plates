@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class GameRunner : MonoBehaviour
 {
@@ -30,6 +31,8 @@ public class GameRunner : MonoBehaviour
     public int debugFrameRate = -1;
     private float TimeBetweenEvents;
     public bool activeServer;
+
+    private Coroutine gameCoroutine;
     string GetDescMessage(string[] messages, ushort length) {
         string retStr = string.Empty;
         ushort messagesLength = (ushort)messages.Length;
@@ -156,8 +159,9 @@ public class GameRunner : MonoBehaviour
             return;
         }
         //DOTween.Init(false, false, LogBehaviour.Default).SetCapacity(200, 50).SetManualUpdate(true);
-        //DOTween.useSmoothDeltaTime = true; // Use smooth delta time for animations
+        DOTween.useSmoothDeltaTime = true; // Use smooth delta time for animations
         DOTween.defaultUpdateType = UpdateType.Normal; // Use FixedUpdate for animations
+        DOTween.timeScale = 1f;
         eventsScript = GetComponent<Events>();
         TimeBetweenEvents = 3f;
         // Get actual size of the prefab (renderer bounds)
@@ -187,8 +191,19 @@ public class GameRunner : MonoBehaviour
                     NetworkServer.Spawn(plate);
             }
         }
+        ServerEvents.Instance.PlayerDied += OnDied;
 
-        StartCoroutine(RunGame());
+        gameCoroutine = StartCoroutine(RunGame());
+    }
+
+    public void OnDied(PlayerController player) {
+        if (ServerProperties.Instance.AlivePlayers <= (ServerProperties.Instance.SinglePlayer? 0: 1))
+            EndGame();
+    }
+
+    public void EndGame() {
+        Assert.IsNotNull(gameCoroutine);
+        StopCoroutine(gameCoroutine);
     }
 
     private Vector3 GetPrefabWorldSize(GameObject prefab)

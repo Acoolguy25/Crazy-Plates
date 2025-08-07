@@ -42,7 +42,7 @@ public class GameEvents : NetworkBehaviour
     public virtual void OnNewGameMessage(GameMessage _, GameMessage newString)
     {
         if (gameCanvasMain)
-            StartCoroutine(gameCanvasMain.UpdateTopBar(newString));
+            gameCanvasMain.UpdateTopBar(newString);
     }
     public virtual void OnDescMessageChanged(string _, string newString)
     {

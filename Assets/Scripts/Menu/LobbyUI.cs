@@ -1,5 +1,7 @@
 using DG.Tweening; // Required for DOTween
 using Mirror;
+using Mirror.BouncyCastle.Bcpg;
+using Newtonsoft.Json.Serialization;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -27,7 +29,19 @@ public class LobbyUI : MonoBehaviour
         Assert.IsNull(Instance);
         Instance = this;
     }
-    void Start()
+    private void CheckForSinglePlayer() {
+        bool isActiveScene = SceneManager.GetActiveScene() == gameObject.scene;
+        if (isActiveScene) {
+            FadePanel.GetComponent<Image>().color = new Color(0, 0, 0, 1); // Set initial color to black with full opacity
+            FadeBlackScreen(0f);
+        }
+        else {
+            FadeBlackScreen(0f, 0f);
+            AddLock();
+        }
+        SetCanvasVisibility(isActiveScene);
+    }
+    private void Start()
     {
         canvas = GetComponent<Canvas>();
         lobbyPannelsGroup = Panels.GetComponent<CanvasGroup>();
@@ -38,9 +52,7 @@ public class LobbyUI : MonoBehaviour
         {
             panel.gameObject.SetActive(CurrentPanel == panel);
         }
-
-        FadePanel.GetComponent<Image>().color = new Color(0, 0, 0, 1); // Set initial color to black with full opacity
-        FadeBlackScreen(0);
+        CheckForSinglePlayer();
     }
     public void ChangeToPanel(Transform panel = null) {
         if (panel == null)
@@ -51,7 +63,11 @@ public class LobbyUI : MonoBehaviour
     }
     public void FadeBlackScreen(float alpha, float duration = 2f)
     {
-        FadePanel.GetComponent<Image>().CrossFadeAlpha(alpha, duration, true);
+        DOTween.Kill(FadePanel);
+        Tween tween = FadePanel.GetComponent<Image>().DOFade(alpha, duration);
+        tween.SetTarget(FadePanel);
+        tween.SetUpdate(true);
+        //FadePanel.GetComponent<Image>().CrossFadeAlpha(alpha, duration, true);
     }
     public void SetCanvasVisibility(bool enabled)
     {
@@ -63,9 +79,12 @@ public class LobbyUI : MonoBehaviour
     }
     private void _SetUILocked(bool enabled)
     {
-        if (UILocked == enabled)
+        if (UILocked == enabled) {
+            if (enabled)
+                Assert.IsTrue(!lobbyPannelsGroup.interactable, "Lobby Pannel was set to interactable through foreign agent!");
             return;
-        lobbyPannelsGroup.interactable = !enabled;
+        }
+        lobbyPannelsGroup.interactable = lobbyPannelsGroup.blocksRaycasts = !enabled;
     }
     public void AddLock()
     {
@@ -83,33 +102,43 @@ public class LobbyUI : MonoBehaviour
     {
         StartCoroutine(_BackToLobby(Instant));
     }
+    public void DisconnectConnection() {
+        if (NetworkServer.active && NetworkClient.isConnected) {
+            NetworkManager.singleton.StopHost(); // Host mode
+        }
+        else if (NetworkServer.active) {
+            NetworkManager.singleton.StopServer(); // Dedicated server
+        }
+        else if (NetworkClient.isConnected) {
+            NetworkManager.singleton.StopClient(); // Client only
+        }
+    }
+    public void TweenTimeScale(float newTimeScale, float duration) {
+        DOTween.Kill(Time.timeScale);
+        if (duration > 0) {
+            Tween tween = DOTween.To(() => Time.timeScale, x => Time.timeScale = x, newTimeScale, duration);
+            tween.SetEase(Ease.OutQuad);
+            tween.SetUpdate(true);
+            tween.SetTarget(Time.timeScale);
+        }
+        else {
+            Time.timeScale= newTimeScale;
+        }
+    }
+    public void ResetTimeScale() {
+        TweenTimeScale(1f, 0f);
+    }
     private IEnumerator _BackToLobby(bool Instant)
     {
         if (GameMenuUI.Instance)
             GameMenuUI.Instance.DisableAllUI();
-
 
         if (!Instant)
         {
             LobbyUI.Instance.FadeBlackScreen(1);
             yield return new WaitForSecondsRealtime(2f); // wait for screen to fade to black
         }
-        if (NetworkServer.active && NetworkClient.isConnected)
-        {
-            // Host mode
-            NetworkManager.singleton.StopHost();
-        }
-        else if (NetworkServer.active)
-        {
-            // Dedicated server
-            NetworkManager.singleton.StopServer();
-        }
-        else if (NetworkClient.isConnected)
-        {
-            // Client only
-            NetworkManager.singleton.StopClient();
-        }
-
+        DisconnectConnection();
         for (int i = 0; i < SceneManager.sceneCount; i++)
         {
             Scene scene = SceneManager.GetSceneAt(i);
@@ -121,7 +150,7 @@ public class LobbyUI : MonoBehaviour
         }
 
         LobbyUI.Instance.RemoveLock();
-        Time.timeScale = 1f;
+        ResetTimeScale();
         LobbyUI.Instance.SetCanvasVisibility(true); // re-enable everything!
         if (!Instant)
         {

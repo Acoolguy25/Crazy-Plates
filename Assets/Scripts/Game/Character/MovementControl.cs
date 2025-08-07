@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -7,18 +9,22 @@ public class MovementControl : MonoBehaviour {
     [Tooltip("Indicates if the character is grounded")]
     public bool IsGrounded = false;
 
+    private class TouchingCollider {
+        public Transform followInstance;
+        public Vector3 lastFollowPos;
+        public Vector3 lastFollowSize;
+        public Quaternion lastFollowRot;
+        public int noTouchingCount = 0;
+    };
+    private List<TouchingCollider> contacts = new();
     private CharacterControl charCntl;
     private BoxCollider boxCollider;
     private Rigidbody rb;
-    private Transform followInstance;
-    private Vector3 lastFollowPos;
-    private Vector3 lastFollowSize;
-    private Quaternion lastFollowRot;
     private int layerMask;
-    private int noTouchingCount = 0;
 
     public float radiusMultiple = 2.25f;
     public float heightMultiple = 2f;
+    public ushort noTouchDelay = 5;
 
     void Start() {
         charCntl = GetComponent<CharacterControl>();
@@ -26,10 +32,15 @@ public class MovementControl : MonoBehaviour {
         boxCollider = GetComponent<BoxCollider>();
         layerMask = ~LayerMask.GetMask("Character");
     }
-
+    void UpdateContact(TouchingCollider contact) {
+        var followInstance = contact.followInstance;
+        contact.lastFollowPos = followInstance.position;
+        contact.lastFollowSize = followInstance.localScale;
+        contact.lastFollowRot = followInstance.rotation;
+    }
     void FixedUpdate() {
         if (charCntl.isRagdoll) {
-            followInstance = null;
+            contacts = new();
             IsGrounded = false;
             return;
         }
@@ -40,8 +51,13 @@ public class MovementControl : MonoBehaviour {
         //}
         // Calculate vertical speed manually since there's no Rigidbody
         float platformVerticalSpeed = 0f;
-        if (followInstance != null) {
-            platformVerticalSpeed = 1.5f * Mathf.Abs((followInstance.position.y - lastFollowPos.y) * Time.fixedDeltaTime * 50f);
+        foreach (var contact in contacts) {
+            var followInstance = contact.followInstance;
+            var lastFollowPos = contact.lastFollowPos;
+            if (followInstance != null) {
+                platformVerticalSpeed = Mathf.Max(platformVerticalSpeed,
+                    1.5f * Mathf.Abs((followInstance.position.y - lastFollowPos.y) * Time.fixedDeltaTime * 50f));
+            }
         }
 
         Vector3 targetPosition = ApplyPlatformMotion();
@@ -78,31 +94,37 @@ public class MovementControl : MonoBehaviour {
         DrawBoxCast(boxCenter, boxSize, rb.rotation, Color.red, castDistance);
 #endif
         // Update follow instance
-        Transform newFollow = null;
+        List<Transform> foundItems = new();
+        //Transform newFollow = null;
 
         foreach (RaycastHit hit in hits) {
             if (IsGrounded && hit.collider.CompareTag("Plate")) {
-                newFollow = hit.collider.transform;
-                if (newFollow == followInstance) {
-                    return; // Already following this platform
+                //newFollow = hit.collider.transform;
+                Transform theirTransform = hit.collider.transform;
+                foundItems.Add(theirTransform);
+            }
+        }
+        // Check conflicting
+        for (int i = contacts.Count - 1; i >= 0; i--) {
+            var contact = contacts[i];
+            if (foundItems.Contains(contact.followInstance)){ // Still touching
+                UpdateContact(contact);
+                contact.noTouchingCount = 0;
+                foundItems.Remove(contact.followInstance);
+            }
+            else { // No longer touching
+                contact.noTouchingCount++;
+                if (contact.noTouchingCount > noTouchDelay) {
+                    contacts.Remove(contact);
                 }
             }
         }
-        
-
-        if (newFollow != followInstance) {
-            if (newFollow == null && noTouchingCount < 5) {
-                noTouchingCount++;
-                return;
-            }
-            noTouchingCount = 0;
-            followInstance = newFollow;
-
-            if (followInstance != null) {
-                lastFollowPos = followInstance.position;
-                lastFollowSize = followInstance.localScale;
-                lastFollowRot = followInstance.rotation;
-            }
+        // New touching items
+        foreach (var hit in foundItems) {
+            TouchingCollider newContact = new();
+            newContact.followInstance = hit;
+            UpdateContact(newContact);
+            contacts.Add(newContact);
         }
     }
 
@@ -113,40 +135,47 @@ public class MovementControl : MonoBehaviour {
     }
 
     Vector3 ApplyPlatformMotion() {
-        if (followInstance == null) return rb.position;
-        Quaternion quaternion = rb.rotation;
+        Vector3 summation = Vector3.zero;
+        foreach (var contact in contacts) {
+            var followInstance = contact.followInstance;
+            var lastFollowPos = contact.lastFollowPos;
+            var lastFollowRot = contact.lastFollowRot;
+            var lastFollowSize = contact.lastFollowSize;
+            if (followInstance == null) continue;
+            Quaternion quaternion = rb.rotation;
 
-        Vector3 posDelta = followInstance.position - lastFollowPos;
-        Quaternion rotDelta = followInstance.rotation * Quaternion.Inverse(lastFollowRot);
-        Vector3 offset = transform.position - followInstance.position;
-        Vector3 rotatedOffset = rotDelta * offset;
+            Vector3 posDelta = followInstance.position - lastFollowPos;
+            Quaternion rotDelta = followInstance.rotation * Quaternion.Inverse(lastFollowRot);
+            Vector3 offset = transform.position - followInstance.position;
+            Vector3 rotatedOffset = rotDelta * offset;
 
-        Vector3 newPosition = followInstance.position + rotatedOffset + posDelta;
+            Vector3 newPosition = followInstance.position + rotatedOffset + posDelta;
 
-        Vector3 scaleDelta = followInstance.localScale - lastFollowSize;
-        if (scaleDelta != Vector3.zero) {
-            Vector3 scaledOffset = new Vector3(
-                offset.x * (scaleDelta.x / lastFollowSize.x),
-                offset.y * (scaleDelta.y / lastFollowSize.y),
-                offset.z * (scaleDelta.z / lastFollowSize.z)
-            );
-            if (scaledOffset.magnitude > 0.001f)
-                newPosition += scaledOffset;
+            Vector3 scaleDelta = followInstance.localScale - lastFollowSize;
+            if (scaleDelta != Vector3.zero) {
+                Vector3 scaledOffset = new Vector3(
+                    offset.x * (scaleDelta.x / lastFollowSize.x),
+                    offset.y * (scaleDelta.y / lastFollowSize.y),
+                    offset.z * (scaleDelta.z / lastFollowSize.z)
+                );
+                if (scaledOffset.magnitude > 0.001f)
+                    newPosition += scaledOffset;
+            }
+
+            MovePosition(newPosition);
+
+            // Only apply Y-axis rotation delta
+            float yRotation = rotDelta.eulerAngles.y;
+            Quaternion yRotDelta = Quaternion.Euler(0f, yRotation, 0f);
+            rb.MoveRotation(yRotDelta * rb.rotation);
+
+            // Store state for next frame
+            lastFollowPos = followInstance.position;
+            lastFollowSize = followInstance.localScale;
+            lastFollowRot = followInstance.rotation;
+            summation += newPosition - rb.position;
         }
-
-        MovePosition(newPosition);
-
-        // Only apply Y-axis rotation delta
-        float yRotation = rotDelta.eulerAngles.y;
-        Quaternion yRotDelta = Quaternion.Euler(0f, yRotation, 0f);
-        rb.MoveRotation(yRotDelta * rb.rotation);
-
-        // Store state for next frame
-        lastFollowPos = followInstance.position;
-        lastFollowSize = followInstance.localScale;
-        lastFollowRot = followInstance.rotation;
-
-        return newPosition;
+        return rb.position + summation;
     }
 #if UNITY_EDITOR
     void DrawBoxCast(Vector3 center, Vector3 size, Quaternion rotation, Color color, float castDistance) {

@@ -1,3 +1,4 @@
+using Mirror;
 using System;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
@@ -30,14 +31,31 @@ namespace StarterAssets
 		public Action menuToggledEvent;
 		private PlayerInput _inputAction;
 
-        private void Awake()
-        {
-			Assert.IsNull(Instance);
+        private void Awake() {
+            Assert.IsNull(Instance);
             Instance = this;
-
-			_inputAction = GetComponent<PlayerInput>();
-			_inputAction.actions.FindActionMap("Menu").Enable();
         }
+        private void Start()
+        {
+			_inputAction = GetComponent<PlayerInput>();
+			SetControlsEnabled("Menu", true);
+        }
+		public void OnDiedRpc() {
+			SetControlsEnabled("Menu", false);
+		}
+		public void SetControlsEnabled(string actionName, bool enabled) {
+			var map = _inputAction.actions.FindActionMap(actionName);
+			if (map.enabled != enabled) {
+				if (enabled)
+					map.Enable();
+				else
+					map.Disable();
+			}
+        }
+		public bool GetControlsEnabled(string actionName) {
+			var map = _inputAction.actions.FindActionMap(actionName);
+			return map.enabled;
+		}
         public void OnMove(InputValue value)
 		{
 			MoveInput(value.Get<Vector2>());

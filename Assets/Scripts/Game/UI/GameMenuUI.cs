@@ -13,36 +13,36 @@ public class GameMenuUI : MonoBehaviour
     private Canvas menuCanvas;
     private CanvasGroup menuGroup;
     private CanvasGroup gameGroup;
+
     private void Awake()
     {
         Assert.IsNull(Instance);
         Instance = this;
-    }
-    private void OnDestroy()
-    {
-        Instance = null;
-    }
-    private void Start()
-    {
+
         menuCanvas = GetComponent<Canvas>();
         menuGroup = menuCanvas.GetComponent<CanvasGroup>();
         gameGroup = gameCanvas.GetComponent<CanvasGroup>();
         MenuActive = menuGroup.alpha == 1f;
+    }
+    private void Start() {
         StarterAssetsInputs.Instance.menuToggledEvent += ToggleMenu;
+        //SetMenuEnabled(false, 0f);
+    }
+    private void OnDestroy() {
+        Instance = null;
     }
     private void SetMenuEnabled(bool enabled, float duration = 0.5f)
     {
         if (MenuActive == enabled)
             return;
         MenuActive = enabled;
+        menuGroup.DOKill();
         menuGroup.DOFade(enabled? 1: 0, duration).SetUpdate(true);
         menuGroup.interactable = enabled;
         gameGroup.interactable = !enabled;
         if (ServerProperties.Instance.SinglePlayer)
         {
-            Tween tween = DOTween.To(() => Time.timeScale, x => Time.timeScale = x, enabled ? 0f : 1f, duration);
-            tween.SetEase(Ease.OutQuad);
-            tween.SetUpdate(true);
+            LobbyUI.Instance.TweenTimeScale(enabled ? 0f : 1f, duration);
         }
     }
     public void CloseMenu()
@@ -65,5 +65,9 @@ public class GameMenuUI : MonoBehaviour
     {
         Assert.IsNotNull(LobbyUI.Instance);
         LobbyUI.Instance.BackToLobby(Instant);
+    }
+    private void OnApplicationPause(bool pause) {
+        if (pause && StarterAssetsInputs.Instance.GetControlsEnabled("Menu"))
+            SetMenuEnabled(true, 0f); // instantly enable menu!
     }
 }

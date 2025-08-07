@@ -1,11 +1,13 @@
 using UnityEngine;
+using System.Collections;
 using Mirror;
 
 public class TempGameRunner : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start() //public IEnumerator Start()
     {
-        CustomNetworkManager.singleton.StartHost();
+        //yield return new WaitForSeconds(5f);
+        GetComponent<CustomNetworkManager>().StartHost();
     }
 }

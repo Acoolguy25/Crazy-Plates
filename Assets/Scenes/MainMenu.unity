@@ -427,7 +427,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 33.5
+  m_fontSize: 33.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -490,7 +490,6 @@ GameObject:
   - component: {fileID: 218024935}
   - component: {fileID: 218024937}
   - component: {fileID: 218024936}
-  - component: {fileID: 218024938}
   m_Layer: 5
   m_Name: Singleplayer
   m_TagString: Untagged
@@ -557,18 +556,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 218024934}
   m_CullTransparentMesh: 1
---- !u!114 &218024938
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 218024934}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34812310a7c538e4d9e62b92c6d334ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &225173971
 GameObject:
   m_ObjectHideFlags: 0
@@ -1195,7 +1182,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 41.45
+  m_fontSize: 41.6
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1380,6 +1367,7 @@ GameObject:
   - component: {fileID: 454961327}
   - component: {fileID: 454961326}
   - component: {fileID: 454961328}
+  - component: {fileID: 454961329}
   m_Layer: 5
   m_Name: Panels
   m_TagString: Untagged
@@ -1459,6 +1447,18 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &454961329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454961324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34812310a7c538e4d9e62b92c6d334ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &523919174
 GameObject:
   m_ObjectHideFlags: 0
@@ -1542,7 +1542,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 218024938}
+      - m_Target: {fileID: 454961329}
         m_TargetAssemblyTypeName: SingleplayerMenu, Assembly-CSharp
         m_MethodName: SingleplayerStartActivated
         m_Mode: 1
@@ -1954,7 +1954,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 27.35
+  m_fontSize: 27.45
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2285,7 +2285,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38.3
+  m_fontSize: 38.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2634,7 +2634,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 41.45
+  m_fontSize: 41.6
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3302,7 +3302,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1887502915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3580,7 +3580,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 218024938}
+      - m_Target: {fileID: 454961329}
         m_TargetAssemblyTypeName: SingleplayerMenu, Assembly-CSharp
         m_MethodName: SingleplayerExitActivated
         m_Mode: 1
