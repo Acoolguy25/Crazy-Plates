@@ -27,18 +27,17 @@ public class CharacterControl : NetworkBehaviour
     [Header("Character Components")]
     private Collider main_collider;
     private Animator charAnimator;
-    private NetworkIdentity networkIdentity;
     private CharMovement thirdPersonController;
     void Start()
     {
         //Debug.Log($"START CALLED: AUTHORITY: {authority} | {isServer} | {isClient}");
         if (!authority)
             return;
-        transform.position = new Vector3(0, 10, 0);
+        //transform.position = new Vector3(0, 10, 0);
         main_collider = GetComponent<Collider>();
         charAnimator = GetComponent<Animator>();
         rootRigidbody = GetComponent<Rigidbody>();
-        networkIdentity = GetComponent<NetworkIdentity>();
+        //networkIdentity = GetComponent<NetworkIdentity>();
         thirdPersonController = GetComponent<CharMovement>();
         charAnimator.keepAnimatorStateOnDisable = false;
 
@@ -69,8 +68,8 @@ public class CharacterControl : NetworkBehaviour
         health = 0;
         isDead = true;
         SetRagdoll(true);
-        gameObject.SendMessage("OnDied", SendMessageOptions.DontRequireReceiver);
-        Assert.IsTrue(connectionToClient == networkIdentity.connectionToClient);
+        gameObject.SendMessageUpwards("OnDied", SendMessageOptions.DontRequireReceiver);
+        //transform.parent.SendMessage("OnDied", SendMessageOptions.DontRequireReceiver);
         if (isServer && connectionToClient != null) { // player died
             ServerProperties.Instance.AlivePlayers--;
             ServerEvents.Instance.PlayerDied?.Invoke(GetComponent<PlayerController>());
@@ -80,7 +79,8 @@ public class CharacterControl : NetworkBehaviour
     [TargetRpc]
     public void KillCharacterRpc(NetworkConnectionToClient _) {
         SetRagdoll(true);
-        gameObject.SendMessage("OnDiedRpc", SendMessageOptions.DontRequireReceiver);
+        gameObject.SendMessageUpwards("OnDiedRpc", SendMessageOptions.DontRequireReceiver);
+        //transform.parent.SendMessage("OnDiedRpc", SendMessageOptions.DontRequireReceiver);
     }
     [Server]
     public void TakeDamage(uint damage) {

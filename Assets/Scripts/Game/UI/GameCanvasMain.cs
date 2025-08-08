@@ -20,6 +20,8 @@ public class GameCanvasMain : MonoBehaviour
         Instance = this;
     }
     public void UpdateTopBar(GameMessage newText) {
+        if (_topbar_coroutine != null)
+            StopCoroutine(_topbar_coroutine);
         _topbar_coroutine = StartCoroutine(UpdateTopBar_(newText));
     }
     private IEnumerator UpdateTopBar_(GameMessage newText)
@@ -34,7 +36,7 @@ public class GameCanvasMain : MonoBehaviour
                 _gameCanvasElements.title.text = string.Format(newText.Message, roundedTime.ToString("F1"));
                 if (roundedTime <= 0f)
                 {
-                    yield break;
+                    break;
                 }
                 yield return new WaitForSeconds(roundedTime - timeToWait);
             } while (true);
@@ -42,12 +44,15 @@ public class GameCanvasMain : MonoBehaviour
         else
         {
             _gameCanvasElements.title.text = newText.Message;
-            yield break;
         }
+        _topbar_coroutine = null;
     }
     public void UpdateDescBar(string newText)
     {
         _gameCanvasElements.desc.text = newText;
+    }
+    public void UpdateSurvivalTime(double newTime){
+        _gameCanvasElements.highscore.text = SingleplayerTimeGUI.DisplayTimePassed(newTime);
     }
     public void SetCanvasGroup(CanvasGroup group, float duration = 2f) {
         foreach (CanvasGroup child in GetComponentsInChildren<CanvasGroup>(true)) {
@@ -62,6 +67,7 @@ public class GameCanvasMain : MonoBehaviour
         }
     }
     public IEnumerator PlayerDied() {
+        Assert.IsNotNull(LobbyUI.Instance, "Lobby Scene is not loaded!");
         if (ServerProperties.Instance.SinglePlayer) {
             if (_topbar_coroutine != null)
                 StopCoroutine(_topbar_coroutine);

@@ -83,6 +83,7 @@
     <Compile Include="Assets\Scripts\Debug\DebugCharacter.cs" />
     <Compile Include="Assets\Scripts\Game\Game\Events.cs" />
     <Compile Include="Assets\Scripts\Menu\LobbyUI.cs" />
+    <Compile Include="Assets\Scripts\Game\Game\SingleplayerTimeGUI.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\Utilities\MobileDisableAutoSwitchControls.cs" />
     <Compile Include="Assets\Scripts\Game\Events\Elevator.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualTouchZone.cs" />
@@ -91,13 +92,13 @@
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualButton.cs" />
     <Compile Include="Assets\Scripts\Game\Character\ThirdPersonCharController.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\InputSystem\StarterAssetsInputs.cs" />
-    <Compile Include="Assets\Scripts\Game\GameEvents.cs" />
     <Compile Include="Assets\Scripts\Game\Network\CustomNetworkManager.cs" />
     <Compile Include="Assets\Scripts\Game\Game\PlateAddableProperties.cs" />
     <Compile Include="Assets\Scripts\Game\Character\OldMovementControl.cs" />
     <Compile Include="Assets\TestScript.cs" />
     <Compile Include="Assets\Scripts\Game\Game\PlateProperties.cs" />
     <Compile Include="Assets\Scripts\Menu\SingleplayerStart.cs" />
+    <Compile Include="Assets\Scripts\Game\Game\GameEvents.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CameraController.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1992,6 +1992,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2051651118 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7734014260344366514, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+  m_PrefabInstance: {fileID: 6764020353849695833}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5619106872798861653
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2161,6 +2172,10 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 671720560955561442, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+      propertyPath: highscore
+      value: 
+      objectReference: {fileID: 2051651118}
+    - target: {fileID: 671720560955561442, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
       propertyPath: deathGroup
       value: 
       objectReference: {fileID: 750152161}
@@ -2171,6 +2186,22 @@ PrefabInstance:
     - target: {fileID: 1953696328730455459, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
       propertyPath: m_Sprite
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2013317082011393759, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2013317082011393759, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2348178050955672510, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2348178050955672510, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2653502429592654882, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
       propertyPath: m_Name
@@ -2259,6 +2290,18 @@ PrefabInstance:
     - target: {fileID: 4665830319678106351, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
       propertyPath: m_IgnoreParentGroups
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6407693286936057363, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6407693286936057363, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6420259497904115493, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 1024
       objectReference: {fileID: 0}
     - target: {fileID: 8257691628472564870, guid: e85bf8a742eca154585c25957dc4b2ad, type: 3}
       propertyPath: m_Sprite

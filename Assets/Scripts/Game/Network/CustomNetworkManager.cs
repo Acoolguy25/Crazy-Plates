@@ -19,12 +19,29 @@ public class CustomNetworkManager : NetworkManager
     {
         base.OnStartServer();
         //Debug.Log("Server started and ready to accept connections.");
-        gameRunner.StartGame();
     }
     public override void OnClientConnect()
     {
         base.OnClientConnect();
         //Debug.Log("Client connected to server.");
         GameEvents.Instance.OnClientBegin();
+    }
+    public override void OnServerAddPlayer(NetworkConnectionToClient conn) {
+        InstantiateParameters parameters = new InstantiateParameters() {
+            scene = gameObject.scene,
+            worldSpace = false,
+            parent = transform
+        };
+        GameObject player = Instantiate(playerPrefab, parameters);
+        player.transform.position = Vector3.zero;
+        // instantiating a "Player" prefab gives it the name "Player(clone)"
+        // => appending the connectionId is WAY more useful for debugging!
+        player.name = $"{playerPrefab.name} [connId={conn.connectionId}]";
+        NetworkServer.AddPlayerForConnection(conn, player);
+
+        player.GetComponent<PlayerController>().ServerStartUp();
+
+        if (ServerProperties.Instance.SinglePlayer)
+            gameRunner.StartGame();
     }
 }

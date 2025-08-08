@@ -30,7 +30,7 @@ public class LobbyUI : MonoBehaviour
         Instance = this;
     }
     private void CheckForSinglePlayer() {
-        bool isActiveScene = SceneManager.GetActiveScene() == gameObject.scene;
+        bool isActiveScene = !SceneManager.GetSceneByName("Default").isLoaded;
         if (isActiveScene) {
             FadePanel.GetComponent<Image>().color = new Color(0, 0, 0, 1); // Set initial color to black with full opacity
             FadeBlackScreen(0f);
