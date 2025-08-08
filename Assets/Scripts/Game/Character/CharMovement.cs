@@ -5,9 +5,9 @@ using UnityEngine.InputSystem;
 using StarterAssets;
 
 [RequireComponent(typeof(Rigidbody))]
-#if ENABLE_INPUT_SYSTEM 
-[RequireComponent(typeof(PlayerInput))]
-#endif
+//#if ENABLE_INPUT_SYSTEM 
+//[RequireComponent(typeof(PlayerInput))]
+//#endif
 public class CharMovement : MonoBehaviour {
     [Header("Player")]
     public float MoveSpeed = 2.0f;
@@ -46,7 +46,7 @@ public class CharMovement : MonoBehaviour {
     private int _animIDMotionSpeed;
 
 #if ENABLE_INPUT_SYSTEM 
-    private PlayerInput _playerInput;
+    //private PlayerInput _playerInput;
 #endif
     private Animator _animator;
     private Rigidbody _rb;
@@ -58,7 +58,7 @@ public class CharMovement : MonoBehaviour {
 
     private bool _hasAnimator;
 
-    private bool IsCurrentDeviceMouse => _playerInput != null && _playerInput.currentControlScheme == "KeyboardMouse";
+    //private bool IsCurrentDeviceMouse => _playerInput != null && _playerInput.currentControlScheme == "KeyboardMouse";
 
     private void Awake() {
         _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
@@ -68,8 +68,8 @@ public class CharMovement : MonoBehaviour {
         _hasAnimator = TryGetComponent(out _animator);
         _rb = GetComponent<Rigidbody>();
         _rb.constraints = RigidbodyConstraints.FreezeRotation;
-        _input = GetComponent<StarterAssetsInputs>();
-        _playerInput = GetComponent<PlayerInput>();
+        _input = StarterAssetsInputs.Instance;
+        //_playerInput = GetComponent<PlayerInput>();
         _movementControl = GetComponent<MovementControl>();
 
         AssignAnimationIDs();

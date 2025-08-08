@@ -87,9 +87,6 @@ public class PlateProperties2 : NetworkBehaviour {
             Destroy(addable.transform);
         }
     }
-    private double GetNetworkTime() {
-        return (NetworkServer.active || NetworkClient.active) ? NetworkTime.time : Time.timeAsDouble;
-    }
     private Rigidbody rb;
     public Rigidbody physics_rb;
     public Transform rotation;
@@ -131,13 +128,14 @@ public class PlateProperties2 : NetworkBehaviour {
 
         if (!isClient) {
             tweenEnum.activeInstances.Remove(tweenInstance);
-            tweenInstance.onFinished?.Invoke();
         }
+        if (isClient)
+            tweenInstance.onFinished?.Invoke();
         tweenInstance.tween = null;
     }
     void OnAddToSyncList(TweenEnumerator tweenEnum, TweenInstance tweenInstance) {
         CustomTweenParams my_params = tweenInstance.tweenParams;
-        float timeProgressed = (float)(GetNetworkTime() - tweenInstance.startTime);
+        float timeProgressed = (float)(SharedFunctions.GetNetworkTime() - tweenInstance.startTime);
         tweenInstance.tween = DOTween.To(() => tweenInstance.value, delegate (Vector3 x) {
             tweenInstance.value = x;
         }, tweenInstance.goal, tweenInstance.duration)
@@ -230,7 +228,7 @@ public class PlateProperties2 : NetworkBehaviour {
             for (int i = enumerator.activeInstances.Count - 1; i >= 0; i--) {
                 TweenInstance tweenInst = enumerator.activeInstances[i];
                 if (isClient) {
-                    tweenInst.tween.ManualUpdate(Time.fixedDeltaTime, Time.fixedUnscaledDeltaTime);
+                    tweenInst.tween.ManualUpdate(Time.deltaTime, Time.fixedDeltaTime);
                     if (tweenInst.tween != null) {
                         if (tweenInst.isRelative)
                             enumerator.tempOffset += tweenInst.value;
@@ -239,7 +237,7 @@ public class PlateProperties2 : NetworkBehaviour {
                     }
                 }
                 else {
-                    if (tweenInst.duration * tweenInst.tweenParams.loops + tweenInst.startTime < GetNetworkTime()) {
+                    if (tweenInst.duration * tweenInst.tweenParams.loops + tweenInst.startTime < SharedFunctions.GetNetworkTime()) {
                         enumerator.activeInstances.RemoveAt(i);
                         continue;
                     }
@@ -315,7 +313,7 @@ public class PlateProperties2 : NetworkBehaviour {
             loopType = loopType
         };
         tweenInstance.goal = to;
-        tweenInstance.startTime = GetNetworkTime() - delay;
+        tweenInstance.startTime = SharedFunctions.GetNetworkTime() - delay;
         AddTweenToList(name, tweenInstance);
         return tweenInstance;
     }

@@ -1,4 +1,10 @@
+using Mirror;
+using System;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Assertions;
+
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -7,6 +13,8 @@ namespace StarterAssets
 {
 	public class StarterAssetsInputs : MonoBehaviour
 	{
+		public static StarterAssetsInputs Instance { get; private set; }
+
 		[Header("Character Input Values")]
 		public Vector2 move;
 		public Vector2 look;
@@ -20,7 +28,35 @@ namespace StarterAssets
 		public bool cursorLocked = true;
 		public bool cursorInputForLook = true;
 
-		public void OnMove(InputValue value)
+		public Action menuToggledEvent;
+		private PlayerInput _inputAction;
+
+        private void Awake() {
+            Assert.IsNull(Instance);
+            Instance = this;
+        }
+        private void Start()
+        {
+			_inputAction = GetComponent<PlayerInput>();
+			SetControlsEnabled("Menu", true);
+        }
+		public void OnDiedRpc() {
+			SetControlsEnabled("Menu", false);
+		}
+		public void SetControlsEnabled(string actionName, bool enabled) {
+			var map = _inputAction.actions.FindActionMap(actionName);
+			if (map.enabled != enabled) {
+				if (enabled)
+					map.Enable();
+				else
+					map.Disable();
+			}
+        }
+		public bool GetControlsEnabled(string actionName) {
+			var map = _inputAction.actions.FindActionMap(actionName);
+			return map.enabled;
+		}
+        public void OnMove(InputValue value)
 		{
 			MoveInput(value.Get<Vector2>());
 		}
@@ -73,6 +109,12 @@ namespace StarterAssets
 		{
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}
-	}
+
+		public void OnToggleMenu()
+		{
+			menuToggledEvent.Invoke();
+		}
+
+    }
 	
 }

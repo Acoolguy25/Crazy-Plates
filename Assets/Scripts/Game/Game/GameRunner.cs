@@ -4,20 +4,24 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class GameRunner : MonoBehaviour
 {
-    [Header("Grid Settings")]
-    public int n = 5;              // Grid size (n x n)
+    [Header("Placement Settings")]
+    public int n = 3;              // Grid size (n x n)
     public float sep_x = 0.5f;     // Space between plates in X
     public float sep_z = 0.5f;     // Space between plates in Z
 
-    [Header("Plate Settings")]
+    [Header("Asset Settings")]
     public GameObject platePrefab; // Plate prefab (e.g., Cube or Plane)
+    //public GameObject playerPrefab;
 
-    [Header("Game Events")]
+    [Header("Private Variables")]
     private Events eventsScript;
+    private Coroutine gameCoroutine;
 
     [Header("Game Settings")]
     public float gameStartDelay = 5f;
@@ -30,6 +34,7 @@ public class GameRunner : MonoBehaviour
     public int debugFrameRate = -1;
     private float TimeBetweenEvents;
     public bool activeServer;
+
     string GetDescMessage(string[] messages, ushort length) {
         string retStr = string.Empty;
         ushort messagesLength = (ushort)messages.Length;
@@ -68,13 +73,14 @@ public class GameRunner : MonoBehaviour
     {
         if (activeServer)
             yield return new WaitUntil(() => NetworkServer.active && NetworkTime.time > 0);
-        #if !UNITY_EDITOR
+#if !UNITY_EDITOR
             GameEvents.Instance.GameMessage = new GameMessage(
                 "Game will begin in {0}",
                 NetworkTime.time + gameStartDelay);
             yield return new WaitForSeconds(gameStartDelay);
-        #endif
-
+#endif
+        ServerProperties.Instance.GameInProgress = true;
+        ServerProperties.Instance.GameStartTime = SharedFunctions.GetNetworkTime();
         while (true){
         startOfLoop: while (debugMode && !runGame)
                 yield return null;
@@ -106,7 +112,7 @@ public class GameRunner : MonoBehaviour
                 if (activeServer) {
                     GameEvents.Instance.GameMessage = new GameMessage(
                     $"{platesAffected} {typeText} will {string.Format(selEvent.displayText, variant, variant == 1 ? selEvent.displayUnits.Item1 : selEvent.displayUnits.Item2)}" + " in {0}",
-                    NetworkTime.time + TimeBetweenEvents);
+                    SharedFunctions.GetNetworkTime() + TimeBetweenEvents);
                     GameEvents.Instance.DescMessage = selEvent.description;
                 }
                 yield return new WaitForSeconds(TimeBetweenEvents);
@@ -156,8 +162,9 @@ public class GameRunner : MonoBehaviour
             return;
         }
         //DOTween.Init(false, false, LogBehaviour.Default).SetCapacity(200, 50).SetManualUpdate(true);
-        //DOTween.useSmoothDeltaTime = true; // Use smooth delta time for animations
+        DOTween.useSmoothDeltaTime = true; // Use smooth delta time for animations
         DOTween.defaultUpdateType = UpdateType.Normal; // Use FixedUpdate for animations
+        DOTween.timeScale = 1f;
         eventsScript = GetComponent<Events>();
         TimeBetweenEvents = 3f;
         // Get actual size of the prefab (renderer bounds)
@@ -171,10 +178,9 @@ public class GameRunner : MonoBehaviour
 
         int plateCount = 0;
 
-        for (int x = 0; x < n; x++)
-        {
-            for (int z = 0; z < n; z++)
-            {
+        List<Transform> CenterPlates = new();
+        for (int x = 0; x < n; x++){
+            for (int z = 0; z < n; z++){
                 Vector3 pos = new Vector3(
                     x * (w + sep_x) - gridOffsetX,
                     0,
@@ -185,10 +191,38 @@ public class GameRunner : MonoBehaviour
                 plate.name = $"Plate_{++plateCount}";
                 if (activeServer)
                     NetworkServer.Spawn(plate);
+                if (Mathf.Abs(x - n / 2) * Mathf.Abs(z - n / 2) <= ServerProperties.Instance.players.Count) {
+                    //ServerProperties.Instance.SpawnPoints.Add(pos + vecOffset);
+                    CenterPlates.Insert(UnityEngine.Random.Range(0, CenterPlates.Count+1), plate.transform);
+                }
             }
         }
+        foreach (PlayerData playerData in ServerProperties.Instance.players) {
+            Assert.IsTrue(CenterPlates.Count > 0, "No more spawnpoints (Players > Plates)");
+            Transform plate = CenterPlates[0];
+            Vector3 vecOffset = (plate.GetComponent<PlateProperties2>().render.lossyScale.y / 2) * Vector3.up;
 
-        StartCoroutine(RunGame());
+            playerData.playerController.SpawnCharacter(playerData.playerController.connectionToClient,
+                "Character",
+                plate.position + vecOffset);
+            CenterPlates.RemoveAt(0);
+        }
+
+        ServerEvents.Instance.PlayerDied += OnDied;
+
+        gameCoroutine = StartCoroutine(RunGame());
+    }
+
+    public void OnDied(PlayerController player) {
+        if (ServerProperties.Instance.AlivePlayers <= (ServerProperties.Instance.SinglePlayer? 0: 1))
+            EndGame();
+    }
+
+    public void EndGame() {
+        Assert.IsNotNull(gameCoroutine);
+        StopCoroutine(gameCoroutine);
+        GameEvents.Instance.SurvivalTime = ServerProperties.Instance.GameDuration;
+        ServerProperties.Instance.GameInProgress = false;
     }
 
     private Vector3 GetPrefabWorldSize(GameObject prefab)
