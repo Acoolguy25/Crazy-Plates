@@ -5,6 +5,10 @@ using Unity.Cinemachine;
 public class CameraController : MonoBehaviour
 {
     public static CameraController Instance;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        Instance = null;
+    }
     public Camera mainCamera { get; private set; }
     public Camera getCamera(string cameraName) {
         cameraName += "Camera";

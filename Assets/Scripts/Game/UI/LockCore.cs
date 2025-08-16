@@ -11,6 +11,12 @@ public class LockCore : MonoBehaviour {
     protected bool locked = false;
     [Header("Storage Container for other classes")]
     public bool genericLock = false;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        instances.Clear();
+        globalCount = 0;
+    }
     private void ChangeLockCount(int amount, bool started = false) {
         Assert.IsTrue(exemptions >= 0, "Exemptions are negative for " + gameObject.name);
         Assert.IsTrue(lockCount >= 0, "LockCount is negative: " + lockCount.ToString() + " for " + gameObject.name);

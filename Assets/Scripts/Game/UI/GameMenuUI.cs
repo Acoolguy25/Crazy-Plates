@@ -17,6 +17,11 @@ public class GameMenuUI : MonoBehaviour
     private LockUI gameLock;
     private LockUI menuLock;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        Instance = null;
+    }
+
     private void Awake()
     {
         Assert.IsNull(Instance);
@@ -28,7 +33,7 @@ public class GameMenuUI : MonoBehaviour
         gameLock = gameCanvas.GetComponent<LockUI>();
 
         menuLock = menuGroup.GetComponent<LockUI>();
-        MenuActive = menuGroup.alpha == 1f;
+        MenuActive = false; //menuGroup.alpha == 1f;
     }
     private void Start() {
         StarterAssetsInputs.Instance.menuToggledEvent += ToggleMenu;

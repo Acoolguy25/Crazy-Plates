@@ -16,6 +16,11 @@ public class GameCanvasMain : MonoBehaviour
     public Dictionary<string, LockUI> GameLocks = new();
     private GameCanvasElems _gameCanvasElements;
     private Coroutine _topbar_coroutine;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        Instance = null;
+        SelectedGroup = null;
+    }
     private void Awake()
     {
         Assert.IsTrue(Instance == null);

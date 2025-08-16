@@ -31,6 +31,10 @@ namespace StarterAssets
 		public Action menuToggledEvent;
 		private PlayerInput _inputAction;
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void Init() {
+            Instance = null;
+        }
         private void Awake() {
             Assert.IsNull(Instance);
             Instance = this;

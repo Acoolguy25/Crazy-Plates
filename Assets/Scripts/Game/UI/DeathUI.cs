@@ -9,6 +9,11 @@ public class DeathUI : MonoBehaviour
 
     private GameCanvasElems _gameCanvasElements;
     private GameCanvasMain gameCanvasMain;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        Instance = null;
+    }
     private void Awake() {
         Assert.IsNull(Instance);
         Instance = this;

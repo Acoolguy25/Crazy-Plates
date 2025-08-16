@@ -30,6 +30,10 @@ public class ServerProperties : NetworkBehaviour
     //[Header("Server Properties")]
     //public List<Vector3> SpawnPoints;
     public static ServerProperties Instance { get; private set; }
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        Instance = null;
+    }
     void Awake()
     {
         Instance = this;

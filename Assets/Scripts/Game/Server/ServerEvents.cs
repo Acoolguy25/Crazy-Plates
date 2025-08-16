@@ -10,6 +10,10 @@ public class ServerEvents: MonoBehaviour {
 
     public Action<PlayerController> PlayerDied;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        Instance = null;
+    }
     private void Awake() {
         Assert.IsNull(Instance);
 

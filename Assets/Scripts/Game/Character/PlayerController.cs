@@ -27,16 +27,21 @@ public class PlayerController : NetworkBehaviour
     [Header("Shared Public Variables")]
     public CharacterControl characterControl { get; private set; }
     public Transform cineObject; // reference
-    //[Header("Private Server Variables")]
-    //public NetworkConnectionToClient clientConnection;
-    //private Vector3 MoveToSpawnpoint() {
-    //    int spawnPoints = ServerProperties.Instance.SpawnPoints.Count;
-    //    Assert.IsTrue(spawnPoints > 0, "No Spawnpoints Left!");
-    //    int spawnIdx = Random.Range(0, spawnPoints);
-    //    Vector3 spawnLoc = ServerProperties.Instance.SpawnPoints[spawnIdx];
-    //    ServerProperties.Instance.SpawnPoints.RemoveAt(spawnIdx);
-    //    return spawnLoc;
-    //}
+                                 //[Header("Private Server Variables")]
+                                 //public NetworkConnectionToClient clientConnection;
+                                 //private Vector3 MoveToSpawnpoint() {
+                                 //    int spawnPoints = ServerProperties.Instance.SpawnPoints.Count;
+                                 //    Assert.IsTrue(spawnPoints > 0, "No Spawnpoints Left!");
+                                 //    int spawnIdx = Random.Range(0, spawnPoints);
+                                 //    Vector3 spawnLoc = ServerProperties.Instance.SpawnPoints[spawnIdx];
+                                 //    ServerProperties.Instance.SpawnPoints.RemoveAt(spawnIdx);
+                                 //    return spawnLoc;
+                                 //}
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        Player = null;
+    }
     public static Vector3 GetCharacterOffset(Transform character) {
         Collider collider = character.GetComponent<Collider>();
         Vector3 charOffset = Vector3.zero;

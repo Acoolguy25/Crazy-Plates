@@ -77,6 +77,11 @@ public class NotificationScript : MonoBehaviour {
     private static TextMeshProUGUI titleText, descText;
     private static Transform buttonsContainer;
     private static LockUI notificationLock;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        DataList.Clear();
+        Visible = true;
+    }
     private void Awake() {
         notificationGroup = GetComponent<CanvasGroup>();
         notificationLock = GetComponent<LockUI>();
@@ -140,7 +145,6 @@ public class NotificationScript : MonoBehaviour {
                 LockCore.UnlockAll();
             }
         }
-        //LobbyUI.LobbyLock.ToggleLockAll(show);
 
         Tween tween = GenericTweens.TweenCanvasGroup(notificationGroup, show ? 1 : 0, 0.25f, notificationLock);
         return tween;

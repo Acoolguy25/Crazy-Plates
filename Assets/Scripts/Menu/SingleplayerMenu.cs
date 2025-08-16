@@ -6,6 +6,10 @@ using UnityEngine.Assertions;
 public class SingleplayerMenu : MonoBehaviour
 {
     public static SingleplayerMenu Instance;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        Instance = null;
+    }
     private void Awake() {
         Assert.IsNull(Instance);
         Instance = this;

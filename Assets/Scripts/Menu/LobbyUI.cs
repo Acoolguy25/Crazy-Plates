@@ -26,6 +26,10 @@ public class LobbyUI : MonoBehaviour
     static NotificationData QuitGameNotData;
     
     private Canvas canvas;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        Instance = null;
+    }
     private void Awake()
     {
         Assert.IsNull(Instance);

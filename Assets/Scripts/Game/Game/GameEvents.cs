@@ -18,6 +18,11 @@ public struct GameMessage
 public class GameEvents : NetworkBehaviour
 {
     public static GameEvents Instance { get; private set; }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        Instance = null;
+    }
     private void Awake()
     {
         if (Instance != null && Instance != this)
