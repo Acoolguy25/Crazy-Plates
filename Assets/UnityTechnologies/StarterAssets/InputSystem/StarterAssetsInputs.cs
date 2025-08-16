@@ -36,7 +36,7 @@ namespace StarterAssets
             Instance = null;
         }
         private void Awake() {
-            Assert.IsNull(Instance);
+            Assert.IsNull(Instance, "StarterAssetInputs is not null in Awake()");
             Instance = this;
         }
         private void Start()

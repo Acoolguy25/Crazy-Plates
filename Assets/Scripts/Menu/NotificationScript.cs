@@ -7,7 +7,6 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions;
-using static UnityEditor.U2D.ScriptablePacker;
 public enum NotificationButton: ushort {
     None = 0,
     Ok,
@@ -119,7 +118,7 @@ public class NotificationScript : MonoBehaviour {
     }
     public static void ButtonPress(NotificationButton buttonName) {
         Assert.IsTrue(Visible, "Panel is not visible yet " + buttonName.ToString() + " was selected!");
-        Assert.IsTrue(DataList[0].Equals(CurrentData));
+        Assert.IsTrue(DataList[0].Equals(CurrentData), "Notification's CurrentData is in DataList");
         DataList.RemoveAt(0);
         Tween tween = ToggleNotificationPanel(false);
         tween.onComplete += () => {

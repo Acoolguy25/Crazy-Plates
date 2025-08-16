@@ -23,7 +23,7 @@ public class GameCanvasMain : MonoBehaviour
     }
     private void Awake()
     {
-        Assert.IsTrue(Instance == null);
+        Assert.IsNull(Instance, "GameCanvasMain is not null in Awake()");
         _gameCanvasElements = GetComponent<GameCanvasElems>();
         Instance = this;
         foreach (CanvasGroup group in transform.GetComponentsInChildren<CanvasGroup>(true)){

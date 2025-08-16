@@ -12,8 +12,8 @@ public class LockComponent : LockCore {
         }
     }
     protected override void SetLocked(bool enabled, bool started) {
-        Debug.Log("Set LockComponent " + (enabled ? "Locked" : "Unlocked") 
-            + " " + gameObject.name + " | " + lockCount + " " + globalCount + " " + exemptions);
+        //Debug.Log("Set LockComponent " + (enabled ? "Locked" : "Unlocked") 
+            //+ " " + gameObject.name + " | " + lockCount + " " + globalCount + " " + exemptions);
         base.SetLocked(enabled, started);
         componentType.enabled = !enabled;
     }

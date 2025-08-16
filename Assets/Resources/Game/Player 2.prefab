@@ -1495,7 +1495,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
-  _assetId: 3470608439
+  _assetId: 2152119909
   serverOnly: 1
   visibility: 0
   hasSpawned: 0
@@ -1565,8 +1565,10 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  cineObject: {fileID: 9053250293666259648}
   isRagdoll: 0
+  isDead: 0
+  health: 0
+  maxHealth: 0
 --- !u!114 &715332671024595151
 MonoBehaviour:
   m_ObjectHideFlags: 0

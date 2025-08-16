@@ -1,6 +1,5 @@
 using System;
 using Unity;
-using UnityEditor.MemoryProfiler;
 using UnityEngine;
 using Mirror;
 using UnityEngine.Assertions;
@@ -15,7 +14,7 @@ public class ServerEvents: MonoBehaviour {
         Instance = null;
     }
     private void Awake() {
-        Assert.IsNull(Instance);
+        Assert.IsNull(Instance, "ServerEvents is not null in Awake()");
 
         Instance = this;
     }

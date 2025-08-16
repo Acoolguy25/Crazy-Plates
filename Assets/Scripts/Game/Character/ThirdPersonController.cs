@@ -53,7 +53,8 @@ public class ThirdPersonController : MonoBehaviour
     }
     void ToggleRightClick(bool newVal) {
         isRotating = newVal;
-        cinemachineInputAxisController.enabled = newVal;
+        if (cinemachineInputAxisController)
+            cinemachineInputAxisController.enabled = newVal;
         Cursor.lockState = newVal ? CursorLockMode.Confined : CursorLockMode.None;
         Cursor.visible = !newVal;
         //Mouse.current.position.value;
@@ -90,7 +91,7 @@ public class ThirdPersonController : MonoBehaviour
             out hit, 
             MaxZoom, layerMask)){
             forceScroll = Mathf.Floor(Mathf.Clamp(newScroll, 0, hit.distance - ForceScrollOffset));
-            Debug.Log("Hit: " + hit.collider.name + " at distance: " + hit.distance);
+            //Debug.Log("Hit: " + hit.collider.name + " at distance: " + hit.distance);
             orbitalFollow.Radius = Mathf.Lerp(orbitalFollow.Radius, forceScroll, started? 1: ForceScrollPercentage);
             Debug.DrawRay(cinemachineCamera.Follow.position, transform.TransformDirection(Vector3.back) * 1000, Color.white);
         }

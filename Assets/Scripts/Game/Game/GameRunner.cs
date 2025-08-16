@@ -7,6 +7,7 @@ using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.SceneManagement;
 
 public class GameRunner : MonoBehaviour
 {
@@ -37,6 +38,15 @@ public class GameRunner : MonoBehaviour
     public bool runGame = true; // Whether to run the game automatically
     public GameObject[] debugObjects;
     public int debugFrameRate = -1;
+
+    void Awake() {
+        if (!debugMode)
+            return;
+        if (!SceneManager.GetSceneByName("MainMenu").isLoaded) {
+            SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Additive);
+        }
+        //SceneManager.SetActiveScene(gameObject.scene);
+    }
 
     string GetDescMessage(string[] messages, ushort length) {
         string retStr = string.Empty;
@@ -79,7 +89,7 @@ public class GameRunner : MonoBehaviour
 #if !UNITY_EDITOR
             GameEvents.Instance.GameMessage = new GameMessage(
                 "Game will begin in {0}",
-                NetworkTime.time + gameStartDelay);
+                SharedFunctions.GetNetworkTime() + gameStartDelay);
             yield return new WaitForSeconds(gameStartDelay);
 #endif
         ServerProperties.Instance.GameInProgress = true;
@@ -185,34 +195,38 @@ public class GameRunner : MonoBehaviour
 
         int plateCount = 0;
 
-        List<Transform> CenterPlates = new();
-        for (int x = 0; x < n; x++){
-            for (int z = 0; z < n; z++){
-                Vector3 pos = new Vector3(
-                    x * (w + sep_x) - gridOffsetX,
-                    0,
-                    z * (h + sep_z) - gridOffsetZ
-                );
+        List<Transform> spiralPlates = new List<Transform>();
+        int x = n / 2, z = n / 2, step = 1, dir = 0;
+        Vector2Int[] dirs = { Vector2Int.right, Vector2Int.up, Vector2Int.left, Vector2Int.down };
 
-                GameObject plate = Instantiate(platePrefab, pos, Quaternion.identity, transform);
-                plate.name = $"Plate_{++plateCount}";
-                if (activeServer)
-                    NetworkServer.Spawn(plate);
-                if (Mathf.Abs(x - n / 2) * Mathf.Abs(z - n / 2) <= Mathf.Abs(ServerProperties.Instance.players.Count)) {
-                    //ServerProperties.Instance.SpawnPoints.Add(pos + vecOffset);
-                    CenterPlates.Insert(UnityEngine.Random.Range(0, CenterPlates.Count+1), plate.transform);
+        while (spiralPlates.Count < n * n) {
+            for (int r = 0; r < 2; r++) {
+                for (int i = 0; i < step; i++) {
+                    if (x >= 0 && x < n && z >= 0 && z < n) {
+                        Vector3 pos = new Vector3(x * (w + sep_x) - gridOffsetX, 0, z * (h + sep_z) - gridOffsetZ);
+                        GameObject plate = Instantiate(platePrefab, pos, Quaternion.identity, transform);
+                        plate.name = $"Plate_{++plateCount}";
+                        if (activeServer) NetworkServer.Spawn(plate);
+                        spiralPlates.Add(plate.transform);
+                    }
+                    x += dirs[dir].x; z += dirs[dir].y;
                 }
+                dir = (dir + 1) % 4;
             }
+            step++;
         }
-        foreach (PlayerData playerData in ServerProperties.Instance.players) {
-            Assert.IsTrue(CenterPlates.Count > 0, "No more spawnpoints (Players > Plates)");
-            Transform plate = CenterPlates[0];
-            Vector3 vecOffset = (plate.GetComponent<PlateProperties2>().render.lossyScale.y / 2) * Vector3.up;
+
+        var shuffledPlayers = SharedFunctions.ShuffleList(ServerProperties.Instance.players, ServerProperties.Instance.Random);
+        foreach (PlayerData playerData in shuffledPlayers) {
+            Assert.IsTrue(spiralPlates.Count > 0, "No more spawnpoints (Players > Plates)");
+            Transform plate = spiralPlates[0];
+            Transform render = plate.GetComponent<PlateProperties2>().render;
+            Vector3 vecOffset = (render.lossyScale.y) * Vector3.up;
 
             playerData.playerController.SpawnCharacter(playerData.playerController.connectionToClient,
                 "Character",
-                plate.position + vecOffset);
-            CenterPlates.RemoveAt(0);
+                render.position + vecOffset);
+            spiralPlates.RemoveAt(0);
         }
 
         ServerEvents.Instance.PlayerDied += OnDied;
@@ -226,7 +240,7 @@ public class GameRunner : MonoBehaviour
     }
 
     public void EndGame() {
-        Assert.IsNotNull(gameCoroutine);
+        Assert.IsNotNull(gameCoroutine, "EndGame() called but game not started!");
         StopCoroutine(gameCoroutine);
         GameEvents.Instance.SurvivalTime = ServerProperties.Instance.GameDuration;
         ServerProperties.Instance.GameInProgress = false;

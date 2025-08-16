@@ -19,7 +19,7 @@ public class SingleplayerTimeGUI : MonoBehaviour
         }
     }
     private static double timerValue = 0d;
-    private void Start()
+    private void OnEnable()
     {
         if (!ServerProperties.Instance.SinglePlayer) {
             Destroy(gameObject);

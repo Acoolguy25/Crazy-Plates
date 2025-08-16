@@ -32,7 +32,7 @@ public class LobbyUI : MonoBehaviour
     }
     private void Awake()
     {
-        Assert.IsNull(Instance);
+        Assert.IsNull(Instance, "LobbyUI is not null in Awake()");
         Instance = this;
 
         canvas = GetComponent<Canvas>();
@@ -49,7 +49,11 @@ public class LobbyUI : MonoBehaviour
             Title = "Quit Game?", 
             Message = "Are you sure that you want to quit the game?",
             Buttons = NotificationScript.YesNoButtons,
-            Callback = btn => OnQuit()
+            Callback = btn =>
+            {
+                if (btn == NotificationButton.Yes)
+                    OnQuit();
+            }
         };
     }
     private void CheckForSinglePlayer() {
@@ -107,7 +111,7 @@ public class LobbyUI : MonoBehaviour
             NetworkManager.singleton.StopClient(); // Client only
         }
     }
-    public void TweenTimeScale(float newTimeScale, float duration) {
+    public static void TweenTimeScale(float newTimeScale, float duration) {
         DOTween.Kill(Time.timeScale);
         if (duration > 0) {
             Tween tween = DOTween.To(() => Time.timeScale, x => Time.timeScale = x, newTimeScale, duration);

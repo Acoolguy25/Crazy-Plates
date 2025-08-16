@@ -2,7 +2,6 @@ using DG.Tweening.Core.Easing;
 using Mirror;
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem.Android;
 public struct GameMessage
 {
     public string Message;
@@ -18,7 +17,6 @@ public struct GameMessage
 public class GameEvents : NetworkBehaviour
 {
     public static GameEvents Instance { get; private set; }
-
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
         Instance = null;
@@ -46,7 +44,7 @@ public class GameEvents : NetworkBehaviour
     [SyncVar(hook = nameof(OnDescMessageChanged))]
     public string DescMessage = "";
     [SyncVar(hook = nameof(OnSurvivalTimeChanged))]
-    public double SurvivalTime = 0d;
+    public double SurvivalTime = -1d;
     public virtual void OnNewGameMessage(GameMessage _, GameMessage newString)
     {
         gameCanvasMain.UpdateTopBar(newString);

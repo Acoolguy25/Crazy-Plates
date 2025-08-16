@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public static class GenericTweens {
     public static void SetCanvasGroupEnabled(LockUI lockUI, bool enabled) {
-        Assert.IsNotNull(lockUI);
+        Assert.IsNotNull(lockUI, "SetCanvasGroupEnabled called but lockUI is null");
         //canvasGroup.interactable = enabled;
         //canvasGroup.blocksRaycasts = enabled;
         if (lockUI.genericLock != enabled) {
@@ -18,7 +18,7 @@ public static class GenericTweens {
         }
     }
     public static Tween TweenCanvasGroup(CanvasGroup canvasGroup, float alpha, float duration, LockUI lockUI = null) {
-        Assert.IsNotNull(canvasGroup);
+        Assert.IsNotNull(canvasGroup, "TweenCanvasGroup called but canvasGroup is null!");
         canvasGroup.DOKill();
         if (alpha == 0f && lockUI)
             SetCanvasGroupEnabled(lockUI, true);

@@ -87,11 +87,19 @@ public class PlayerController : NetworkBehaviour
 
         CameraController.Instance.SetCameraTarget(cineObject);
         characterControl = selCharacter.GetComponent<CharacterControl>();
+        //Debug.Break();
     }
     [Client]
     private void OnDiedRpc() {
         Assert.IsTrue(authority, "OnDeath: I don't have authority!");
         Assert.IsTrue(characterControl.isDead, "Character is not dead and is supposed to be!");
         StartCoroutine(DeathUI.Instance.PlayerDied());
+        if (ServerProperties.Instance.SinglePlayer) {
+            if (GameEvents.Instance.SurvivalTime > SaveManager.SaveInstance.singleplayerTime) {
+                SaveManager.SaveInstance.singleplayerTime = GameEvents.Instance.SurvivalTime;
+                SaveManager.SaveGame();
+                SingleplayerMenu.Instance.UpdateSinglePlayerTime(SaveManager.SaveInstance.singleplayerTime);
+            }
+        }
     }
 }

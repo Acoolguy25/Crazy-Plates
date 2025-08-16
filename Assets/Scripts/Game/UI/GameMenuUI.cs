@@ -24,7 +24,7 @@ public class GameMenuUI : MonoBehaviour
 
     private void Awake()
     {
-        Assert.IsNull(Instance);
+        Assert.IsNull(Instance, "GameMenuUI is not null in Awake()");
         Instance = this;
 
         menuCanvas = GetComponent<Canvas>();
@@ -58,7 +58,7 @@ public class GameMenuUI : MonoBehaviour
         //gameGroup.interactable = gameGroup.blocksRaycasts = !enabled;
         if (ServerProperties.Instance.SinglePlayer)
         {
-            LobbyUI.Instance.TweenTimeScale(enabled ? 0f : 1f, duration);
+            LobbyUI.TweenTimeScale(enabled ? 0f : 1f, duration);
         }
     }
     public void CloseMenu()
@@ -81,7 +81,7 @@ public class GameMenuUI : MonoBehaviour
     }
     public void QuitGame(bool Instant = false)
     {
-        Assert.IsNotNull(LobbyUI.Instance);
+        Assert.IsNotNull(LobbyUI.Instance, "QuitGame called but LobbyUI undefined");
         LobbyUI.Instance.BackToLobby(Instant);
     }
     private void OnApplicationPause(bool pause) {

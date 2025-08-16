@@ -15,7 +15,7 @@ public class DeathUI : MonoBehaviour
         Instance = null;
     }
     private void Awake() {
-        Assert.IsNull(Instance);
+        Assert.IsNull(Instance, "DeathUI is not null in Awake");
         Instance = this;
     }
     private void Start() {
@@ -33,7 +33,7 @@ public class DeathUI : MonoBehaviour
             gameCanvasMain.SetCanvasGroup(null, 2f);
 
             CameraController.Instance.SetActiveCamera("Death");
-            LobbyUI.Instance.TweenTimeScale(0f, 6f);
+            LobbyUI.TweenTimeScale(0f, 6f);
 
             yield return new WaitForSecondsRealtime(4f);
             if (_gameCanvasElements != null && _gameCanvasElements.deathGroup != null)

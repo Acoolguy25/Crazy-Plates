@@ -15,6 +15,8 @@ public class ServerProperties : NetworkBehaviour
     public bool GameInProgress = false;
     [SyncVar]
     public double GameStartTime = 0d;
+    [SyncVar]
+    public System.Random Random;
 
     public double GameDuration {
         get {
@@ -26,19 +28,21 @@ public class ServerProperties : NetworkBehaviour
     }
 
     readonly public SyncList<PlayerData> players = new();
-    
+
     //[Header("Server Properties")]
     //public List<Vector3> SpawnPoints;
     public static ServerProperties Instance { get; private set; }
+#if UNITY_EDITOR
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
         Instance = null;
     }
-    void Awake()
+#endif
+    public void Begin()
     {
         Instance = this;
     }
-    private void Start()
+    private void Awake()
     {
         DOTween.defaultTimeScaleIndependent = true;
     }

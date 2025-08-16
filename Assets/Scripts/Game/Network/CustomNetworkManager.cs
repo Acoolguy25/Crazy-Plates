@@ -7,24 +7,32 @@ public class CustomNetworkManager : NetworkManager
 {
     public bool isDedicatedServer = true;
     public GameRunner gameRunner;
+    public GameObject[] EnableOnStart;
+    public ServerProperties serverProperties;
     public override void Start()
     {
         base.Start();
-        if (!ServerProperties.Instance.SinglePlayer)
-        {
-            DontDestroyOnLoad(this);
-        }
+        //if (!ServerProperties.Instance.SinglePlayer)
+        //{
+        //    DontDestroyOnLoad(this);
+        //}
     }
     public override void OnStartServer()
     {
         base.OnStartServer();
         //Debug.Log("Server started and ready to accept connections.");
+        serverProperties.Begin();
+        foreach (var gameObj in EnableOnStart)
+            gameObj.SetActive(true);
     }
     public override void OnClientConnect()
     {
         base.OnClientConnect();
         //Debug.Log("Client connected to server.");
+        serverProperties.Begin();
         GameEvents.Instance.OnClientBegin();
+        foreach (var gameObj in EnableOnStart)
+            gameObj.SetActive(true);
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn) {
         InstantiateParameters parameters = new InstantiateParameters() {

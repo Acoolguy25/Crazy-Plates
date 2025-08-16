@@ -19,7 +19,7 @@ public class CameraController : MonoBehaviour
         return camera;
     }
     public void SetActiveCamera(Camera newCamera) {
-        Assert.IsNotNull(newCamera);
+        Assert.IsNotNull(newCamera, "Active Camera cannot be null");
         Assert.IsTrue(newCamera.transform.parent == transform, "Cameras must be parented to GameObject.Cameras");
         Assert.IsTrue(!mainCamera || newCamera.tag == mainCamera.tag, "Tags between cameras must be the same");
         foreach (var cam in GetComponentsInChildren<Camera>(true)) {

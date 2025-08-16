@@ -140,7 +140,7 @@ public class PlateProperties2 : NetworkBehaviour {
         }, tweenInstance.goal, tweenInstance.duration)
         .SetEase(my_params.ease).SetLoops(my_params.loops, my_params.loopType)
         .SetTarget(transform).SetAutoKill(true)
-        .SetUpdate(UpdateType.Manual)
+        .SetUpdate(UpdateType.Manual, false)
         .OnComplete(() => TweenCompleted(tweenEnum, tweenInstance));
         //Debug.Log($"Adding tween {tweenInstance.name} to {tweenEnum.name} list with duration" +
             //$"{tweenInstance.duration}, timeProgressed {timeProgressed}");

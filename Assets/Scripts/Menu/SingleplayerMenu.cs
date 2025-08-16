@@ -2,17 +2,22 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.Assertions;
+using TMPro;
 
 public class SingleplayerMenu : MonoBehaviour
 {
     public static SingleplayerMenu Instance;
+    public TextMeshProUGUI SingleplayerTimeText;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
         Instance = null;
     }
     private void Awake() {
-        Assert.IsNull(Instance);
+        Assert.IsNull(Instance, "SinglePlayerMenu is not null in Awake()");
         Instance = this;
+    }
+    public void UpdateSinglePlayerTime(double newTime) {
+        SingleplayerTimeText.text = "Best Time: " + SingleplayerTimeGUI.DisplayTimePassed(newTime);
     }
     public void SingleplayerExitActivated()
     {
@@ -38,7 +43,7 @@ public class SingleplayerMenu : MonoBehaviour
         AsyncOperation op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         yield return op;
         Scene newlyLoadedScene = SceneManager.GetSceneByName("Default");
-        Assert.IsTrue(newlyLoadedScene != null && newlyLoadedScene.isLoaded);
+        Assert.IsTrue(newlyLoadedScene != null && newlyLoadedScene.isLoaded, "[SinglePlayerMenu] Scene is not loaded!");
         LobbyUI.Instance.FadeBlackScreen(0);
     }
 }
