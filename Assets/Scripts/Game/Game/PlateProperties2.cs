@@ -126,11 +126,10 @@ public class PlateProperties2 : NetworkBehaviour {
                 tweenEnum.absoluteValue = tweenInstance.goal;
         }
 
-        if (!isClient) {
+        if (isServer) {
             tweenEnum.activeInstances.Remove(tweenInstance);
-        }
-        if (isClient)
             tweenInstance.onFinished?.Invoke();
+        }
         tweenInstance.tween = null;
     }
     void OnAddToSyncList(TweenEnumerator tweenEnum, TweenInstance tweenInstance) {
@@ -228,7 +227,7 @@ public class PlateProperties2 : NetworkBehaviour {
             for (int i = enumerator.activeInstances.Count - 1; i >= 0; i--) {
                 TweenInstance tweenInst = enumerator.activeInstances[i];
                 if (isClient) {
-                    tweenInst.tween.ManualUpdate(Time.deltaTime, Time.fixedDeltaTime);
+                    tweenInst.tween.ManualUpdate(Time.fixedDeltaTime, Time.fixedUnscaledDeltaTime);
                     if (tweenInst.tween != null) {
                         if (tweenInst.isRelative)
                             enumerator.tempOffset += tweenInst.value;

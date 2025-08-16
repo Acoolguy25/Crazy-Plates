@@ -1,6 +1,7 @@
 using DG.Tweening;
 using Mirror;
 using StarterAssets;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -12,7 +13,9 @@ public class GameMenuUI : MonoBehaviour
     public Canvas gameCanvas;
     private Canvas menuCanvas;
     private CanvasGroup menuGroup;
-    private CanvasGroup gameGroup;
+    //private CanvasGroup gameGroup;
+    private LockUI gameLock;
+    private LockUI menuLock;
 
     private void Awake()
     {
@@ -20,12 +23,17 @@ public class GameMenuUI : MonoBehaviour
         Instance = this;
 
         menuCanvas = GetComponent<Canvas>();
+
         menuGroup = menuCanvas.GetComponent<CanvasGroup>();
-        gameGroup = gameCanvas.GetComponent<CanvasGroup>();
+        gameLock = gameCanvas.GetComponent<LockUI>();
+
+        menuLock = menuGroup.GetComponent<LockUI>();
         MenuActive = menuGroup.alpha == 1f;
     }
     private void Start() {
         StarterAssetsInputs.Instance.menuToggledEvent += ToggleMenu;
+        MenuActive = !MenuActive;
+        SetMenuEnabled(!MenuActive, 0f); // Start with menu disabled
         //SetMenuEnabled(false, 0f);
     }
     private void OnDestroy() {
@@ -37,9 +45,12 @@ public class GameMenuUI : MonoBehaviour
             return;
         MenuActive = enabled;
         menuGroup.DOKill();
-        menuGroup.DOFade(enabled? 1: 0, duration).SetUpdate(true);
-        menuGroup.interactable = enabled;
-        gameGroup.interactable = !enabled;
+        GenericTweens.TweenCanvasGroup(menuGroup, enabled ? 1 : 0, duration, menuLock);
+        if (duration != 0f)
+            gameLock.ToggleLock(enabled);
+        //menuGroup.DOFade(enabled? 1: 0, duration).SetUpdate(true);
+        //menuGroup.interactable = menuGroup.blocksRaycasts = enabled;
+        //gameGroup.interactable = gameGroup.blocksRaycasts = !enabled;
         if (ServerProperties.Instance.SinglePlayer)
         {
             LobbyUI.Instance.TweenTimeScale(enabled ? 0f : 1f, duration);
@@ -59,7 +70,9 @@ public class GameMenuUI : MonoBehaviour
     }
     public void DisableAllUI()
     {
-        menuGroup.interactable = gameGroup.interactable = false;
+        //menuGroup.interactable = gameGroup.interactable = false;
+        menuLock.Lock();
+        gameLock.Lock();
     }
     public void QuitGame(bool Instant = false)
     {

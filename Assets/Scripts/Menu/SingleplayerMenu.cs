@@ -16,7 +16,7 @@ public class SingleplayerMenu : MonoBehaviour
     }
     public void SingleplayerStartActivated()
     {
-        LobbyUI.Instance.AddLock();
+        LobbyUI.LobbyLock.Lock();
         StartCoroutine(SingleplayerStartGame());
     }
     private IEnumerator SingleplayerStartGame(string sceneName = "Default")

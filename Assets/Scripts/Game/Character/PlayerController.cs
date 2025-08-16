@@ -37,6 +37,14 @@ public class PlayerController : NetworkBehaviour
     //    ServerProperties.Instance.SpawnPoints.RemoveAt(spawnIdx);
     //    return spawnLoc;
     //}
+    public static Vector3 GetCharacterOffset(Transform character) {
+        Collider collider = character.GetComponent<Collider>();
+        Vector3 charOffset = Vector3.zero;
+        if (collider != null) {
+            charOffset += Vector3.up * (character.position.y - collider.bounds.min.y);
+        }
+        return charOffset;
+    }
     [ClientCallback]
     private void Start()
     {
@@ -69,11 +77,7 @@ public class PlayerController : NetworkBehaviour
             child.gameObject.SetActive(found);
         }
         Assert.IsNotNull(selCharacter, "CharacterName not found!");
-        Collider collider = selCharacter.GetComponent<Collider>();
-        Vector3 charOffset = Vector3.zero;
-        if (collider != null) {
-            charOffset += Vector3.up * collider.bounds.extents.y; // extents is half the size
-        }
+        Vector3 charOffset = GetCharacterOffset(selCharacter);
         selCharacter.position = position + charOffset;
 
         CameraController.Instance.SetCameraTarget(cineObject);
@@ -83,6 +87,6 @@ public class PlayerController : NetworkBehaviour
     private void OnDiedRpc() {
         Assert.IsTrue(authority, "OnDeath: I don't have authority!");
         Assert.IsTrue(characterControl.isDead, "Character is not dead and is supposed to be!");
-        StartCoroutine(GameCanvasMain.Instance.PlayerDied());
+        StartCoroutine(DeathUI.Instance.PlayerDied());
     }
 }

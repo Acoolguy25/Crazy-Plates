@@ -50,7 +50,8 @@ public class GameEvents : NetworkBehaviour
     {
         gameCanvasMain.UpdateDescBar(newString);
     }
-    public void OnSurvivalTimeChanged(double _, double newString) {
-        gameCanvasMain.UpdateSurvivalTime(SurvivalTime);
+    public void OnSurvivalTimeChanged(double _, double newSurvivalTime) {
+        SingleplayerTimeGUI.UpdateDisplay(newSurvivalTime);
+        gameCanvasMain.UpdateSurvivalTime(newSurvivalTime);
     }
 }

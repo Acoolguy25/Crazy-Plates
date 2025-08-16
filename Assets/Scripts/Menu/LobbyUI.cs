@@ -8,11 +8,12 @@ using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class LobbyUI : MonoBehaviour
 {
-    private int UILockCount = 0;
-    public bool UILocked => (UILockCount > 0);
+    public static LockUI LobbyLock;
 
     public static LobbyUI Instance { get; private set; }
 
@@ -21,37 +22,46 @@ public class LobbyUI : MonoBehaviour
     public Transform Panels;
     public Transform CurrentPanel { get; private set; }
 
-    private Transform defaultPanel;
     private CanvasGroup lobbyPannelsGroup;
+    static NotificationData QuitGameNotData;
+    
     private Canvas canvas;
     private void Awake()
     {
         Assert.IsNull(Instance);
         Instance = this;
+
+        canvas = GetComponent<Canvas>();
+        lobbyPannelsGroup = Panels.GetComponent<CanvasGroup>();
+
+        CurrentPanel = Panels.GetChild(0);
+        //CurrentPanel = defaultPanel;
+        foreach (Transform panel in Panels) {
+            panel.gameObject.SetActive(CurrentPanel == panel);
+        }
+        LobbyLock = lobbyPannelsGroup.GetComponent<LockUI>();
+
+        QuitGameNotData = new NotificationData {
+            Title = "Quit Game?", 
+            Message = "Are you sure that you want to quit the game?",
+            Buttons = NotificationScript.YesNoButtons,
+            Callback = btn => OnQuit()
+        };
     }
     private void CheckForSinglePlayer() {
         bool isActiveScene = !SceneManager.GetSceneByName("Default").isLoaded;
         if (isActiveScene) {
             FadePanel.GetComponent<Image>().color = new Color(0, 0, 0, 1); // Set initial color to black with full opacity
-            FadeBlackScreen(0f);
+            FadeBlackScreen(0f, start: true);
         }
         else {
-            FadeBlackScreen(0f, 0f);
-            AddLock();
+            FadeBlackScreen(0f, duration: 0f, start: true);
+            LobbyLock.Lock();
         }
         SetCanvasVisibility(isActiveScene);
     }
     private void Start()
     {
-        canvas = GetComponent<Canvas>();
-        lobbyPannelsGroup = Panels.GetComponent<CanvasGroup>();
-
-        CurrentPanel = defaultPanel = Panels.GetChild(0);
-        //CurrentPanel = defaultPanel;
-        foreach (Transform panel in Panels)
-        {
-            panel.gameObject.SetActive(CurrentPanel == panel);
-        }
         CheckForSinglePlayer();
     }
     public void ChangeToPanel(Transform panel = null) {
@@ -61,12 +71,13 @@ public class LobbyUI : MonoBehaviour
         panel.gameObject.SetActive(true);
         CurrentPanel = panel;
     }
-    public void FadeBlackScreen(float alpha, float duration = 2f)
+    public void FadeBlackScreen(float alpha, float duration = 2f, bool start = false)
     {
-        DOTween.Kill(FadePanel);
-        Tween tween = FadePanel.GetComponent<Image>().DOFade(alpha, duration);
-        tween.SetTarget(FadePanel);
-        tween.SetUpdate(true);
+        Image fadePanelGroup = FadePanel.GetComponent<Image>();
+        GenericTweens.TweenImage(fadePanelGroup, alpha, duration);
+        if (!start)
+            LockCore.ToggleLockAll(alpha == 1f); // Lock the lobby when fading to black
+
         //FadePanel.GetComponent<Image>().CrossFadeAlpha(alpha, duration, true);
     }
     public void SetCanvasVisibility(bool enabled)
@@ -76,27 +87,6 @@ public class LobbyUI : MonoBehaviour
         {
             obj.SetActive(enabled);
         }
-    }
-    private void _SetUILocked(bool enabled)
-    {
-        if (UILocked == enabled) {
-            if (enabled)
-                Assert.IsTrue(!lobbyPannelsGroup.interactable, "Lobby Pannel was set to interactable through foreign agent!");
-            return;
-        }
-        lobbyPannelsGroup.interactable = lobbyPannelsGroup.blocksRaycasts = !enabled;
-    }
-    public void AddLock()
-    {
-        Assert.IsTrue(UILockCount >= 0);
-        _SetUILocked(true);
-        UILockCount++;
-    }
-    public void RemoveLock()
-    {
-        Assert.IsTrue(UILockCount >= 1);
-        _SetUILocked(false);
-        UILockCount--;
     }
     public void BackToLobby(bool Instant = false)
     {
@@ -149,7 +139,7 @@ public class LobbyUI : MonoBehaviour
             }
         }
 
-        LobbyUI.Instance.RemoveLock();
+        LobbyLock.Unlock();
         ResetTimeScale();
         LobbyUI.Instance.SetCanvasVisibility(true); // re-enable everything!
         if (!Instant)
@@ -157,5 +147,12 @@ public class LobbyUI : MonoBehaviour
             LobbyUI.Instance.FadeBlackScreen(0);
             yield return new WaitForSeconds(2f);
         }
+    }
+    public void QuitGameButton() {
+        NotificationScript.AddNotification(QuitGameNotData);
+    }
+    public void OnQuit() {
+        Debug.Log("User has quit the game");
+        Application.Quit(0);
     }
 }

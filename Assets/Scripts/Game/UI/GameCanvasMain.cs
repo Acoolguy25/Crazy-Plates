@@ -7,10 +7,13 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions;
+using System.Collections.Generic;
 
 public class GameCanvasMain : MonoBehaviour
 {
     public static GameCanvasMain Instance;
+    public static CanvasGroup SelectedGroup = null;
+    public Dictionary<string, LockUI> GameLocks = new();
     private GameCanvasElems _gameCanvasElements;
     private Coroutine _topbar_coroutine;
     private void Awake()
@@ -18,7 +21,16 @@ public class GameCanvasMain : MonoBehaviour
         Assert.IsTrue(Instance == null);
         _gameCanvasElements = GetComponent<GameCanvasElems>();
         Instance = this;
+        foreach (CanvasGroup group in transform.GetComponentsInChildren<CanvasGroup>(true)){
+            if (group.gameObject == gameObject)
+                continue;
+            GameLocks.Add(group.name, group.GetComponent<LockUI>());
+        }
+        SetCanvasGroup(_gameCanvasElements.defaultGroup, 0f);
     }
+    //private void Start() {
+        
+    //}
     public void UpdateTopBar(GameMessage newText) {
         if (_topbar_coroutine != null)
             StopCoroutine(_topbar_coroutine);
@@ -55,42 +67,25 @@ public class GameCanvasMain : MonoBehaviour
         _gameCanvasElements.highscore.text = SingleplayerTimeGUI.DisplayTimePassed(newTime);
     }
     public void SetCanvasGroup(CanvasGroup group, float duration = 2f) {
+        if (SelectedGroup == group)
+            return;
         foreach (CanvasGroup child in GetComponentsInChildren<CanvasGroup>(true)) {
             if (child.gameObject == gameObject)
                 continue;
             DOTween.Kill(child);
             bool enabled = child == group;
-            Tween tween = DOTween.To(() => child.alpha, x => child.alpha = x, enabled? 1: 0, duration);
-            tween.SetUpdate(true);
-            tween.SetTarget(child);
-            child.interactable = child.blocksRaycasts = enabled;
+            //Tween tween = DOTween.To(() => child.alpha, x => child.alpha = x, enabled? 1: 0, duration);
+            //tween.SetUpdate(true);
+            //tween.SetTarget(child);
+
+            //child.interactable = child.blocksRaycasts = enabled;
+            //GameLocks[child.name].ToggleLock(!enabled);
+            GenericTweens.TweenCanvasGroup(child, enabled ? 1 : 0, duration, GameLocks[child.name]);
         }
+        SelectedGroup = group;
     }
-    public IEnumerator PlayerDied() {
-        Assert.IsNotNull(LobbyUI.Instance, "Lobby Scene is not loaded!");
-        if (ServerProperties.Instance.SinglePlayer) {
-            if (_topbar_coroutine != null)
-                StopCoroutine(_topbar_coroutine);
-            StarterAssetsInputs.Instance.SetControlsEnabled("Menu", false);
-            _gameCanvasElements.defaultGroup.alpha = 1f;
-            _gameCanvasElements.deathGroup.alpha = 0f;
-
-            SetCanvasGroup(null, 2f);
-
-            CameraController.Instance.SetActiveCamera("Death");
-            LobbyUI.Instance.TweenTimeScale(0f, 6f);
-
-            yield return new WaitForSecondsRealtime(4f);
-            if (_gameCanvasElements != null && _gameCanvasElements.deathGroup != null)
-                SetCanvasGroup(_gameCanvasElements.deathGroup, 1.8f);
-        }
-        yield return null;
-    }
-    public void SinglePlayer_RetryGame() {
-        _gameCanvasElements.deathGroup.interactable = false;
-        GameMenuUI.Instance.DisableAllUI();
-
-        LobbyUI.Instance.RemoveLock();
-        SingleplayerMenu.Instance.SingleplayerStartActivated();
+    private void OnDisable() {
+        if (_topbar_coroutine != null)
+            StopCoroutine(_topbar_coroutine);
     }
 }

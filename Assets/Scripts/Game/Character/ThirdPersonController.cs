@@ -28,7 +28,7 @@ public class ThirdPersonController : MonoBehaviour
     void Start()
     {
         forceScroll = MaxZoom;
-        layerMask = ~LayerMask.GetMask("Character");
+        layerMask = ~LayerMask.GetMask("Character", "UI");
         orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
         cinemachineInputAxisController = GetComponent<CinemachineInputAxisController>();
         newScroll = orbitalFollow.Radius;
@@ -67,7 +67,7 @@ public class ThirdPersonController : MonoBehaviour
     {
         ToggleRightClick(false);
     }
-    void Update()
+    void LateUpdate()
     {
         UpdateCameraZoom();
         if (isRotating)
@@ -89,14 +89,14 @@ public class ThirdPersonController : MonoBehaviour
             transform.TransformDirection(Vector3.back), 
             out hit, 
             MaxZoom, layerMask)){
-            forceScroll = Mathf.Clamp(newScroll, 0, hit.distance - ForceScrollOffset);
-            //Debug.Log("Hit: " + hit.collider.name + " at distance: " + hit.distance);
+            forceScroll = Mathf.Floor(Mathf.Clamp(newScroll, 0, hit.distance - ForceScrollOffset));
+            Debug.Log("Hit: " + hit.collider.name + " at distance: " + hit.distance);
             orbitalFollow.Radius = Mathf.Lerp(orbitalFollow.Radius, forceScroll, started? 1: ForceScrollPercentage);
+            Debug.DrawRay(cinemachineCamera.Follow.position, transform.TransformDirection(Vector3.back) * 1000, Color.white);
         }
         else
         {
             orbitalFollow.Radius = Mathf.Lerp(orbitalFollow.Radius, newScroll, started ? 1 : ZoomPercentage);
-            //Debug.DrawRay(cinemachineCamera.Follow.position, transform.TransformDirection(Vector3.back) * 1000, Color.white);
             //Debug.Log("Did not Hit");
         }
     }

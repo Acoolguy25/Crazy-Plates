@@ -1,8 +1,10 @@
+using Mirror;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Splines;
 using UnityEngine.UIElements;
 
 public class MovementControl : MonoBehaviour {
@@ -22,15 +24,15 @@ public class MovementControl : MonoBehaviour {
     private Rigidbody rb;
     private int layerMask;
 
-    public float radiusMultiple = 2.25f;
-    public float heightMultiple = 2f;
-    public ushort noTouchDelay = 5;
+    //public float radiusMultiple = 2.25f;
+    //public float heightMultiple = 2f;
+    public static ushort noTouchDelay = 0;
 
     void Start() {
         charCntl = GetComponent<CharacterControl>();
         rb = GetComponent<Rigidbody>();
         boxCollider = GetComponent<BoxCollider>();
-        layerMask = ~LayerMask.GetMask("Character");
+        layerMask = ~LayerMask.GetMask("Character", "UI");
     }
     void UpdateContact(TouchingCollider contact) {
         var followInstance = contact.followInstance;
@@ -60,54 +62,57 @@ public class MovementControl : MonoBehaviour {
             }
         }
 
+        // Calculate box position & size
         Vector3 targetPosition = ApplyPlatformMotion();
         Bounds bounds = boxCollider.bounds;
 
-        // Shrink bounds slightly inward to avoid detecting side walls
         Vector3 boxSize = new Vector3(
             boxCollider.size.x * transform.lossyScale.x * 0.9f,
-            0.05f,
+            10f,
             boxCollider.size.z * transform.lossyScale.z * 0.9f
         );
-        // Dynamic parameters based on speed
-        float offsetUp = Mathf.Clamp(0.3f + platformVerticalSpeed/2, 0.1f, 6.0f);       // e.g. from 0.1 to 1.0
-        float castDistance = Mathf.Clamp(0.45f + platformVerticalSpeed, 0.45f, 12.0f); // e.g. from 0.65 to 2.0
 
-        Vector3 boxCenter = targetPosition + boxCollider.center - Vector3.up * (boxCollider.size.y * 0.5f - 0.025f)
-            + Vector3.up * offsetUp;
+        float offsetUp = 1f;
 
-        //Debug.Log($"Platform vertical speed: {platformVerticalSpeed}, up {offsetUp} x{castDistance}");
+        Vector3 boxCenter = (bounds.center - transform.position) + transform.position
+            - Vector3.up * (bounds.size.y * 0.5f - boxSize.y * 0.5f)
+            + Vector3.down * offsetUp;
 
-        RaycastHit[] hits = Physics.BoxCastAll(
+        Quaternion boxRotation = transform.rotation;
+
+        // Check overlaps
+        Collider[] overlaps = Physics.OverlapBox(
             boxCenter,
             boxSize * 0.5f,
-            Vector3.down,
-            rb.rotation,
-            castDistance,
+            boxRotation,
             layerMask,
             QueryTriggerInteraction.Ignore
         );
-        IsGrounded = hits.Length > 0;
+
+        IsGrounded = overlaps.Length > 0;
 
 #if UNITY_EDITOR
-        // Draw the cast box
-        DrawBoxCast(boxCenter, boxSize, rb.rotation, Color.red, castDistance);
+        if (!IsGrounded) {
+            DrawBox(boxCenter, boxSize * 0.5f, boxRotation, Color.red, 0f);
+            //Debug.Break();
+        }
 #endif
+
         // Update follow instance
         List<Transform> foundItems = new();
         //Transform newFollow = null;
 
-        foreach (RaycastHit hit in hits) {
-            if (IsGrounded && hit.collider.CompareTag("Plate")) {
+        foreach (Collider collider in overlaps) {
+            if (IsGrounded && collider.CompareTag("Plate")) {
                 //newFollow = hit.collider.transform;
-                Transform theirTransform = hit.collider.transform;
+                Transform theirTransform = collider.transform;
                 foundItems.Add(theirTransform);
             }
         }
         // Check conflicting
         for (int i = contacts.Count - 1; i >= 0; i--) {
             var contact = contacts[i];
-            if (foundItems.Contains(contact.followInstance)){ // Still touching
+            if (foundItems.Contains(contact.followInstance)) { // Still touching
                 UpdateContact(contact);
                 contact.noTouchingCount = 0;
                 foundItems.Remove(contact.followInstance);
@@ -121,20 +126,28 @@ public class MovementControl : MonoBehaviour {
         }
         // New touching items
         foreach (var hit in foundItems) {
-            TouchingCollider newContact = new();
-            newContact.followInstance = hit;
+            TouchingCollider newContact = new(){
+                followInstance = hit
+            };
             UpdateContact(newContact);
             contacts.Add(newContact);
         }
+
+        MovePosition(targetPosition);
     }
 
     void MovePosition(Vector3 position) {
-        if ((position - rb.position).magnitude > 0.0001f)
-            //rb.MovePosition(position);
-            rb.position = position;
+        //if ((position - transform.position).magnitude > 0f)
+        //rb.MovePosition(position);
+        transform.position = position;
+        //transform.position = position;
     }
 
     Vector3 ApplyPlatformMotion() {
+        if (contacts.Count == 0) {
+            // No platforms, just return current position
+            return transform.position;
+        }
         Vector3 summation = Vector3.zero;
         foreach (var contact in contacts) {
             var followInstance = contact.followInstance;
@@ -158,11 +171,9 @@ public class MovementControl : MonoBehaviour {
                     offset.y * (scaleDelta.y / lastFollowSize.y),
                     offset.z * (scaleDelta.z / lastFollowSize.z)
                 );
-                if (scaledOffset.magnitude > 0.001f)
-                    newPosition += scaledOffset;
+                newPosition += scaledOffset;
             }
 
-            MovePosition(newPosition);
 
             // Only apply Y-axis rotation delta
             float yRotation = rotDelta.eulerAngles.y;
@@ -173,35 +184,76 @@ public class MovementControl : MonoBehaviour {
             lastFollowPos = followInstance.position;
             lastFollowSize = followInstance.localScale;
             lastFollowRot = followInstance.rotation;
-            summation += newPosition - rb.position;
+            summation += newPosition - transform.position;
         }
-        return rb.position + summation;
+        Vector3 total = transform.position + summation;
+        return total;
     }
 #if UNITY_EDITOR
-    void DrawBoxCast(Vector3 center, Vector3 size, Quaternion rotation, Color color, float castDistance) {
+    void DrawBoxCast(Vector3 center, Vector3 size, Quaternion rotation, Color color, float castDistance, float duration, Vector3 direction) {
         Vector3 halfExtents = size * 0.5f;
-        Vector3[] corners = new Vector3[8];
 
-        // Calculate the 8 corners of the box
+        Vector3 start = center;
+        Vector3 end = center + direction.normalized * castDistance;
+
+        DrawBox(start, halfExtents, rotation, color, duration);
+        DrawBox(end, halfExtents, rotation, color, duration);
+
         for (int i = 0; i < 8; i++) {
-            float x = (i & 1) == 0 ? -1 : 1;
-            float y = (i & 2) == 0 ? -1 : 1;
-            float z = (i & 4) == 0 ? -1 : 1;
-            Vector3 cornerOffset = new Vector3(x, y, z);
-            corners[i] = center + rotation * Vector3.Scale(cornerOffset, halfExtents);
+            Vector3 s = GetBoxCorner(start, halfExtents, rotation, i);
+            Vector3 e = GetBoxCorner(end, halfExtents, rotation, i);
+            Debug.DrawLine(s, e, color, duration);
         }
+    }
+    void DrawBoxCast(Vector3 center, Vector3 size, Quaternion rotation, Color color, float castDistance, float duration) {
+        Vector3 halfExtents = size * 0.5f;
 
-        // Draw edges between corners (top square and bottom square)
-        for (int i = 0; i < 4; i++) {
-            Debug.DrawLine(corners[i], corners[(i + 1) % 4], color);         // bottom face
-            Debug.DrawLine(corners[i + 4], corners[((i + 1) % 4) + 4], color); // top face
-            Debug.DrawLine(corners[i], corners[i + 4], color);               // verticals
-        }
+        // Use rotation to find cast direction in world space
+        Vector3 dir = rotation * Vector3.down;
 
-        // Draw lines to the bottom of the cast
+        Vector3 start = center;
+        Vector3 end = center + dir * castDistance;
+
+        DrawBox(start, halfExtents, rotation, color, duration);
+        DrawBox(end, halfExtents, rotation, color, duration);
+
+        // Draw lines between corners
         for (int i = 0; i < 8; i++) {
-            Debug.DrawLine(corners[i], corners[i] + Vector3.down * castDistance, color);
+            Vector3 s = GetBoxCorner(start, halfExtents, rotation, i);
+            Vector3 e = GetBoxCorner(end, halfExtents, rotation, i);
+            Debug.DrawLine(s, e, color, duration);
         }
+    }
+
+    void DrawBox(Vector3 center, Vector3 halfExtents, Quaternion rotation, Color color, float duration) {
+        // Bottom square
+        DrawBoxEdge(center, halfExtents, rotation, 0, 1, color, duration);
+        DrawBoxEdge(center, halfExtents, rotation, 1, 3, color, duration);
+        DrawBoxEdge(center, halfExtents, rotation, 3, 2, color, duration);
+        DrawBoxEdge(center, halfExtents, rotation, 2, 0, color, duration);
+
+        // Top square
+        DrawBoxEdge(center, halfExtents, rotation, 4, 5, color, duration);
+        DrawBoxEdge(center, halfExtents, rotation, 5, 7, color, duration);
+        DrawBoxEdge(center, halfExtents, rotation, 7, 6, color, duration);
+        DrawBoxEdge(center, halfExtents, rotation, 6, 4, color, duration);
+
+        // Vertical edges
+        for (int i = 0; i < 4; i++)
+            DrawBoxEdge(center, halfExtents, rotation, i, i + 4, color, duration);
+    }
+
+    void DrawBoxEdge(Vector3 center, Vector3 halfExtents, Quaternion rotation, int i1, int i2, Color color, float duration) {
+        Debug.DrawLine(GetBoxCorner(center, halfExtents, rotation, i1),
+                       GetBoxCorner(center, halfExtents, rotation, i2),
+                       color, duration);
+    }
+
+    Vector3 GetBoxCorner(Vector3 center, Vector3 halfExtents, Quaternion rotation, int index) {
+        float x = (index & 1) == 0 ? -1 : 1;
+        float y = (index & 2) == 0 ? -1 : 1;
+        float z = (index & 4) == 0 ? -1 : 1;
+        return center + rotation * Vector3.Scale(new Vector3(x, y, z), halfExtents);
     }
 #endif
 }

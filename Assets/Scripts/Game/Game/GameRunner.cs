@@ -26,14 +26,17 @@ public class GameRunner : MonoBehaviour
     [Header("Game Settings")]
     public float gameStartDelay = 5f;
     public bool allEventsAtOnce = false; // If true, all events will be run at once, otherwise one by one
+    private float TimeBetweenEvents;
+    private bool activeServer => NetworkServer.active;
+    
 
     [Header("Debug")]
     public static bool debugMode = true;
+    public static bool debugObjectsEnabled = false;
     //public short debugEventNo = -1;
     public bool runGame = true; // Whether to run the game automatically
+    public GameObject[] debugObjects;
     public int debugFrameRate = -1;
-    private float TimeBetweenEvents;
-    public bool activeServer;
 
     string GetDescMessage(string[] messages, ushort length) {
         string retStr = string.Empty;
@@ -155,7 +158,11 @@ public class GameRunner : MonoBehaviour
     }
     public void StartGame()
     {
-        activeServer = NetworkServer.active;
+        if (debugMode && debugObjectsEnabled) {
+            foreach (GameObject obj in debugObjects) {
+                obj.SetActive(true);
+            }
+        }
         if (platePrefab == null)
         {
             Debug.LogError("Plate prefab is not assigned.");
@@ -191,7 +198,7 @@ public class GameRunner : MonoBehaviour
                 plate.name = $"Plate_{++plateCount}";
                 if (activeServer)
                     NetworkServer.Spawn(plate);
-                if (Mathf.Abs(x - n / 2) * Mathf.Abs(z - n / 2) <= ServerProperties.Instance.players.Count) {
+                if (Mathf.Abs(x - n / 2) * Mathf.Abs(z - n / 2) <= Mathf.Abs(ServerProperties.Instance.players.Count)) {
                     //ServerProperties.Instance.SpawnPoints.Add(pos + vecOffset);
                     CenterPlates.Insert(UnityEngine.Random.Range(0, CenterPlates.Count+1), plate.transform);
                 }
