@@ -4,6 +4,7 @@ using UnityEngine;
 public static class SaveManager {
     private static string savePath = Application.persistentDataPath + "/save.json";
     private static string password = "";
+    private static bool isEncrypted = false;
     [SerializeField]
     public class SavedGameData {
         public double singleplayerTime;
@@ -14,7 +15,8 @@ public static class SaveManager {
     public static SavedGameData SaveInstance;
     public static void SaveGame() {
         string json = JsonUtility.ToJson(SaveInstance, true);
-        //string encrypted = Encryption.EncryptDecrypt(json, password);
+        if (isEncrypted)
+            json = Encryption.EncryptDecrypt(json, password);
 
 #if UNITY_WEBGL
         // On WebGL, use PlayerPrefs
@@ -48,10 +50,10 @@ public static class SaveManager {
         }
 #endif
         if (json.Length > 0) {
-            //string decrypted = Encryption.EncryptDecrypt(json, password);
+            if (isEncrypted)
+                json = Encryption.EncryptDecrypt(json, password);
             SaveInstance = JsonUtility.FromJson<SavedGameData>(json);
             Debug.Log("GameData Loaded");
-            //return JsonUtility.FromJson<SavedGameData>(json);
         }
         else {
             SaveInstance = new SavedGameData();

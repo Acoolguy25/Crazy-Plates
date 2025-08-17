@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.Assertions;
 using TMPro;
+using Mirror.BouncyCastle.Bcpg;
 
 public class SingleplayerMenu : MonoBehaviour
 {
@@ -40,6 +41,13 @@ public class SingleplayerMenu : MonoBehaviour
             yield return unload_op;
         }
         LobbyUI.Instance.SetCanvasVisibility(false); // disable everything!
+        AsyncOperation op2 = null;
+        try {
+            op2 = SceneManager.UnloadSceneAsync("Default", UnloadSceneOptions.None);
+        }
+        catch { }
+        if (op2 != null)
+            yield return op2;
         AsyncOperation op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         yield return op;
         Scene newlyLoadedScene = SceneManager.GetSceneByName("Default");

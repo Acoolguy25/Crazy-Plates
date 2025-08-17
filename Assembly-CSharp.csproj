@@ -87,10 +87,11 @@
     <Compile Include="Assets\Scripts\Menu\SingleplayerMenu.cs" />
     <Compile Include="Assets\Scripts\Debug\DebugCharacter.cs" />
     <Compile Include="Assets\Scripts\Game\Game\Events.cs" />
+    <Compile Include="Assets\Scripts\Menu\MultiOptions\OptionToggle.cs" />
     <Compile Include="Assets\Scripts\Menu\LobbyUI.cs" />
     <Compile Include="Assets\Scripts\Game\Game\SingleplayerTimeGUI.cs" />
+    <Compile Include="Assets\Scripts\Menu\MultiOptions\MultiOptionsPanel.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\Utilities\MobileDisableAutoSwitchControls.cs" />
-    <Compile Include="Assets\Scripts\Game\UI\NewMonoBehaviourScript.cs" />
     <Compile Include="Assets\Scripts\Game\Events\Elevator.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualTouchZone.cs" />
     <Compile Include="Assets\Scripts\Game\UI\LockCore.cs" />
@@ -107,9 +108,12 @@
     <Compile Include="Assets\Scripts\Menu\NotificationScript.cs" />
     <Compile Include="Assets\Scripts\Game\Character\OldMovementControl.cs" />
     <Compile Include="Assets\Scripts\Game\UI\DeathUI.cs" />
+    <Compile Include="Assets\Scripts\Menu\MultiOptions\OptionBase.cs" />
     <Compile Include="Assets\TestScript.cs" />
     <Compile Include="Assets\Scripts\Game\Game\PlateProperties.cs" />
+    <Compile Include="Assets\Scripts\Menu\TextUpdater.cs" />
     <Compile Include="Assets\Scripts\Game\Game\GameEvents.cs" />
+    <Compile Include="Assets\Scripts\Menu\MultiOptions\OptionSlider.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CameraController.cs" />
   </ItemGroup>
   <ItemGroup>
