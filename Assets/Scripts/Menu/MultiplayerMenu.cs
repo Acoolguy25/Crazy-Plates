@@ -1,8 +1,23 @@
 using UnityEngine;
+using Mirror;
+using Unity.VisualScripting;
 
 public class MultiplayerMenu : MonoBehaviour
 {
-    public Transform StartPanel, CreatePanel, JoinPanel;
+    public Transform StartPanel, CreatePanel, JoinPanel, LobbyPanel;
+    public Transform OptionsPanel;
+    public ServerProperties serverProperties;
+    public static MultiplayerMenu singleton;
+#if UNITY_EDITOR
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init() {
+        singleton = null; // Reset singleton in editor to avoid issues with reloading scenes
+    }
+#endif
+    private void Awake() {
+        Debug.Assert(singleton == null, "There can only be one MultiplayerMenu instance.");
+        singleton = this;
+    }
     public void MultiplayerExitActivated() {
         LobbyUI.Instance.ChangeToPanel(null);
         MultiplayerChangePanel(StartPanel);
@@ -11,8 +26,54 @@ public class MultiplayerMenu : MonoBehaviour
         foreach (Transform child in StartPanel.parent) {
             child.gameObject.SetActive(panel == child);
         }
+        OptionsPanel.gameObject.SetActive(panel == CreatePanel);
+    }
+    public void MultiplayerCreateLobby() {
+        LockCore.LockAll();
+
+        CustomNetworkManager.singleton2.Init(false);
+        CustomNetworkManager.singleton2.StartHost();
+        MultiplayerChangePanel(LobbyPanel);
+
+        LockCore.UnlockAll();
+    }
+    public void MultiplayerLeaveLobby() {
+        NotificationData leaveLobbyNotiData = new NotificationData("Leave Lobby?",
+        "Are you sure you want to leave the lobby?", NotificationScript.YesNoButtons, OnLeaveLobby);
+        NotificationScript.AddNotification(leaveLobbyNotiData);
+    }
+    public void MultiplayerDeleteLobby() {
+        NotificationData deleteLobbyNotiData = new NotificationData("Delete Lobby?",
+        "Are you sure you want to delete the lobby?", NotificationScript.YesNoButtons, OnLeaveLobby);
+        NotificationScript.AddNotification(deleteLobbyNotiData);
+    }
+    public void OnLeaveLobby(NotificationButton btn) {
+        if (btn == NotificationButton.Yes) {
+            LobbyUI.Instance.DisconnectConnection();
+            MultiplayerChangePanel(StartPanel);
+        }
     }
     private void Start() {
+        OptionsPanel.GetComponentInChildren<MultiOptionsPanel>().Init(new MultiOptionsPanel.MultiOptionsPanelData()
+        {
+            options = new OptionBaseData[]
+            {
+                new OptionSliderData()
+                {
+                    name = "Maximum Players",
+                    description = "Maximum Players",
+                    minValue = 2f,
+                    maxValue = 9f,
+                    defaultValue = 5f,
+                },
+                new OptionToggleData()
+                {
+                    name = "LAN Only",
+                    description = "LAN Only",
+                    defaultValue = false,
+                },
+            }
+        });
         MultiplayerChangePanel(StartPanel);
     }
 }

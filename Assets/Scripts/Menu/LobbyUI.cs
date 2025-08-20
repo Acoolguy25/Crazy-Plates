@@ -100,7 +100,9 @@ public class LobbyUI : MonoBehaviour
     {
         StartCoroutine(_BackToLobby(Instant));
     }
-    public void DisconnectConnection() {
+    public void DisconnectConnection(bool LeaveWillingly = true) {
+        if (LeaveWillingly)
+            LobbyJoin.DidLeave = true;
         if (NetworkServer.active && NetworkClient.isConnected) {
             NetworkManager.singleton.StopHost(); // Host mode
         }

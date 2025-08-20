@@ -13,6 +13,7 @@ public class OptionBaseData {
 public class OptionBase : MonoBehaviour {
     public Action onChange;
     public Text descriptionText;
+    public OptionBaseData data_;
     public virtual void Set<T>(T val) {
         Debug.LogError($"Set<{val.GetType()}>() called on OptionBase");
     }
@@ -25,5 +26,6 @@ public class OptionBase : MonoBehaviour {
     }
     public virtual void Init(OptionBaseData data) {
         descriptionText.text = data.description;
+        data_ = data;
     }
 }

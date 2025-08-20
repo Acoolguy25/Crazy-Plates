@@ -16,7 +16,7 @@ namespace Mirror.Authenticators
         public string username;
         public string password;
 
-        readonly HashSet<NetworkConnectionToClient> connectionsPendingDisconnect = new HashSet<NetworkConnectionToClient>();
+        protected readonly HashSet<NetworkConnectionToClient> connectionsPendingDisconnect = new HashSet<NetworkConnectionToClient>();
 
         #region Messages
 
@@ -72,7 +72,7 @@ namespace Mirror.Authenticators
         /// </summary>
         /// <param name="conn">Connection to client.</param>
         /// <param name="msg">The message payload</param>
-        public void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)
+        public virtual void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)
         {
             //Debug.Log($"Authentication Request: {msg.authUsername} {msg.authPassword}");
 
@@ -114,7 +114,7 @@ namespace Mirror.Authenticators
             }
         }
 
-        IEnumerator DelayedDisconnect(NetworkConnectionToClient conn, float waitTime)
+        protected IEnumerator DelayedDisconnect(NetworkConnectionToClient conn, float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
 
@@ -169,7 +169,7 @@ namespace Mirror.Authenticators
         /// Called on client when the server's AuthResponseMessage arrives
         /// </summary>
         /// <param name="msg">The message payload</param>
-        public void OnAuthResponseMessage(AuthResponseMessage msg)
+        public virtual void OnAuthResponseMessage(AuthResponseMessage msg)
         {
             if (msg.code == 100)
             {

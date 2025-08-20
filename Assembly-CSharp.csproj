@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Game\UI\LockComponent.cs" />
+    <Compile Include="Assets\Scripts\Menu\MultiOptions\OptionPlayerList.cs" />
     <Compile Include="Assets\Scripts\Game\Game\PlateProperties2.cs" />
     <Compile Include="Assets\Scripts\Game\Character\MovementControl.cs" />
     <Compile Include="Assets\Scripts\Debug\TempGameRunner.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Assets\QuickOutline\Scripts\Outline.cs" />
     <Compile Include="Assets\Scripts\Game\Server\ServerEvents.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualJoystick.cs" />
+    <Compile Include="Assets\Scripts\Game\Server\ServerLobby.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CharMovement.cs" />
     <Compile Include="Assets\Scripts\Game\UI\GameMenuUI.cs" />
     <Compile Include="Assets\Scripts\Game\Persistence\GameLoader.cs" />
@@ -89,6 +91,7 @@
     <Compile Include="Assets\Scripts\Game\Game\Events.cs" />
     <Compile Include="Assets\Scripts\Menu\MultiOptions\OptionToggle.cs" />
     <Compile Include="Assets\Scripts\Menu\LobbyUI.cs" />
+    <Compile Include="Assets\Scripts\Game\Network\CustomBasicAuthenticator.cs" />
     <Compile Include="Assets\Scripts\Game\Game\SingleplayerTimeGUI.cs" />
     <Compile Include="Assets\Scripts\Menu\MultiOptions\MultiOptionsPanel.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\Utilities\MobileDisableAutoSwitchControls.cs" />
@@ -97,6 +100,7 @@
     <Compile Include="Assets\Scripts\Game\UI\LockCore.cs" />
     <Compile Include="Assets\Scripts\Generic\GenericTweens.cs" />
     <Compile Include="Assets\Scripts\Game\Character\PlayerController.cs" />
+    <Compile Include="Assets\Scripts\Menu\LobbyJoin.cs" />
     <Compile Include="Assets\Scripts\Menu\DummyTransport.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualButton.cs" />
     <Compile Include="Assets\Scripts\Game\Persistence\SaveManager.cs" />
@@ -106,6 +110,7 @@
     <Compile Include="Assets\Scripts\Game\Network\CustomNetworkManager.cs" />
     <Compile Include="Assets\Scripts\Game\Game\PlateAddableProperties.cs" />
     <Compile Include="Assets\Scripts\Menu\NotificationScript.cs" />
+    <Compile Include="Assets\Scripts\Game\UI\GameLobby.cs" />
     <Compile Include="Assets\Scripts\Game\Character\OldMovementControl.cs" />
     <Compile Include="Assets\Scripts\Game\UI\DeathUI.cs" />
     <Compile Include="Assets\Scripts\Menu\MultiOptions\OptionBase.cs" />
@@ -639,7 +644,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Collections.LowLevel.ILSupport">
-      <HintPath>Library\PackageCache\com.unity.collections@56bff8827a7e\Unity.Collections.LowLevel.ILSupport\Unity.Collections.LowLevel.ILSupport.dll</HintPath>
+      <HintPath>Library\PackageCache\com.unity.collections@d49facba0036\Unity.Collections.LowLevel.ILSupport\Unity.Collections.LowLevel.ILSupport.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="nunit.framework">
@@ -658,12 +663,16 @@
       <HintPath>Assets\Mirror\Plugins\Mono.Cecil\Mono.CecilX.Rocks.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.IO.Hashing">
+      <HintPath>Library\PackageCache\com.unity.collections@d49facba0036\Unity.Collections.Tests\System.IO.Hashing\System.IO.Hashing.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="DOTween">
       <HintPath>Assets\Plugins\Demigiant\DOTween\DOTween.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
-      <HintPath>Library\PackageCache\com.unity.visualscripting@6279e2b7c485\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
+      <HintPath>Library\PackageCache\com.unity.visualscripting@b4d700247d4b\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
@@ -671,7 +680,11 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Cecil">
-      <HintPath>Library\PackageCache\com.unity.nuget.mono-cecil@d6f9955a5d5f\Mono.Cecil.dll</HintPath>
+      <HintPath>Library\PackageCache\com.unity.nuget.mono-cecil@d78732e851eb\Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>Library\PackageCache\com.unity.collections@d49facba0036\Unity.Collections.Tests\System.Runtime.CompilerServices.Unsafe\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="netstandard">

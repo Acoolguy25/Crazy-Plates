@@ -17,6 +17,8 @@ public class ServerProperties : NetworkBehaviour
     public double GameStartTime = 0d;
     [SyncVar]
     public System.Random Random;
+    [SyncVar(hook = nameof(OnGameCodeChanged))]
+    public string GameCode = string.Empty;
 
     public double GameDuration {
         get {
@@ -26,7 +28,7 @@ public class ServerProperties : NetworkBehaviour
                 return SharedFunctions.GetNetworkTime() - GameStartTime;
         }
     }
-
+    
     readonly public SyncList<PlayerData> players = new();
 
     //[Header("Server Properties")]
@@ -42,8 +44,19 @@ public class ServerProperties : NetworkBehaviour
     {
         Instance = this;
     }
-    private void Awake()
-    {
-        DOTween.defaultTimeScaleIndependent = true;
+    [Client]
+    private void OnGameCodeChanged(string oldCode, string newCode) {
+        GameLobby.singleton.OnGameCodeChanged(newCode);
+    }
+    public override void OnStartServer() {
+        AlivePlayers = 0;
+        PlayerCount = 0;
+        GameInProgress = false;
+        GameStartTime = 0d;
+        Random = new System.Random();
+        //GameCode = "Loading...";
+        players.Clear();
+
+        DOTween.defaultTimeScaleIndependent = false;
     }
 }

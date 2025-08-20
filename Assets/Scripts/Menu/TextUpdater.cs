@@ -9,9 +9,13 @@ public class TextUpdater : MonoBehaviour
         textMeshPro = GetComponent<TextMeshProUGUI>();
     }
     public void UpdateText(string message) {
+        if (!textMeshPro)
+            Awake();
         textMeshPro.text = message;
     }
     public void UpdateText(float value) {
+        if (!textMeshPro)
+            Awake();
         textMeshPro.text = value.ToString();
     }
 }

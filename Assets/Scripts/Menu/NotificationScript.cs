@@ -67,6 +67,7 @@ public class NotificationScript : MonoBehaviour {
     public static readonly NotificationButton[] NoButtons = {};
     public static readonly NotificationButton[] CancelOnlyButtons = {NotificationButton.Cancel};
     public static readonly NotificationButton[] OkCancelButtons = { NotificationButton.Ok, NotificationButton.Cancel};
+    public static readonly NotificationButton[] OkOnlyButtons = { NotificationButton.Ok};
     public static readonly NotificationButton[] YesNoButtons = {NotificationButton.Yes, NotificationButton.No};
 
     public static List<NotificationData> DataList { get; private set; } = new();
@@ -76,6 +77,7 @@ public class NotificationScript : MonoBehaviour {
     private static TextMeshProUGUI titleText, descText;
     private static Transform buttonsContainer;
     private static LockUI notificationLock;
+    private static Tween hideTween = null;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
         DataList.Clear();
@@ -117,7 +119,9 @@ public class NotificationScript : MonoBehaviour {
         ButtonPress((NotificationButton)Enum.Parse(typeof(NotificationButton), buttonNameString));
     }
     public static void ButtonPress(NotificationButton buttonName) {
-        Assert.IsTrue(Visible, "Panel is not visible yet " + buttonName.ToString() + " was selected!");
+        if (!Visible)
+            return;
+        //Assert.IsTrue(Visible, "Panel is not visible yet " + buttonName.ToString() + " was selected!");
         Assert.IsTrue(DataList[0].Equals(CurrentData), "Notification's CurrentData is in DataList");
         DataList.RemoveAt(0);
         Tween tween = ToggleNotificationPanel(false);
@@ -129,6 +133,16 @@ public class NotificationScript : MonoBehaviour {
         };
         if (CurrentData.Callback != null)
             CurrentData.Callback(buttonName);
+        CurrentData = default;
+    }
+    public static void DeleteNotification(string title) {
+        List<NotificationData> deletions = DataList.FindAll(d => d.Title == title);
+        foreach (NotificationData deletion in deletions) {
+            if (Visible && deletion.Equals(CurrentData))
+                ButtonPress(NotificationButton.None);
+            else
+                DataList.Remove(deletion);
+        }
     }
     private static Tween ToggleNotificationPanel(bool show, float duration = 0.25f, bool started = false) {
         if (show == Visible)
@@ -145,7 +159,8 @@ public class NotificationScript : MonoBehaviour {
             }
         }
 
-        Tween tween = GenericTweens.TweenCanvasGroup(notificationGroup, show ? 1 : 0, 0.25f, notificationLock);
+        Tween tween = hideTween = GenericTweens.TweenCanvasGroup(notificationGroup, show ? 1 : 0, 0.25f, notificationLock);
+        tween.onKill += () => hideTween = null;
         return tween;
     }
     private static Tween ShowNewNotification() {
@@ -180,7 +195,7 @@ public class NotificationScript : MonoBehaviour {
         if (duplicate)
             return -1;
         DataList.Add(data);
-        if (!Visible)
+        if (!Visible && hideTween == null)
             ShowNewNotification();
         return 0;
     }

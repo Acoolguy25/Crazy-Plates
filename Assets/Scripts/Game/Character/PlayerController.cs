@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using Unity.Cinemachine;
 using StarterAssets;
+using Unity.VisualScripting;
 
 public enum PlayerGamemode: byte {
     Alive,
@@ -11,10 +12,15 @@ public enum PlayerGamemode: byte {
 }
 public struct PlayerData {
     public PlayerController playerController;
+    public string ipAddress;
     public string displayName;
     public PlayerGamemode gamemode;
-    public PlayerData(PlayerController playerController, string displayName, PlayerGamemode gamemode) {
+    public NetworkConnection serverConnection => playerController.connectionToServer;
+    public NetworkConnectionToClient clientConnection => playerController.connectionToClient;
+    public bool isLocalPlayer => playerController.isLocalPlayer;
+    public PlayerData(PlayerController playerController, string ip, string displayName, PlayerGamemode gamemode) {
         this.playerController = playerController;
+        this.ipAddress = ip;
         this.displayName = displayName;
         this.gamemode = gamemode;
     }
@@ -26,7 +32,7 @@ public class PlayerController : NetworkBehaviour
     public static PlayerController Player { get; private set; }
     [Header("Shared Public Variables")]
     public CharacterControl characterControl { get; private set; }
-    public Transform cineObject; // reference
+    //public Transform cineObject; // reference
                                  //[Header("Private Server Variables")]
                                  //public NetworkConnectionToClient clientConnection;
                                  //private Vector3 MoveToSpawnpoint() {
@@ -37,11 +43,14 @@ public class PlayerController : NetworkBehaviour
                                  //    ServerProperties.Instance.SpawnPoints.RemoveAt(spawnIdx);
                                  //    return spawnLoc;
                                  //}
-
+    [SyncVar(hook = nameof(OnActiveCharacterChanged))]
+    public string activeCharacter = "";
+#if UNITY_EDITOR
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
         Player = null;
     }
+#endif
     public static Vector3 GetCharacterOffset(Transform character) {
         Collider collider = character.GetComponent<Collider>();
         Vector3 charOffset = Vector3.zero;
@@ -53,21 +62,29 @@ public class PlayerController : NetworkBehaviour
     [ClientCallback]
     private void Start()
     {
-        if (!authority)
-            return;
-        Assert.IsTrue(cineObject, "Cinemachine Object is missing!");
+        //Assert.IsTrue(cineObject, "Cinemachine Object is missing!");
 
         if (isLocalPlayer) {
             Player = this;
+        }
+        foreach (Transform child in transform) {
+            child.gameObject.SetActive(false);
+        }
+    }
+    public void OnActiveCharacterChanged(string _, string newCharName) {
+        if (isLocalPlayer)
+            return;
+        foreach (Transform child in transform) {
+            child.gameObject.SetActive(child.name == newCharName);
         }
     }
     [Server]
     public void ServerStartUp() {
         uint plrIdx = ServerProperties.Instance.PlayerCount;
         //this.clientConnection = connectionToClient;
-        PlayerData playerData = new PlayerData(this, 
+        PlayerData playerData = new PlayerData(this, connectionToClient.address,
             ServerProperties.Instance.SinglePlayer? "You": "Player" + plrIdx.ToString(),
-            PlayerGamemode.Alive
+            PlayerGamemode.Menu
         );
         ServerProperties.Instance.players.Add(playerData);
         ServerProperties.Instance.PlayerCount++;
@@ -85,7 +102,7 @@ public class PlayerController : NetworkBehaviour
         Vector3 charOffset = GetCharacterOffset(selCharacter);
         selCharacter.position = position + charOffset;
 
-        CameraController.Instance.SetCameraTarget(cineObject);
+        CameraController.Instance.SetCameraTarget(selCharacter.Find("PlayerCameraRoot"));
         characterControl = selCharacter.GetComponent<CharacterControl>();
         //Debug.Break();
     }

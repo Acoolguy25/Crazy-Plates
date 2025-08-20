@@ -3,12 +3,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 #endif
 using StarterAssets;
+using Mirror;
 
 [RequireComponent(typeof(Rigidbody))]
 //#if ENABLE_INPUT_SYSTEM 
 //[RequireComponent(typeof(PlayerInput))]
 //#endif
-public class CharMovement : MonoBehaviour {
+public class CharMovement : NetworkBehaviour {
     [Header("Player")]
     public float MoveSpeed = 2.0f;
     public float SprintSpeed = 5.335f;
@@ -59,12 +60,14 @@ public class CharMovement : MonoBehaviour {
     private bool _hasAnimator;
 
     //private bool IsCurrentDeviceMouse => _playerInput != null && _playerInput.currentControlScheme == "KeyboardMouse";
-
+    [ClientCallback]
     private void Awake() {
+        if (!isLocalPlayer)
+            return;
         _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
     }
 
-    private void Start() {
+    public override void OnStartLocalPlayer() {
         _hasAnimator = TryGetComponent(out _animator);
         _rb = GetComponent<Rigidbody>();
         _rb.constraints = RigidbodyConstraints.FreezeRotation;
@@ -78,6 +81,8 @@ public class CharMovement : MonoBehaviour {
     }
 
     private void FixedUpdate() {
+        if (!isLocalPlayer)
+            return;
         if (_animator != null && !_animator.enabled) return;
 
         JumpAndGravity();

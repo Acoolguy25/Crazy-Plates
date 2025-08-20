@@ -26,7 +26,7 @@ public static class SaveManager {
 #else
         // On PC, write to file
         File.WriteAllText(savePath, json);
-        Debug.Log("Game Saved to " + savePath);
+        //Debug.Log("Game Saved to " + savePath);
 #endif
     }
 
@@ -53,7 +53,7 @@ public static class SaveManager {
             if (isEncrypted)
                 json = Encryption.EncryptDecrypt(json, password);
             SaveInstance = JsonUtility.FromJson<SavedGameData>(json);
-            Debug.Log("GameData Loaded");
+            //Debug.Log("GameData Loaded");
         }
         else {
             SaveInstance = new SavedGameData();
