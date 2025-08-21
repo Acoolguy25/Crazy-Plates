@@ -6,6 +6,9 @@ public class GameLobby : MonoBehaviour
 {
     public static GameLobby singleton { get; private set; }
     public Transform GameLobbyTransform;
+    public UnityEngine.UI.Button startGameBtn, RefreshBtn;
+    public TextMeshProUGUI startGameText, deleteText;
+    public TextMeshProUGUI titleText;
     public TMP_InputField gameCodeText;
 #if UNITY_EDITOR
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -24,6 +27,22 @@ public class GameLobby : MonoBehaviour
         ServerProperties.Instance.players.OnChange += (a, b, c) => OnPlayersChanged();
         OnPlayersChanged();
         OnGameCodeChanged(ServerProperties.Instance.GameCode);
+        deleteText.text = NetworkClient.activeHost ? "Delete Lobby" : "Leave Lobby";
+        RefreshBtn.gameObject.SetActive(NetworkClient.activeHost);
+        startGameBtn.gameObject.SetActive(NetworkClient.activeHost);
+    }
+    [Client]
+    public void RefreshBtns() {
+        if (ServerProperties.Instance.PlayerCount < ServerProperties.playersNeeded) {
+            startGameBtn.interactable = false;
+            startGameText.text = $"Need Players";
+            titleText.text = $"Waiting For Players ({ServerProperties.Instance.PlayerCount}/{ServerProperties.playersNeeded})";
+        }
+        else {
+            startGameBtn.interactable = true;
+            startGameText.text = $"Start Game";
+            titleText.text = $"Multiplayer ({ServerProperties.Instance.PlayerCount}/{ServerProperties.Instance.MaxPlayers})";
+        }
     }
     public void End(){
         playerListCore.Clear();
@@ -50,6 +69,7 @@ public class GameLobby : MonoBehaviour
         //foreach (PlayerData player in ServerProperties.Instance.players) {
         //    OptionPlayerList code = playerListCore.GetScript<OptionPlayerList>(player.ipAddress);
         //}
+        RefreshBtns();
     }
     [Client]
     public void OnGameCodeChanged(string gameCode) {

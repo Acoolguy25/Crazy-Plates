@@ -21,7 +21,14 @@ public class LobbyJoin : MonoBehaviour {
     }
     bool isJoining = false;
     private string JoinGameInternal(string encryptedJoinCode) {
-        string joinCode = Encryption.DecryptAscii(encryptedJoinCode, Encryption.liveEncryptionPassword);
+        string joinCode;
+        try {
+            joinCode = Encryption.DecryptAscii(encryptedJoinCode, Encryption.liveEncryptionPassword);
+        }
+        catch (Exception e) {
+            Debug.LogError($"Failed to decode: {e.Message}");
+            return "Invalid join code";
+        }
         if (string.IsNullOrEmpty(joinCode)) {
             return "Join code cannot be null or empty.";
         }
@@ -39,10 +46,10 @@ public class LobbyJoin : MonoBehaviour {
             return "Invalid port number in join code.";
         }
         DidLeave = false;
-        CustomNetworkManager.singleton2.networkAddress = ipAddress;
-        CustomNetworkManager.singleton2.GetComponent<SimpleWebTransport>().port = (ushort)port;
-        CustomNetworkManager.singleton2.Init(password: password);
         try {
+            CustomNetworkManager.singleton2.networkAddress = ipAddress;
+            CustomNetworkManager.singleton2.GetComponent<SimpleWebTransport>().port = (ushort)port;
+            CustomNetworkManager.singleton2.Init(password: password);
             CustomNetworkManager.singleton2.StartClient();
         }
         catch (Exception e) {

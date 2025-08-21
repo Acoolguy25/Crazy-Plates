@@ -81,7 +81,7 @@ public class CustomNetworkManager : NetworkManager
                 if (player.gamemode == PlayerGamemode.Alive) {
                     serverProperties.AlivePlayers--;
                 }
-                serverProperties.PlayerCount--;
+                //serverProperties.PlayerCount--;
                 serverProperties.players.Remove(player);
                 break;
             }
@@ -102,6 +102,7 @@ public class CustomNetworkManager : NetworkManager
         // instantiating a "Player" prefab gives it the name "Player(clone)"
         // => appending the connectionId is WAY more useful for debugging!
         player.name = $"{playerPrefab.name} [connId={conn.connectionId}]";
+        //serverProperties.PlayerCount++;
         NetworkServer.AddPlayerForConnection(conn, player);
 
         player.GetComponent<PlayerController>().ServerStartUp();

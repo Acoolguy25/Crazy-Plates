@@ -80,14 +80,14 @@ public class PlayerController : NetworkBehaviour
     }
     [Server]
     public void ServerStartUp() {
-        uint plrIdx = ServerProperties.Instance.PlayerCount;
+        int plrIdx = ServerProperties.Instance.PlayerCount;
         //this.clientConnection = connectionToClient;
         PlayerData playerData = new PlayerData(this, connectionToClient.address,
             ServerProperties.Instance.SinglePlayer? "You": "Player" + plrIdx.ToString(),
             PlayerGamemode.Menu
         );
         ServerProperties.Instance.players.Add(playerData);
-        ServerProperties.Instance.PlayerCount++;
+        //ServerProperties.Instance.PlayerCount++;
     }
     [TargetRpc]
     public void SpawnCharacter(NetworkConnectionToClient client, string characterName, Vector3 position) {

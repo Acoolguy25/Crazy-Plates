@@ -10,7 +10,7 @@ public class CustomBasicAuthenticator : BasicAuthenticator
 {
     public static Dictionary<string, double> kickIPs = new();
     public readonly static List<string> banIPs = new();
-    public static ushort maximumPlayers = 100;
+    //public static ushort maximumPlayers = 100;
     public static CustomBasicAuthenticator singleton { get; private set; }
 #if UNITY_EDITOR
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -51,8 +51,8 @@ public class CustomBasicAuthenticator : BasicAuthenticator
                 kickIPs.Remove(conn.address);
         }
         if (crashReason == null)
-            if (maximumPlayers <= NetworkServer.connections.Count)
-                crashReason = $"The maximum player count of {maximumPlayers} has been reached";
+            if (ServerProperties.Instance.MaxPlayers <= NetworkServer.connections.Count)
+                crashReason = $"The maximum player count of {ServerProperties.Instance.MaxPlayers} has been reached";
 
         bool shouldPass = crashReason == null && msg.authUsername == serverUsername && msg.authPassword == serverPassword;
         // check the credentials by calling your web server, database table, playfab api, or any method appropriate.

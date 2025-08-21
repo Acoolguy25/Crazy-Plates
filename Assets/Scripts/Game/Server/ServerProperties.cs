@@ -7,8 +7,10 @@ public class ServerProperties : NetworkBehaviour
 {
     [SyncVar]
     public ushort AlivePlayers = 1;
+    //[SyncVar]
+    public int PlayerCount => players.Count;
     [SyncVar]
-    public ushort PlayerCount = 0;
+    public ushort MaxPlayers = 5;
     [SyncVar]
     public bool SinglePlayer = true;
     [SyncVar]
@@ -19,6 +21,9 @@ public class ServerProperties : NetworkBehaviour
     public System.Random Random;
     [SyncVar(hook = nameof(OnGameCodeChanged))]
     public string GameCode = string.Empty;
+
+    // Non sync vars
+    public static ushort playersNeeded = 2;
 
     public double GameDuration {
         get {
@@ -50,7 +55,7 @@ public class ServerProperties : NetworkBehaviour
     }
     public override void OnStartServer() {
         AlivePlayers = 0;
-        PlayerCount = 0;
+        //PlayerCount = 0;
         GameInProgress = false;
         GameStartTime = 0d;
         Random = new System.Random();
