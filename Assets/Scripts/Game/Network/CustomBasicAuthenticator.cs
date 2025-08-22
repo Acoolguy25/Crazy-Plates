@@ -22,8 +22,10 @@ public class CustomBasicAuthenticator : BasicAuthenticator
         singleton = null;
     }
 #endif
-    public void Begin(){
+    public void Begin(bool clientOnly){
         singleton = this;
+        if (clientOnly)
+            return;
         string ipAddress = GetLocalIPAddress();
         Debug.Log($"Local IP Address: {ipAddress}");
         CustomNetworkManager.singleton2.networkAddress = allowExternalConnections ? "0.0.0.0" : ipAddress;

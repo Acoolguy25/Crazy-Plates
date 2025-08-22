@@ -50,7 +50,7 @@ public class LobbyJoin : MonoBehaviour {
             CustomNetworkManager.singleton2.networkAddress = ipAddress;
             NotificationScript.AddNotification(new NotificationData("Joining Game", $"Connecting to {ipAddress}...", NotificationScript.CancelOnlyButtons));
             //CustomNetworkManager.singleton2.GetComponent<SimpleWebTransport>().port = (ushort)port;
-            CustomNetworkManager.singleton2.Init(password: password);
+            CustomNetworkManager.singleton2.Init(password: password, clientOnly: true);
             CustomNetworkManager.singleton2.StartClient();
         }
         catch (Exception e) {

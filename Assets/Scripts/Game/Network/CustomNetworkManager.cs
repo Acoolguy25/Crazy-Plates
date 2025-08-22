@@ -36,7 +36,7 @@ public class CustomNetworkManager : NetworkManager
         //    DontDestroyOnLoad(this);
         //}
     }
-    public void Init(Dictionary<string, object> options = null, bool singleplayer = false, string password = null) {
+    public void Init(Dictionary<string, object> options = null, bool singleplayer = false, string password = null, bool clientOnly = false) {
         if (singleplayer)
             transport = GetComponent<DummyTransport>();
         else
@@ -52,7 +52,7 @@ public class CustomNetworkManager : NetworkManager
         serverProperties.SinglePlayer = singleplayer;
         serverProperties.Begin();
         
-        CustomBasicAuthenticator.Begin();
+        CustomBasicAuthenticator.Begin(clientOnly);
         if (password != null)
             CustomBasicAuthenticator.SetPassword(password);
     }
