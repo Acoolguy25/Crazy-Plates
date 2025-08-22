@@ -48,6 +48,7 @@ public class LobbyJoin : MonoBehaviour {
         DidLeave = false;
         try {
             CustomNetworkManager.singleton2.networkAddress = ipAddress;
+            NotificationScript.AddNotification(new NotificationData("Joining Game", $"Connecting to {ipAddress}...", NotificationScript.CancelOnlyButtons));
             //CustomNetworkManager.singleton2.GetComponent<SimpleWebTransport>().port = (ushort)port;
             CustomNetworkManager.singleton2.Init(password: password);
             CustomNetworkManager.singleton2.StartClient();
@@ -59,7 +60,6 @@ public class LobbyJoin : MonoBehaviour {
         return null;
     }
     public void JoinGame() {
-        NotificationScript.AddNotification(new NotificationData("Joining Game", "Please wait while we connect you to the game...", NotificationScript.CancelOnlyButtons));
         NetworkClient.OnErrorEvent += (error, str) => JoinGameFail(str);
         //CustomNetworkManager.singleton2.GetComponent<SimpleWebTransport>().OnClientError += (error, str) => JoinGameFail(str);
         isJoining = true;

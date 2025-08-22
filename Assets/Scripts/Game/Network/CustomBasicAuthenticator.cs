@@ -24,7 +24,9 @@ public class CustomBasicAuthenticator : BasicAuthenticator
 #endif
     public void Begin(){
         singleton = this;
-        CustomNetworkManager.singleton2.networkAddress = allowExternalConnections ? "0.0.0.0" : GetLocalIPAddress();
+        string ipAddress = GetLocalIPAddress();
+        Debug.Log($"Local IP Address: {ipAddress}");
+        CustomNetworkManager.singleton2.networkAddress = allowExternalConnections ? "0.0.0.0" : ipAddress;
     }
     private void Accept() {
         ClientAccept();
@@ -45,6 +47,12 @@ public class CustomBasicAuthenticator : BasicAuthenticator
             }
         }
         throw new System.Exception("No network adapters with an IPv4 address in the system!");
+        //using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0)) {
+        //    // Doesn’t actually send data — just used to figure out which local adapter would be used
+        //    socket.Connect("8.8.8.8", 65530);
+        //    var endPoint = socket.LocalEndPoint as IPEndPoint;
+        //    return endPoint?.Address.ToString() ?? throw new Exception("No IPv4 address found!");
+        //}
     }
     public override void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg) {
         
