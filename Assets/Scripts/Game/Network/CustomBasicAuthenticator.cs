@@ -1,15 +1,19 @@
 using Mirror;
+using Mirror.SimpleWeb;
 using Mirror.Authenticators;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using UnityEngine;
 
 public class CustomBasicAuthenticator : BasicAuthenticator
 {
     public static Dictionary<string, double> kickIPs = new();
     public readonly static List<string> banIPs = new();
+    public static bool allowExternalConnections = false;
     //public static ushort maximumPlayers = 100;
     public static CustomBasicAuthenticator singleton { get; private set; }
 #if UNITY_EDITOR
@@ -18,8 +22,9 @@ public class CustomBasicAuthenticator : BasicAuthenticator
         singleton = null;
     }
 #endif
-    public void Begin() {
+    public void Begin(){
         singleton = this;
+        CustomNetworkManager.singleton2.networkAddress = allowExternalConnections ? "0.0.0.0" : GetLocalIPAddress();
     }
     private void Accept() {
         ClientAccept();
@@ -32,6 +37,15 @@ public class CustomBasicAuthenticator : BasicAuthenticator
         // Authentication has been rejected
         ClientReject();
     }
+    public static string GetLocalIPAddress() {
+        foreach (var ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList) {
+            if (ip.AddressFamily == AddressFamily.InterNetwork) // IPv4 only
+            {
+                return ip.ToString();
+            }
+        }
+        throw new System.Exception("No network adapters with an IPv4 address in the system!");
+    }
     public override void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg) {
         
         //Debug.Log($"Authentication Request: {msg.authUsername} {msg.authPassword}");
@@ -40,19 +54,21 @@ public class CustomBasicAuthenticator : BasicAuthenticator
 
         string crashReason = null;
         double kickTime;
-        if (banIPs.Any((ip) => ip == conn.address)) {
-            crashReason = "You are banned from this server.";
+        if (!(conn is LocalConnectionToClient)) {
+            if (banIPs.Any((ip) => ip == conn.address)) {
+                crashReason = "You are banned from this server.";
+            }
+            else if (kickIPs.TryGetValue(conn.address, out kickTime)) {
+                double timeLeft = kickTime - Time.realtimeSinceStartupAsDouble;
+                if (timeLeft > 0d)
+                    crashReason = timeLeft > (86400 * 365) ? "You are banned from this server" : $"You are kicked from this server. Try again in {Math.Ceiling(timeLeft)} seconds.";
+                else
+                    kickIPs.Remove(conn.address);
+            }
+            if (crashReason == null)
+                if (ServerProperties.Instance.MaxPlayers <= NetworkServer.connections.Count)
+                    crashReason = $"The maximum player count of {ServerProperties.Instance.MaxPlayers} has been reached";
         }
-        else if (kickIPs.TryGetValue(conn.address, out kickTime)) {
-            double timeLeft = kickTime - Time.realtimeSinceStartupAsDouble;
-            if (timeLeft > 0d)
-                crashReason = timeLeft > (86400 * 365) ? "You are banned from this server" : $"You are kicked from this server. Try again in {Math.Ceiling(timeLeft)} seconds.";
-            else
-                kickIPs.Remove(conn.address);
-        }
-        if (crashReason == null)
-            if (ServerProperties.Instance.MaxPlayers <= NetworkServer.connections.Count)
-                crashReason = $"The maximum player count of {ServerProperties.Instance.MaxPlayers} has been reached";
 
         bool shouldPass = crashReason == null && msg.authUsername == serverUsername && msg.authPassword == serverPassword;
         // check the credentials by calling your web server, database table, playfab api, or any method appropriate.

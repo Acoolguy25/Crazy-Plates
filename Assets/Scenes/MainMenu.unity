@@ -12951,7 +12951,7 @@ MonoBehaviour:
   receiveTimeout: 20000
   noDelay: 1
   sslEnabled: 0
-  sslProtocols: 3072
+  sslProtocols: 240
   sslCertJson: ./cert.json
   port: 27777
   batchSend: 1

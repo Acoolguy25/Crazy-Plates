@@ -62,6 +62,15 @@ public class MultiOptionsPanel : MonoBehaviour
         }
         return optionBase;
     }
+    public Dictionary<string, object> GetKeyValuePairs() {
+        Dictionary<string, object> keyValuePairs = new();
+        foreach (var option in current_options) {
+            var optionBase = option.Value;
+            Debug.Assert(optionBase != null, $"OptionBase for {option.Key} is null.");
+            keyValuePairs[option.Key] = optionBase.Get<object>();
+        }
+        return keyValuePairs;
+    }
     private void OnRectTransformDimensionsChange() {
         if (!didAwake)
             return;

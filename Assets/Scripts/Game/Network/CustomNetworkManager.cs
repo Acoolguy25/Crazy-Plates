@@ -36,17 +36,25 @@ public class CustomNetworkManager : NetworkManager
         //    DontDestroyOnLoad(this);
         //}
     }
-    public void Init(bool singleplayer = false, string password = "") {
+    public void Init(Dictionary<string, object> options = null, bool singleplayer = false, string password = null) {
         if (singleplayer)
             transport = GetComponent<DummyTransport>();
         else
             transport = GetComponent<SimpleWebTransport>();
         //transport = GetComponent<KcpTransport>();
         Transport.active = transport;
-        serverProperties.Begin();
+        if (options != null) {
+            serverProperties.MaxPlayers = Convert.ToUInt16(options["MaxPlayers"]);
+            CustomBasicAuthenticator.allowExternalConnections = !Convert.ToBoolean(options["LANOnly"]);
+        }
+        else
+            CustomBasicAuthenticator.allowExternalConnections = false;
         serverProperties.SinglePlayer = singleplayer;
+        serverProperties.Begin();
+        
         CustomBasicAuthenticator.Begin();
-        CustomBasicAuthenticator.SetPassword(password);
+        if (password != null)
+            CustomBasicAuthenticator.SetPassword(password);
     }
     public override void OnStartServer()
     {

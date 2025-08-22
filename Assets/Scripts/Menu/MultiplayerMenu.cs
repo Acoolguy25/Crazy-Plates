@@ -7,6 +7,7 @@ public class MultiplayerMenu : MonoBehaviour
     public Transform StartPanel, CreatePanel, JoinPanel, LobbyPanel;
     public Transform OptionsPanel;
     public ServerProperties serverProperties;
+    private MultiOptionsPanel scriptOptions;
     public static MultiplayerMenu singleton;
 #if UNITY_EDITOR
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -31,7 +32,7 @@ public class MultiplayerMenu : MonoBehaviour
     public void MultiplayerCreateLobby() {
         LockCore.LockAll();
 
-        CustomNetworkManager.singleton2.Init(false);
+        CustomNetworkManager.singleton2.Init(scriptOptions.GetKeyValuePairs(), singleplayer: false);
         CustomNetworkManager.singleton2.StartHost();
         MultiplayerChangePanel(LobbyPanel);
 
@@ -54,13 +55,14 @@ public class MultiplayerMenu : MonoBehaviour
         }
     }
     private void Start() {
-        OptionsPanel.GetComponentInChildren<MultiOptionsPanel>().Init(new MultiOptionsPanel.MultiOptionsPanelData()
+        scriptOptions = OptionsPanel.GetComponentInChildren<MultiOptionsPanel>();
+        scriptOptions.Init(new MultiOptionsPanel.MultiOptionsPanelData()
         {
             options = new OptionBaseData[]
             {
                 new OptionSliderData()
                 {
-                    name = "Maximum Players",
+                    name = "MaxPlayers",
                     description = "Maximum Players",
                     minValue = 2f,
                     maxValue = 9f,
@@ -68,7 +70,7 @@ public class MultiplayerMenu : MonoBehaviour
                 },
                 new OptionToggleData()
                 {
-                    name = "LAN Only",
+                    name = "LANOnly",
                     description = "LAN Only",
                     defaultValue = false,
                 },

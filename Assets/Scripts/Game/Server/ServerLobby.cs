@@ -40,16 +40,6 @@ public class ServerLobby : NetworkBehaviour
     public void CreateNewGameCode() {
         CreateJoinCode();
     }
-    private static string GetLocalIPAddress() {
-        var host = Dns.GetHostEntry(Dns.GetHostName());
-        foreach (var ip in host.AddressList) {
-            if (ip.AddressFamily == AddressFamily.InterNetwork) // IPv4
-            {
-                return ip.ToString();
-            }
-        }
-        throw new Exception("No network adapters with an IPv4 address in the system!");
-    }
     private static string ShortRandomId(int length = 12) {
         const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
         var data = new byte[length];
@@ -67,7 +57,7 @@ public class ServerLobby : NetworkBehaviour
         if (Transport.active is PortTransport portTransport) {
             //serverProperties.GameCode = $"{GetLocalIPAddress()}|{";
             string password = ShortRandomId();
-            string rawCode = $"{GetLocalIPAddress()}:{portTransport.Port}|{password}";
+            string rawCode = $"{CustomBasicAuthenticator.GetLocalIPAddress()}:{portTransport.Port}|{password}";
             string encodedCode = Encryption.EncryptAscii(rawCode, Encryption.liveEncryptionPassword);
             //Debug.Log($"New game code created: {encodedCode} (Password: {rawCode})");
             ServerProperties.Instance.GameCode = encodedCode;

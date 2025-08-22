@@ -10,14 +10,15 @@ public class OptionSliderData: OptionBaseData {
 public class OptionSlider : OptionBase {
     public Slider slider;
     public override T Get<T>(){
-        if (typeof(T) == typeof(float)) {
+        if (typeof(T) == typeof(float) || typeof(T) == typeof(object)) {
             return (T) (object) slider.value;
         }
         Debug.LogError($"Get<{typeof(T)}> called on OptionSlider, but only float is supported.");
         return default;
+        //return base.Get<T>();
     }
     public override void Set<T>(T val) {
-        if (typeof(T) == typeof(float)) {
+        if (typeof(T) == typeof(float) || typeof(T) == typeof(object)) {
             slider.value = (float)(object)val;
             return;
         }

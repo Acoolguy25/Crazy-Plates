@@ -9,7 +9,7 @@ public class OptionToggleData : OptionBaseData {
 public class OptionToggle : OptionBase {
     public UnityEngine.UI.Toggle toggle;
     public override T Get<T>() {
-        if (typeof(T) == typeof(bool)) {
+        if (typeof(T) == typeof(bool) || typeof(T) == typeof(object)) {
             return (T)(object)toggle.isOn;
         }
         Debug.LogError($"Get<{typeof(T)}> called on OptionToggle, but only bool is supported.");
