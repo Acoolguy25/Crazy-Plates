@@ -22,6 +22,7 @@ public class LobbyJoin : MonoBehaviour {
     bool isJoining = false;
     private string JoinGameInternal(string encryptedJoinCode) {
         string joinCode, ipAddress, password;
+        int port;
         string[] addressParts, parts;
         try {
             joinCode = Encryption.DecryptAscii(encryptedJoinCode, Encryption.liveEncryptionPassword);
@@ -38,7 +39,7 @@ public class LobbyJoin : MonoBehaviour {
                 return "Invalid IP address format in join code.";
             }
             ipAddress = addressParts[0];
-            if (!int.TryParse(addressParts[1], out int port)) {
+            if (!int.TryParse(addressParts[1], out port)) {
                 return "Invalid port number in join code.";
             }
         }
@@ -50,7 +51,7 @@ public class LobbyJoin : MonoBehaviour {
         try {
             CustomNetworkManager.singleton2.networkAddress = ipAddress;
             NotificationScript.AddNotification(new NotificationData("Joining Game", $"Connecting to {ipAddress}...", NotificationScript.CancelOnlyButtons, CancelJoin));
-            //CustomNetworkManager.singleton2.GetComponent<SimpleWebTransport>().port = (ushort)port;
+            CustomNetworkManager.singleton2.GetComponent<SimpleWebTransport>().port = (ushort)port;
             CustomNetworkManager.singleton2.Init(password: password, clientOnly: true);
             CustomNetworkManager.singleton2.StartClient();
         }
