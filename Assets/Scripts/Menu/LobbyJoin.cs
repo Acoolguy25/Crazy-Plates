@@ -21,34 +21,35 @@ public class LobbyJoin : MonoBehaviour {
     }
     bool isJoining = false;
     private string JoinGameInternal(string encryptedJoinCode) {
-        string joinCode;
+        string joinCode, ipAddress, password;
+        string[] addressParts, parts;
         try {
             joinCode = Encryption.DecryptAscii(encryptedJoinCode, Encryption.liveEncryptionPassword);
+            if (string.IsNullOrEmpty(joinCode)) {
+                return "Join code cannot be null or empty.";
+            }
+            parts = joinCode.Split('|');
+            if (parts.Length != 2) {
+                return "Invalid join code format. Expected format: 'IP:Port|RandomId'.";
+            }
+            addressParts = parts[0].Split(':');
+            password = parts[1];
+            if (addressParts.Length != 2) {
+                return "Invalid IP address format in join code.";
+            }
+            ipAddress = addressParts[0];
+            if (!int.TryParse(addressParts[1], out int port)) {
+                return "Invalid port number in join code.";
+            }
         }
         catch (Exception e) {
             Debug.LogError($"Failed to decode: {e.Message}");
-            return "Invalid join code";
-        }
-        if (string.IsNullOrEmpty(joinCode)) {
-            return "Join code cannot be null or empty.";
-        }
-        string[] parts = joinCode.Split('|');
-        if (parts.Length != 2) {
-            return "Invalid join code format. Expected format: 'IP:Port|RandomId'.";
-        }
-        string[] addressParts = parts[0].Split(':');
-        string password = parts[1];
-        if (addressParts.Length != 2) {
-            return "Invalid IP address format in join code.";
-        }
-        string ipAddress = addressParts[0];
-        if (!int.TryParse(addressParts[1], out int port)) {
-            return "Invalid port number in join code.";
+            return "Invalid Join Code";
         }
         DidLeave = false;
         try {
             CustomNetworkManager.singleton2.networkAddress = ipAddress;
-            NotificationScript.AddNotification(new NotificationData("Joining Game", $"Connecting to {ipAddress}...", NotificationScript.CancelOnlyButtons));
+            NotificationScript.AddNotification(new NotificationData("Joining Game", $"Connecting to {ipAddress}...", NotificationScript.CancelOnlyButtons, CancelJoin));
             //CustomNetworkManager.singleton2.GetComponent<SimpleWebTransport>().port = (ushort)port;
             CustomNetworkManager.singleton2.Init(password: password, clientOnly: true);
             CustomNetworkManager.singleton2.StartClient();
@@ -69,9 +70,10 @@ public class LobbyJoin : MonoBehaviour {
             return;
         }
     }
-    public void CancelJoin(NotificationButton btn) {
+    public void CancelJoin(NotificationButton btn){
         StopJoin();
-        LobbyUI.Instance.DisconnectConnection();
+        if (btn == NotificationButton.Cancel)
+            LobbyUI.Instance.DisconnectConnection();
     }
     public void JoinGameFail(string message, string title = "Join Game Failed") {
         if (!isJoining)

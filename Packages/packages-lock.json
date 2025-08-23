@@ -49,6 +49,13 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.editorcoroutines": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.ext.nunit": {
       "version": "2.0.5",
       "depth": 0,
@@ -99,7 +106,7 @@
     },
     "com.unity.nuget.mono-cecil": {
       "version": "1.11.5",
-      "depth": 1,
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
@@ -112,7 +119,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.core": {
-      "version": "17.1.0",
+      "version": "17.2.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
@@ -127,12 +134,12 @@
       }
     },
     "com.unity.render-pipelines.universal": {
-      "version": "17.1.0",
+      "version": "17.2.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.render-pipelines.core": "17.1.0",
-        "com.unity.shadergraph": "17.1.0",
+        "com.unity.render-pipelines.core": "17.2.0",
+        "com.unity.shadergraph": "17.2.0",
         "com.unity.render-pipelines.universal-config": "17.0.3"
       }
     },
@@ -169,11 +176,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.shadergraph": {
-      "version": "17.1.0",
+      "version": "17.2.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.render-pipelines.core": "17.1.0",
+        "com.unity.render-pipelines.core": "17.2.0",
         "com.unity.searcher": "4.9.3"
       }
     },
@@ -235,6 +242,17 @@
       "source": "registry",
       "dependencies": {
         "com.unity.ugui": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.webrtc": {
+      "version": "3.0.0-pre.8",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.audio": "1.0.0",
+        "com.unity.editorcoroutines": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
@@ -387,7 +405,8 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0",
-        "com.unity.modules.hierarchycore": "1.0.0"
+        "com.unity.modules.hierarchycore": "1.0.0",
+        "com.unity.modules.physics": "1.0.0"
       }
     },
     "com.unity.modules.umbra": {

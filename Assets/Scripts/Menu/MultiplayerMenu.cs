@@ -1,6 +1,7 @@
-using UnityEngine;
 using Mirror;
+using System;
 using Unity.VisualScripting;
+using UnityEngine;
 
 public class MultiplayerMenu : MonoBehaviour
 {
@@ -32,9 +33,17 @@ public class MultiplayerMenu : MonoBehaviour
     public void MultiplayerCreateLobby() {
         LockCore.LockAll();
 
-        CustomNetworkManager.singleton2.Init(scriptOptions.GetKeyValuePairs(), singleplayer: false);
-        CustomNetworkManager.singleton2.StartHost();
-        MultiplayerChangePanel(LobbyPanel);
+        try {
+            CustomNetworkManager.singleton2.Init(scriptOptions.GetKeyValuePairs(), singleplayer: false);
+            CustomNetworkManager.singleton2.StartHost();
+            MultiplayerChangePanel(LobbyPanel);
+        }
+        catch (Exception e) {
+            Debug.Log($"Failed to start game: {e.Message}");
+            LobbyUI.Instance.DisconnectConnection(true);
+            NotificationScript.AddNotification(new NotificationData("Create Server Failed",
+                $"Failed To Create Server: {e.Message}", NotificationScript.OkOnlyButtons));
+        }
 
         LockCore.UnlockAll();
     }
@@ -44,6 +53,10 @@ public class MultiplayerMenu : MonoBehaviour
         NotificationScript.AddNotification(leaveLobbyNotiData);
     }
     public void MultiplayerDeleteLobby() {
+        if (!NetworkClient.activeHost) {
+            MultiplayerLeaveLobby();
+            return;
+        }
         NotificationData deleteLobbyNotiData = new NotificationData("Delete Lobby?",
         "Are you sure you want to delete the lobby?", NotificationScript.YesNoButtons, OnLeaveLobby);
         NotificationScript.AddNotification(deleteLobbyNotiData);
@@ -60,6 +73,20 @@ public class MultiplayerMenu : MonoBehaviour
         {
             options = new OptionBaseData[]
             {
+                new OptionInputBoxData()
+                {
+                    name = "ServerIP",
+                    description = "Server IP Address",
+                    defaultValue = CustomBasicAuthenticator.GetLocalIPAddress(),
+                    placeholderText = "Enter IP Address",
+                },
+                new OptionInputBoxData()
+                {
+                    name = "ServerPort",
+                    description = "Server IP Port",
+                    defaultValue = "27777",
+                    placeholderText = "Enter port number",
+                },
                 new OptionSliderData()
                 {
                     name = "MaxPlayers",

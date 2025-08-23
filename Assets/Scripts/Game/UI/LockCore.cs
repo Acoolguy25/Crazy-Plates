@@ -71,6 +71,8 @@ public class LockCore : MonoBehaviour {
     public static void UnlockAll() {
         globalCount--;
         foreach (LockCore instance in instances) {
+            if (instance.exemptions > 0)
+                instance.exemptions--;
             instance.ChangeLockCount(0);
         }
     }

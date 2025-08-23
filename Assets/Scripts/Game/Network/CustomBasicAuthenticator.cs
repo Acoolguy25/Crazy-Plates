@@ -14,6 +14,8 @@ public class CustomBasicAuthenticator : BasicAuthenticator
     public static Dictionary<string, double> kickIPs = new();
     public readonly static List<string> banIPs = new();
     public static bool allowExternalConnections = false;
+    public static string serverIPAddress = "";
+    public static ushort serverPort = 0;
     //public static ushort maximumPlayers = 100;
     public static CustomBasicAuthenticator singleton { get; private set; }
 #if UNITY_EDITOR
@@ -22,13 +24,26 @@ public class CustomBasicAuthenticator : BasicAuthenticator
         singleton = null;
     }
 #endif
-    public void Begin(bool clientOnly){
+    public void Begin(Dictionary<string, object> options, bool clientOnly){
         singleton = this;
-        if (clientOnly)
+        if (clientOnly) {
+            allowExternalConnections = false;
             return;
-        string ipAddress = GetLocalIPAddress();
-        Debug.Log($"Local IP Address: {ipAddress}");
-        CustomNetworkManager.singleton2.networkAddress = allowExternalConnections ? "0.0.0.0" : ipAddress;
+        }
+        allowExternalConnections = options != null && !Convert.ToBoolean(options["LANOnly"]);
+        serverIPAddress = Convert.ToString(options["ServerIP"]);
+        if (!IsValidIPv4(serverIPAddress))
+            throw new ArgumentException("ServerIP is invalid");
+        Debug.Log($"Local IP Address: {serverIPAddress}");
+        CustomNetworkManager.singleton2.networkAddress = allowExternalConnections ? "0.0.0.0" : serverIPAddress;
+        try {
+            serverPort = options != null ? Convert.ToUInt16(options["ServerPort"]) : (ushort)27777;
+        }
+        catch (Exception) {
+            throw new ArgumentException("ServerPort is invalid");
+        }
+        PortTransport webTransport = CustomNetworkManager.singleton2.transport as PortTransport;
+        webTransport.Port = serverPort;
     }
     private void Accept() {
         ClientAccept();
@@ -55,6 +70,12 @@ public class CustomBasicAuthenticator : BasicAuthenticator
         //    var endPoint = socket.LocalEndPoint as IPEndPoint;
         //    return endPoint?.Address.ToString() ?? throw new Exception("No IPv4 address found!");
         //}
+    }
+    bool IsValidIPv4(string ipString) {
+        if (IPAddress.TryParse(ipString, out var address)) {
+            return address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
+        }
+        return false;
     }
     public override void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg) {
         
@@ -104,6 +125,7 @@ public class CustomBasicAuthenticator : BasicAuthenticator
                 code = 200,
                 message = crashReason != null? crashReason: "Invalid Credentials"
             };
+            Debug.Log($"Removed Authentication Response: {authResponseMessage.message}");
 
             conn.Send(authResponseMessage);
 

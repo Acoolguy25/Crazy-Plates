@@ -52,7 +52,7 @@ public class CustomNetworkManager : NetworkManager
         serverProperties.SinglePlayer = singleplayer;
         serverProperties.Begin();
         
-        CustomBasicAuthenticator.Begin(clientOnly);
+        CustomBasicAuthenticator.Begin(options: options, clientOnly: clientOnly);
         if (password != null)
             CustomBasicAuthenticator.SetPassword(password);
     }

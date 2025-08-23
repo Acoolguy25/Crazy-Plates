@@ -57,7 +57,7 @@ public class ServerLobby : NetworkBehaviour
         if (Transport.active is PortTransport portTransport) {
             //serverProperties.GameCode = $"{GetLocalIPAddress()}|{";
             string password = ShortRandomId();
-            string rawCode = $"{CustomBasicAuthenticator.GetLocalIPAddress()}:{portTransport.Port}|{password}";
+            string rawCode = $"{CustomBasicAuthenticator.serverIPAddress}:{CustomBasicAuthenticator.serverPort}|{password}";
             string encodedCode = Encryption.EncryptAscii(rawCode, Encryption.liveEncryptionPassword);
             //Debug.Log($"New game code created: {encodedCode} (Password: {rawCode})");
             ServerProperties.Instance.GameCode = encodedCode;
