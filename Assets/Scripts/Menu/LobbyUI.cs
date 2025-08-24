@@ -16,8 +16,11 @@ public class LobbyUI : MonoBehaviour {
 
     public static LobbyUI Instance { get; private set; } = null;
 
+    [SerializeField]
     public GameObject[] lobbyOnlyObjects;
+    [SerializeField]
     public Transform FadePanel;
+    [SerializeField]
     public Transform Panels;
     public Transform CurrentPanel { get; private set; }
 
@@ -31,6 +34,7 @@ public class LobbyUI : MonoBehaviour {
     }
     private void Awake() {
         if (Instance != null && Instance != this) {
+            Debug.LogError("Deleting duplicate LobbyUI");
             Destroy(gameObject); // Ensure only one instance
             return;
         }
@@ -107,6 +111,7 @@ public class LobbyUI : MonoBehaviour {
     public void DisconnectConnection(bool LeaveWillingly = true) {
         if (LeaveWillingly)
             LobbyJoin.DidLeave = true;
+        Debug.Log("Disconnecting from server...");
         if (NetworkServer.active && NetworkClient.isConnected) {
             NetworkManager.singleton.StopHost(); // Host mode
         }

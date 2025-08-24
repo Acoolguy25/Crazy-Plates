@@ -41,8 +41,8 @@ public class CustomNetworkManager : NetworkManager
             transport = GetComponent<DummyTransport>();
         else
             transport = GetComponent<SimpleWebTransport>();
-        transform.Find("ServerProperties").gameObject.SetActive(true);
-        serverProperties = transform.Find("ServerProperties").GetComponent<ServerProperties>();
+        serverProperties = SharedFunctions.FindInactiveWithTag("ServerProperties").GetComponent<ServerProperties>();
+        serverProperties.gameObject.SetActive(true);
         //transport = GetComponent<KcpTransport>();
         Transport.active = transport;
         if (options != null) {

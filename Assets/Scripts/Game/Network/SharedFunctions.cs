@@ -21,4 +21,12 @@ public static class SharedFunctions
         }
         return list;
     }
+    public static GameObject FindInactiveWithTag(string tag) {
+        foreach (var go in Object.FindObjectsByType<GameObject>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None)) {
+            if (go.CompareTag(tag))
+                return go;
+        }
+        return null;
+    }
 }

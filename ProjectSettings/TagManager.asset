@@ -6,6 +6,7 @@ TagManager:
   tags:
   - CinemachineTarget
   - Plate
+  - ServerProperties
   layers:
   - Default
   - TransparentFX

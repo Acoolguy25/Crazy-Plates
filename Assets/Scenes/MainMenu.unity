@@ -8867,11 +8867,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6caf0ae2efde2d488e78d5bc1c33095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lobbyOnlyObjects:
-  - {fileID: 330585543}
-  - {fileID: 410087039}
-  - {fileID: 832575517}
-  - {fileID: 1887502914}
+  lobbyOnlyObjects: []
   FadePanel: {fileID: 1518542755}
   Panels: {fileID: 454961325}
 --- !u!114 &1396556392
@@ -10954,11 +10950,6 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
---- !u!4 &1728227880 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2176104274505927340, guid: 2202de448a074ca4bb9a7041d0f853a0, type: 3}
-  m_PrefabInstance: {fileID: 5619106872798861653}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1736523892
 GameObject:
   m_ObjectHideFlags: 0
@@ -12972,8 +12963,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1728227880}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2101443232
@@ -13458,7 +13448,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 2101443231}
+    m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 44262315630710018, guid: 2202de448a074ca4bb9a7041d0f853a0, type: 3}
       propertyPath: sceneId
@@ -13512,6 +13502,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ServerProperties
       objectReference: {fileID: 0}
+    - target: {fileID: 3178038205933030832, guid: 2202de448a074ca4bb9a7041d0f853a0, type: 3}
+      propertyPath: m_TagString
+      value: ServerProperties
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13534,3 +13528,4 @@ SceneRoots:
   - {fileID: 2100167525576180322}
   - {fileID: 1396556389}
   - {fileID: 1887502917}
+  - {fileID: 5619106872798861653}

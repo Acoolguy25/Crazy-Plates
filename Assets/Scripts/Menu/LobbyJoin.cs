@@ -72,6 +72,8 @@ public class LobbyJoin : MonoBehaviour {
         }
     }
     public void CancelJoin(NotificationButton btn){
+        if (btn == NotificationButton.None)
+            return;
         StopJoin();
         //if (btn == NotificationButton.Cancel)
         LobbyUI.Instance.DisconnectConnection(btn == NotificationButton.Cancel);
@@ -82,7 +84,7 @@ public class LobbyJoin : MonoBehaviour {
         if (DidLeave)
             return;
         NotificationScript.AddNotification(new NotificationData(title, message, NotificationScript.OkOnlyButtons));
-        CancelJoin(NotificationButton.None);
+        StopJoin();
         isJoining = false;
     }
     public void StopJoin() {

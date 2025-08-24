@@ -44,7 +44,7 @@ public class GameRunner : MonoBehaviour
         if (!debugMode)
             return;
         if (!activeServer && !SceneManager.GetSceneByName("MainMenu").isLoaded) {
-            SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Additive);
+            //SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Additive);
         }
         //SceneManager.SetActiveScene(gameObject.scene);
     }
