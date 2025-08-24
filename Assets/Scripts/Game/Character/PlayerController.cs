@@ -30,6 +30,7 @@ public class PlayerController : NetworkBehaviour
 {
     [Header("Static Variables")]
     public static PlayerController Player { get; private set; }
+    public GameObject[] CharacterPrefabs;
     [Header("Shared Public Variables")]
     public CharacterControl characterControl { get; private set; }
     //public Transform cineObject; // reference
@@ -43,8 +44,8 @@ public class PlayerController : NetworkBehaviour
                                  //    ServerProperties.Instance.SpawnPoints.RemoveAt(spawnIdx);
                                  //    return spawnLoc;
                                  //}
-    [SyncVar(hook = nameof(OnActiveCharacterChanged))]
-    public string activeCharacter = "";
+    //[SyncVar(hook = nameof(OnActiveCharacterChanged))]
+    public Transform activeCharacter = null;
 #if UNITY_EDITOR
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
@@ -71,13 +72,13 @@ public class PlayerController : NetworkBehaviour
             child.gameObject.SetActive(false);
         }
     }
-    public void OnActiveCharacterChanged(string _, string newCharName) {
-        if (isLocalPlayer)
-            return;
-        foreach (Transform child in transform) {
-            child.gameObject.SetActive(child.name == newCharName);
-        }
-    }
+    //public void OnActiveCharacterChanged(string _, string newCharName) {
+    //    if (isLocalPlayer)
+    //        return;
+    //    foreach (Transform child in transform) {
+    //        child.gameObject.SetActive(child.name == newCharName);
+    //    }
+    //}
     [Server]
     public void ServerStartUp() {
         int plrIdx = ServerProperties.Instance.PlayerCount;
@@ -89,21 +90,33 @@ public class PlayerController : NetworkBehaviour
         ServerProperties.Instance.players.Add(playerData);
         //ServerProperties.Instance.PlayerCount++;
     }
-    [TargetRpc]
+    [Server]
     public void SpawnCharacter(NetworkConnectionToClient client, string characterName, Vector3 position) {
-        Transform selCharacter = null;
-        foreach (Transform child in transform) {
-            bool found = child.name == characterName;
-            if (found)
-                selCharacter = child;
-            child.gameObject.SetActive(found);
+        if (activeCharacter) {
+            NetworkServer.Destroy(activeCharacter.gameObject);
+            activeCharacter = null;
         }
-        Assert.IsNotNull(selCharacter, "CharacterName not found!");
-        Vector3 charOffset = GetCharacterOffset(selCharacter);
-        selCharacter.position = position + charOffset;
+        for (int i = 0; i < CharacterPrefabs.Length; i++) {
+            if (CharacterPrefabs[i].name == characterName) {
+                activeCharacter = Instantiate(CharacterPrefabs[i], transform).transform;
+                break;
+            }
+        }
+        Debug.Assert(activeCharacter, $"CharacterName \"{characterName}\" not found!");
+        activeCharacter.name = characterName;
+        NetworkServer.Spawn(activeCharacter.gameObject, client);
+        //NetworkServer.ReplacePlayerForConnection(client, activeCharacter.gameObject);
+        SpawnCharacterRpc(client, characterName, position);
+    }
+    [TargetRpc]
+    public void SpawnCharacterRpc(NetworkConnectionToClient client, string activeCharacter_, Vector3 position) {
+        activeCharacter = transform.Find(activeCharacter_);
+        Assert.IsNotNull(activeCharacter, $"CharacterName {activeCharacter_} not found!");
+        Vector3 charOffset = GetCharacterOffset(activeCharacter);
+        activeCharacter.position = position + charOffset;
 
-        CameraController.Instance.SetCameraTarget(selCharacter.Find("PlayerCameraRoot"));
-        characterControl = selCharacter.GetComponent<CharacterControl>();
+        CameraController.Instance.SetCameraTarget(activeCharacter.Find("PlayerCameraRoot"));
+        characterControl = activeCharacter.GetComponent<CharacterControl>();
         //Debug.Break();
     }
     [Client]

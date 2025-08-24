@@ -7,6 +7,7 @@ public class MultiplayerMenu : MonoBehaviour
 {
     public Transform StartPanel, CreatePanel, JoinPanel, LobbyPanel;
     public Transform OptionsPanel;
+    public Transform CurrentPanel;
     public ServerProperties serverProperties;
     private MultiOptionsPanel scriptOptions;
     public static MultiplayerMenu singleton;
@@ -25,6 +26,7 @@ public class MultiplayerMenu : MonoBehaviour
         MultiplayerChangePanel(StartPanel);
     }
     public void MultiplayerChangePanel(Transform panel) {
+        CurrentPanel = panel;
         foreach (Transform child in StartPanel.parent) {
             child.gameObject.SetActive(panel == child);
         }
@@ -63,7 +65,7 @@ public class MultiplayerMenu : MonoBehaviour
     }
     public void OnLeaveLobby(NotificationButton btn) {
         if (btn == NotificationButton.Yes) {
-            LobbyUI.Instance.DisconnectConnection();
+            LobbyUI.Instance.DisconnectConnection(true);
             MultiplayerChangePanel(StartPanel);
         }
     }

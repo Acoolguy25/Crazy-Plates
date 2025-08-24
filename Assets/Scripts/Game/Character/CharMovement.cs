@@ -62,12 +62,10 @@ public class CharMovement : NetworkBehaviour {
     //private bool IsCurrentDeviceMouse => _playerInput != null && _playerInput.currentControlScheme == "KeyboardMouse";
     [ClientCallback]
     private void Awake() {
-        if (!isLocalPlayer)
+        if (!authority)
             return;
         _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-    }
 
-    public override void OnStartLocalPlayer() {
         _hasAnimator = TryGetComponent(out _animator);
         _rb = GetComponent<Rigidbody>();
         _rb.constraints = RigidbodyConstraints.FreezeRotation;
@@ -79,9 +77,9 @@ public class CharMovement : NetworkBehaviour {
         _jumpTimeoutDelta = JumpTimeout;
         _fallTimeoutDelta = FallTimeout;
     }
-
+    [ClientCallback]
     private void FixedUpdate() {
-        if (!isLocalPlayer)
+        if (!authority)
             return;
         if (_animator != null && !_animator.enabled) return;
 

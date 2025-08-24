@@ -11,11 +11,10 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 
-public class LobbyUI : MonoBehaviour
-{
+public class LobbyUI : MonoBehaviour {
     public static LockUI LobbyLock;
 
-    public static LobbyUI Instance { get; private set; }
+    public static LobbyUI Instance { get; private set; } = null;
 
     public GameObject[] lobbyOnlyObjects;
     public Transform FadePanel;
@@ -24,16 +23,20 @@ public class LobbyUI : MonoBehaviour
 
     private CanvasGroup lobbyPannelsGroup;
     static NotificationData QuitGameNotData;
-    
+
     private Canvas canvas;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
         Instance = null;
     }
-    private void Awake()
-    {
+    private void Awake() {
+        if (Instance != null && Instance != this) {
+            Destroy(gameObject); // Ensure only one instance
+            return;
+        }
         Assert.IsNull(Instance, "LobbyUI is not null in Awake()");
         Instance = this;
+        
 
         canvas = GetComponent<Canvas>();
         lobbyPannelsGroup = Panels.GetComponent<CanvasGroup>();
@@ -45,8 +48,9 @@ public class LobbyUI : MonoBehaviour
         }
         LobbyLock = lobbyPannelsGroup.GetComponent<LockUI>();
 
-        QuitGameNotData = new NotificationData {
-            Title = "Quit Game?", 
+        QuitGameNotData = new NotificationData
+        {
+            Title = "Quit Game?",
             Message = "Are you sure that you want to quit the game?",
             Buttons = NotificationScript.YesNoButtons,
             Callback = btn =>
@@ -64,12 +68,14 @@ public class LobbyUI : MonoBehaviour
         }
         else {
             FadeBlackScreen(0f, duration: 0f, start: true);
-            LobbyLock.Lock();
+            //LobbyLock.Lock();
         }
-        SetCanvasVisibility(isActiveScene);
+        SetCanvasVisibility(isActiveScene, true);
     }
-    private void Start()
-    {
+    private void Start() {
+        DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
         CheckForSinglePlayer();
     }
     public void ChangeToPanel(Transform panel = null) {
@@ -79,8 +85,7 @@ public class LobbyUI : MonoBehaviour
         panel.gameObject.SetActive(true);
         CurrentPanel = panel;
     }
-    public void FadeBlackScreen(float alpha, float duration = 2f, bool start = false)
-    {
+    public void FadeBlackScreen(float alpha, float duration = 2f, bool start = false) {
         Image fadePanelGroup = FadePanel.GetComponent<Image>();
         GenericTweens.TweenImage(fadePanelGroup, alpha, duration);
         if (!start)
@@ -88,16 +93,15 @@ public class LobbyUI : MonoBehaviour
 
         //FadePanel.GetComponent<Image>().CrossFadeAlpha(alpha, duration, true);
     }
-    public void SetCanvasVisibility(bool enabled)
-    {
-        lobbyPannelsGroup.alpha = enabled? 1: 0;
-        foreach (var obj in lobbyOnlyObjects)
-        {
-            obj.SetActive(enabled);
-        }
+    public void SetCanvasVisibility(bool enabled, bool started = false) {
+        lobbyPannelsGroup.alpha = enabled ? 1 : 0;
+        //foreach (var obj in lobbyOnlyObjects) {
+            //obj.SetActive(enabled);
+        //}
+        if (!started)
+            LobbyLock.ToggleLock(!enabled);
     }
-    public void BackToLobby(bool Instant = false)
-    {
+    public void BackToLobby(bool Instant = false) {
         StartCoroutine(_BackToLobby(Instant));
     }
     public void DisconnectConnection(bool LeaveWillingly = true) {
@@ -109,7 +113,7 @@ public class LobbyUI : MonoBehaviour
         else if (NetworkServer.active) {
             NetworkManager.singleton.StopServer(); // Dedicated server
         }
-        else if (NetworkClient.isConnected) {
+        else if (NetworkClient.isConnected || NetworkClient.isConnecting) {
             NetworkManager.singleton.StopClient(); // Client only
         }
     }
@@ -122,38 +126,33 @@ public class LobbyUI : MonoBehaviour
             tween.SetTarget(Time.timeScale);
         }
         else {
-            Time.timeScale= newTimeScale;
+            Time.timeScale = newTimeScale;
         }
     }
     public void ResetTimeScale() {
         TweenTimeScale(1f, 0f);
     }
-    private IEnumerator _BackToLobby(bool Instant)
-    {
+    private IEnumerator _BackToLobby(bool Instant) {
         if (GameMenuUI.Instance)
             GameMenuUI.Instance.DisableAllUI();
 
-        if (!Instant)
-        {
+        if (!Instant) {
             LobbyUI.Instance.FadeBlackScreen(1);
             yield return new WaitForSecondsRealtime(2f); // wait for screen to fade to black
         }
         DisconnectConnection();
-        for (int i = 0; i < SceneManager.sceneCount; i++)
-        {
+        for (int i = 0; i < SceneManager.sceneCount; i++) {
             Scene scene = SceneManager.GetSceneAt(i);
-            if (scene != gameObject.scene && scene.isLoaded)
-            {
+            if (scene != gameObject.scene && scene.isLoaded) {
                 var op = SceneManager.UnloadSceneAsync(scene);
                 yield return op;
             }
         }
 
-        LobbyLock.Unlock();
+        //LobbyLock.Unlock();
         ResetTimeScale();
         LobbyUI.Instance.SetCanvasVisibility(true); // re-enable everything!
-        if (!Instant)
-        {
+        if (!Instant) {
             LobbyUI.Instance.FadeBlackScreen(0);
             yield return new WaitForSeconds(2f);
         }
@@ -164,5 +163,14 @@ public class LobbyUI : MonoBehaviour
     public void OnQuit() {
         Debug.Log("User has quit the game");
         Application.Quit(0);
+    }
+    public void OnSceneLoaded(Scene scene, LoadSceneMode mode){
+        if (scene.name != "MainMenu")
+            SetCanvasVisibility(false);
+        //FadeBlackScreen(0f);
+    }
+    public void OnSceneUnloaded(Scene scene) {
+        if (scene.name != "MainMenu")
+            SetCanvasVisibility(true);
     }
 }

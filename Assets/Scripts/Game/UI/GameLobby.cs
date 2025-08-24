@@ -46,7 +46,8 @@ public class GameLobby : MonoBehaviour
     }
     public void End(){
         playerListCore.Clear();
-        MultiplayerMenu.singleton.MultiplayerChangePanel(MultiplayerMenu.singleton.StartPanel);
+        if (MultiplayerMenu.singleton.CurrentPanel == MultiplayerMenu.singleton.LobbyPanel)
+            MultiplayerMenu.singleton.MultiplayerChangePanel(MultiplayerMenu.singleton.StartPanel);
     }
     [Client]
     private void OnPlayersChanged() {
@@ -91,5 +92,13 @@ public class GameLobby : MonoBehaviour
                 }
             }
         ));
+    }
+    [Client]
+    public void StartGameBtn() {
+        ServerLobby.singleton.CmdStartGame();
+    }
+    [Client]
+    public void GameStartingFunc() {
+        LobbyUI.Instance.FadeBlackScreen(1f);
     }
 }

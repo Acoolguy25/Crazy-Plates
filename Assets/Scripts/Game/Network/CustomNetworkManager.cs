@@ -14,7 +14,7 @@ public class CustomNetworkManager : NetworkManager
 {
     public bool isDedicatedServer = true;
     public GameRunner gameRunner;
-    public GameObject[] EnableOnStart;
+    //public GameObject[] EnableOnStart;
     public ServerProperties serverProperties;
     public static ServerLobby serverLobby;
     public static CustomBasicAuthenticator CustomBasicAuthenticator;
@@ -41,6 +41,8 @@ public class CustomNetworkManager : NetworkManager
             transport = GetComponent<DummyTransport>();
         else
             transport = GetComponent<SimpleWebTransport>();
+        transform.Find("ServerProperties").gameObject.SetActive(true);
+        serverProperties = transform.Find("ServerProperties").GetComponent<ServerProperties>();
         //transport = GetComponent<KcpTransport>();
         Transport.active = transport;
         if (options != null) {
@@ -82,6 +84,8 @@ public class CustomNetworkManager : NetworkManager
         base.OnServerConnect(conn);
     }
     public override void OnServerDisconnect(NetworkConnectionToClient conn) {
+        if (serverProperties == null)
+            return;
         bool found = false;
         foreach (PlayerData player in serverProperties.players) {
             if (player.clientConnection == conn) {
@@ -118,16 +122,60 @@ public class CustomNetworkManager : NetworkManager
         if (conn is LocalConnectionToClient)
             serverIdentity.AssignClientAuthority(conn);
 
-        if (ServerProperties.Instance.SinglePlayer)
-            StartGame();
+        //if (ServerProperties.Instance.SinglePlayer)
+            //StartGame();
     }
-    public void StartGame() {
-        GameEvents.Instance.OnClientBegin();
-        foreach (var gameObj in EnableOnStart)
-            gameObj.SetActive(true);
-        gameRunner.StartGame();
-    }
-    
+    //public void StartGame() {
+    //    GameEvents.Instance.OnClientBegin();
+    //    foreach (var gameObj in EnableOnStart)
+    //        gameObj.SetActive(true);
+    //    gameRunner.StartGame();
+    //}
+    //public void ServerLoadAdditive(string sceneName) {
+    //    if (!NetworkServer.active) {
+    //        Debug.LogError("ServerLoadAdditive can only be called on the server.");
+    //        return;
+    //    }
+
+    //    if (SceneManager.GetSceneByName(sceneName).isLoaded) {
+    //        Debug.Log($"Scene {sceneName} already loaded.");
+    //        return;
+    //    }
+
+    //    // Load it on the server
+    //    SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+
+    //    // Tell clients to load it
+    //    NetworkServer.SendToAll(new SceneMessage
+    //    {
+    //        sceneName = sceneName,
+    //        sceneOperation = SceneOperation.LoadAdditive
+    //    });
+    //}
+
+    //public void ServerUnloadAdditive(string sceneName) {
+    //    if (!NetworkServer.active) {
+    //        Debug.LogError("ServerUnloadAdditive can only be called on the server.");
+    //        return;
+    //    }
+
+    //    if (!SceneManager.GetSceneByName(sceneName).isLoaded) {
+    //        Debug.Log($"Scene {sceneName} is not loaded.");
+    //        return;
+    //    }
+
+    //    // Unload on server
+    //    SceneManager.UnloadSceneAsync(sceneName);
+
+    //    // Tell clients
+    //    NetworkServer.SendToAll(new SceneMessage
+    //    {
+    //        sceneName = sceneName,
+    //        sceneOperation = SceneOperation.UnloadAdditive
+    //    });
+    //}
+
+
     public override void OnClientError(TransportError error, string reason) {
         LobbyJoin.singleton.JoinGameFail(reason);
         base.OnClientError(error, reason);
@@ -136,5 +184,9 @@ public class CustomNetworkManager : NetworkManager
         LobbyJoin.singleton.JoinGameFail(exception.Message);
         
         base.OnClientTransportException(exception);
+    }
+    public override void OnClientSceneChanged() {
+        LobbyUI.Instance.FadeBlackScreen(0f);
+        base.OnClientSceneChanged();
     }
 }

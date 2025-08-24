@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
@@ -42,7 +43,7 @@ public class GameRunner : MonoBehaviour
     void Awake() {
         if (!debugMode)
             return;
-        if (!SceneManager.GetSceneByName("MainMenu").isLoaded) {
+        if (!activeServer && !SceneManager.GetSceneByName("MainMenu").isLoaded) {
             SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Additive);
         }
         //SceneManager.SetActiveScene(gameObject.scene);
@@ -139,7 +140,7 @@ public class GameRunner : MonoBehaviour
                     if (transform.childCount == 0)
                         goto startOfLoop;
                     GameObject plate = transform.GetChild(UnityEngine.Random.Range(0, transform.childCount)).gameObject;
-                    Outline outlineCode = plate.AddComponent<Outline>();
+                    Outline outlineCode = plate.GetOrAddComponent<Outline>();
                     outlineCode.OutlineColor = eventsScript.eventColors[(int)selEvent.eventColor];
                     outlineCode.OutlineMode = Outline.Mode.OutlineAll;
                     outlineCode.OutlineWidth = 10f;
@@ -216,15 +217,22 @@ public class GameRunner : MonoBehaviour
             step++;
         }
 
-        var shuffledPlayers = SharedFunctions.ShuffleList(ServerProperties.Instance.players, ServerProperties.Instance.Random);
-        foreach (PlayerData playerData in shuffledPlayers) {
+        ServerProperties.Instance.AlivePlayers = 0;
+        int[] playersIdx = new int[ServerProperties.Instance.PlayerCount];
+        for (int i = 0; i < ServerProperties.Instance.PlayerCount; i++)
+            playersIdx[i] = i;
+        var shuffledPlayers = SharedFunctions.ShuffleList(playersIdx, ServerProperties.Instance.Random);
+        foreach (int playerIdx in shuffledPlayers) {
             Assert.IsTrue(spiralPlates.Count > 0, "No more spawnpoints (Players > Plates)");
             Transform plate = spiralPlates[0];
             Transform render = plate.GetComponent<PlateProperties2>().render;
             Vector3 vecOffset = (render.lossyScale.y) * Vector3.up;
+            PlayerData playerData = ServerProperties.Instance.players[playerIdx];
 
+            playerData.gamemode = PlayerGamemode.Alive;
+            ServerProperties.Instance.AlivePlayers++;
             playerData.playerController.SpawnCharacter(playerData.playerController.connectionToClient,
-                "Character",
+                "PlayerCharacter",
                 render.position + vecOffset);
             spiralPlates.RemoveAt(0);
         }

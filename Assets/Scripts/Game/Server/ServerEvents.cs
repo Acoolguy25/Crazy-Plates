@@ -14,7 +14,11 @@ public class ServerEvents: MonoBehaviour {
         Instance = null;
     }
     private void Awake() {
-        Assert.IsNull(Instance, "ServerEvents is not null in Awake()");
+        //Assert.IsNull(Instance, "ServerEvents is not null in Awake()");
+        if (Instance) {
+            Destroy(gameObject);
+            return;
+        }
 
         Instance = this;
     }

@@ -5,10 +5,12 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using UnityEngine;
+using System.Collections;
 
 public class ServerLobby : NetworkBehaviour
 {
     public static ServerLobby singleton;
+    public static bool GameStarting = false;
 #if UNITY_EDITOR
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
@@ -35,10 +37,24 @@ public class ServerLobby : NetworkBehaviour
     [Server]
     public override void OnStartServer() {
         CreateJoinCode();
+        GameStarting = false;
     }
     [Command(requiresAuthority = true)]
     public void CreateNewGameCode() {
         CreateJoinCode();
+    }
+    [Command(requiresAuthority = true)]
+    public void CmdStartGame() {
+        if (GameStarting)
+            return;
+        GameStarting = true;
+        StartCoroutine(ServerGameStart());
+    }
+    [Server]
+    public IEnumerator ServerGameStart() {
+        RpcGameStarting();
+        yield return new WaitForSecondsRealtime(2.5f);
+        CustomNetworkManager.singleton2.ServerChangeScene("Default");
     }
     private static string ShortRandomId(int length = 12) {
         const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -72,5 +88,10 @@ public class ServerLobby : NetworkBehaviour
     public void SendDisconnectMessage(NetworkConnection target, string message) {
         LobbyJoin.singleton.JoinGameFail(message, "Disconnected");
         LobbyUI.Instance.DisconnectConnection(LeaveWillingly: false);
+    }
+    [ClientRpc]
+    public void RpcGameStarting() {
+        GameStarting = true;
+        GameLobby.singleton.GameStartingFunc();
     }
 }

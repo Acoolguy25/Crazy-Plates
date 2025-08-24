@@ -47,10 +47,9 @@ public class LobbyJoin : MonoBehaviour {
             Debug.LogError($"Failed to decode: {e.Message}");
             return "Invalid Join Code";
         }
-        DidLeave = false;
         try {
             CustomNetworkManager.singleton2.networkAddress = ipAddress;
-            NotificationScript.AddNotification(new NotificationData("Joining Game", $"Connecting to {ipAddress}...", NotificationScript.CancelOnlyButtons, CancelJoin));
+            NotificationScript.AddNotification(new NotificationData("Joining Game", $"Connecting to {ipAddress}:{port}...", NotificationScript.CancelOnlyButtons, CancelJoin));
             CustomNetworkManager.singleton2.GetComponent<SimpleWebTransport>().port = (ushort)port;
             CustomNetworkManager.singleton2.Init(password: password, clientOnly: true);
             CustomNetworkManager.singleton2.StartClient();
@@ -65,6 +64,7 @@ public class LobbyJoin : MonoBehaviour {
         NetworkClient.OnErrorEvent += (error, str) => JoinGameFail(str);
         //CustomNetworkManager.singleton2.GetComponent<SimpleWebTransport>().OnClientError += (error, str) => JoinGameFail(str);
         isJoining = true;
+        DidLeave = false;
         string output = JoinGameInternal(joinGameField.text);
         if (output != null) {
             JoinGameFail(output);
@@ -73,8 +73,8 @@ public class LobbyJoin : MonoBehaviour {
     }
     public void CancelJoin(NotificationButton btn){
         StopJoin();
-        if (btn == NotificationButton.Cancel)
-            LobbyUI.Instance.DisconnectConnection();
+        //if (btn == NotificationButton.Cancel)
+        LobbyUI.Instance.DisconnectConnection(btn == NotificationButton.Cancel);
     }
     public void JoinGameFail(string message, string title = "Join Game Failed") {
         if (!isJoining)

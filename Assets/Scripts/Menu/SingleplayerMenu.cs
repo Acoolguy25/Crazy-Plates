@@ -40,7 +40,7 @@ public class SingleplayerMenu : MonoBehaviour
             AsyncOperation unload_op = SceneManager.UnloadSceneAsync(sceneName, UnloadSceneOptions.None);
             yield return unload_op;
         }
-        LobbyUI.Instance.SetCanvasVisibility(false); // disable everything!
+         // enable everything!
         AsyncOperation op2 = null;
         try {
             op2 = SceneManager.UnloadSceneAsync("Default", UnloadSceneOptions.None);

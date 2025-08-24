@@ -16,7 +16,7 @@ public struct GameMessage
 
 public class GameEvents : NetworkBehaviour
 {
-    public static GameEvents Instance { get; private set; }
+    public static GameEvents Instance { get; private set; } = null;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
         Instance = null;

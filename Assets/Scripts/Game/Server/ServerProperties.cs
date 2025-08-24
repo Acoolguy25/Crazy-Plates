@@ -23,7 +23,7 @@ public class ServerProperties : NetworkBehaviour
     public string GameCode = string.Empty;
 
     // Non sync vars
-    public static ushort playersNeeded = 2;
+    public static ushort playersNeeded = 1;
 
     public double GameDuration {
         get {
@@ -47,7 +47,13 @@ public class ServerProperties : NetworkBehaviour
 #endif
     public void Begin()
     {
+        if (Instance != this && Instance != null)
+        {
+            Destroy(this);
+            return;
+        }
         Instance = this;
+        return;
     }
     [Client]
     private void OnGameCodeChanged(string oldCode, string newCode) {

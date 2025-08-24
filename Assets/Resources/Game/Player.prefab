@@ -48,7 +48,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  cineObject: {fileID: 0}
+  CharacterPrefabs:
+  - {fileID: 6865002775998532502, guid: 0c83d6db519306845982ebcea94b861a, type: 3}
   activeCharacter: 
 --- !u!114 &7774394347827114422
 MonoBehaviour:
