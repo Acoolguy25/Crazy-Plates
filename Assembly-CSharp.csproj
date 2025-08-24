@@ -81,6 +81,7 @@
     <Compile Include="Assets\Scripts\Game\Persistence\GameLoader.cs" />
     <Compile Include="Assets\UnityTechnologies\StarterAssets\Mobile\Scripts\CanvasInputs\UICanvasControllerInput.cs" />
     <Compile Include="Assets\Scripts\Menu\LobbyEvents.cs" />
+    <Compile Include="Assets\Scripts\Game\Network\PlayerSync.cs" />
     <Compile Include="Assets\Scripts\Game\UI\GameCanvasElems.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CharacterControl.cs" />
     <Compile Include="Assets\Scripts\Game\Character\ThirdPersonController.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Assets\Scripts\Menu\NotificationScript.cs" />
     <Compile Include="Assets\Scripts\Game\UI\GameLobby.cs" />
     <Compile Include="Assets\Scripts\Game\Character\OldMovementControl.cs" />
+    <Compile Include="Assets\Scripts\Game\Network\Reflection.cs" />
     <Compile Include="Assets\Scripts\Game\UI\DeathUI.cs" />
     <Compile Include="Assets\Scripts\Menu\MultiOptions\OptionBase.cs" />
     <Compile Include="Assets\TestScript.cs" />
@@ -120,6 +122,7 @@
     <Compile Include="Assets\Scripts\Menu\TextUpdater.cs" />
     <Compile Include="Assets\Scripts\Game\Game\GameEvents.cs" />
     <Compile Include="Assets\Scripts\Menu\MultiOptions\OptionSlider.cs" />
+    <Compile Include="Assets\Scripts\Game\Network\TweenReaderWriter.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CameraController.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -45,6 +45,7 @@ public class GameEvents : NetworkBehaviour
     public string DescMessage = "";
     [SyncVar(hook = nameof(OnSurvivalTimeChanged))]
     public double SurvivalTime = -1d;
+    [SerializeField]
     public virtual void OnNewGameMessage(GameMessage _, GameMessage newString)
     {
         gameCanvasMain.UpdateTopBar(newString);

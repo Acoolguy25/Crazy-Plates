@@ -1,5 +1,5 @@
 using UnityEngine;
-using static PlateProperties2.PlateAddable;
+using static Plate.PlateAddable;
 
 public class PlateAddableProperties : MonoBehaviour {
     public Vector3 scalePosition_min = Vector3.up / 2;

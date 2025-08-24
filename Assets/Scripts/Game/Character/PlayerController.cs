@@ -68,9 +68,13 @@ public class PlayerController : NetworkBehaviour
         if (isLocalPlayer) {
             Player = this;
         }
-        foreach (Transform child in transform) {
-            child.gameObject.SetActive(false);
+        if (!NetworkClient.activeHost) {
+            DontDestroyOnLoad(this);
+            transform.name = $"Unnamed Player";
         }
+        //foreach (Transform child in transform) {
+        //    child.gameObject.SetActive(false);
+        //}
     }
     //public void OnActiveCharacterChanged(string _, string newCharName) {
     //    if (isLocalPlayer)
@@ -80,48 +84,43 @@ public class PlayerController : NetworkBehaviour
     //    }
     //}
     [Server]
-    public void ServerStartUp() {
-        int plrIdx = ServerProperties.Instance.PlayerCount;
-        //this.clientConnection = connectionToClient;
-        PlayerData playerData = new PlayerData(this, connectionToClient.address,
-            ServerProperties.Instance.SinglePlayer? "You": "Player" + plrIdx.ToString(),
-            PlayerGamemode.Menu
-        );
-        ServerProperties.Instance.players.Add(playerData);
-        //ServerProperties.Instance.PlayerCount++;
-    }
-    [Server]
-    public void SpawnCharacter(NetworkConnectionToClient client, string characterName, Vector3 position) {
+    public void SpawnCharacter(string characterName, Vector3 position) {
         if (activeCharacter) {
             NetworkServer.Destroy(activeCharacter.gameObject);
             activeCharacter = null;
         }
         for (int i = 0; i < CharacterPrefabs.Length; i++) {
             if (CharacterPrefabs[i].name == characterName) {
-                activeCharacter = Instantiate(CharacterPrefabs[i], transform).transform;
+                position += GetCharacterOffset(CharacterPrefabs[i].transform);
+                activeCharacter = Instantiate(CharacterPrefabs[i], position, Quaternion.identity, transform).transform;
                 break;
             }
         }
         Debug.Assert(activeCharacter, $"CharacterName \"{characterName}\" not found!");
         activeCharacter.name = characterName;
-        NetworkServer.Spawn(activeCharacter.gameObject, client);
+        NetworkServer.Spawn(activeCharacter.gameObject, connectionToClient);
         //NetworkServer.ReplacePlayerForConnection(client, activeCharacter.gameObject);
-        SpawnCharacterRpc(client, characterName, position);
+        //SpawnCharacterRpc(connectionToClient, Reflection.Serialize(activeCharacter), position);
+        activeCharacter.gameObject.GetComponent<PlayerSync>().correspondingNetId = Reflection.Serialize(transform);
     }
-    [TargetRpc]
-    public void SpawnCharacterRpc(NetworkConnectionToClient client, string activeCharacter_, Vector3 position) {
-        activeCharacter = transform.Find(activeCharacter_);
+    //[TargetRpc]
+    //public void SpawnCharacterRpc(NetworkConnectionToClient client, uint activeCharacter_, Vector3 position) {
+    public void AddedTransform(Transform activeCharacter_) {
+        activeCharacter = activeCharacter_;
+        //activeCharacter = transform.Find(activeCharacter_);
         Assert.IsNotNull(activeCharacter, $"CharacterName {activeCharacter_} not found!");
-        Vector3 charOffset = GetCharacterOffset(activeCharacter);
-        activeCharacter.position = position + charOffset;
+        //Vector3 charOffset = GetCharacterOffset(activeCharacter);
+        //activeCharacter.position = position + charOffset;
 
-        CameraController.Instance.SetCameraTarget(activeCharacter.Find("PlayerCameraRoot"));
+        if (isLocalPlayer) {
+            CameraController.Instance.SetCameraTarget(activeCharacter.Find("PlayerCameraRoot"));
+        }
         characterControl = activeCharacter.GetComponent<CharacterControl>();
         //Debug.Break();
     }
     [Client]
     private void OnDiedRpc() {
-        Assert.IsTrue(authority, "OnDeath: I don't have authority!");
+        Assert.IsTrue(isOwned, "OnDeath: I don't have authority!");
         Assert.IsTrue(characterControl.isDead, "Character is not dead and is supposed to be!");
         StartCoroutine(DeathUI.Instance.PlayerDied());
         if (ServerProperties.Instance.SinglePlayer) {

@@ -9,7 +9,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
-
+using Plate;
 public class GameRunner : MonoBehaviour
 {
     [Header("Placement Settings")]
@@ -37,6 +37,7 @@ public class GameRunner : MonoBehaviour
     public static bool debugObjectsEnabled = false;
     //public short debugEventNo = -1;
     public bool runGame = true; // Whether to run the game automatically
+    public bool gameRunning;
     public GameObject[] debugObjects;
     public int debugFrameRate = -1;
 
@@ -169,6 +170,8 @@ public class GameRunner : MonoBehaviour
     }
     public void StartGame()
     {
+        if (gameRunning)
+            return;
         if (debugMode && debugObjectsEnabled) {
             foreach (GameObject obj in debugObjects) {
                 obj.SetActive(true);
@@ -179,6 +182,7 @@ public class GameRunner : MonoBehaviour
             Debug.LogError("Plate prefab is not assigned.");
             return;
         }
+        gameRunning = true;
         //DOTween.Init(false, false, LogBehaviour.Default).SetCapacity(200, 50).SetManualUpdate(true);
         DOTween.useSmoothDeltaTime = true; // Use smooth delta time for animations
         DOTween.defaultUpdateType = UpdateType.Normal; // Use FixedUpdate for animations
@@ -207,7 +211,7 @@ public class GameRunner : MonoBehaviour
                         Vector3 pos = new Vector3(x * (w + sep_x) - gridOffsetX, 0, z * (h + sep_z) - gridOffsetZ);
                         GameObject plate = Instantiate(platePrefab, pos, Quaternion.identity, transform);
                         plate.name = $"Plate_{++plateCount}";
-                        if (activeServer) NetworkServer.Spawn(plate);
+                        NetworkServer.Spawn(plate);
                         spiralPlates.Add(plate.transform);
                     }
                     x += dirs[dir].x; z += dirs[dir].y;
@@ -231,7 +235,7 @@ public class GameRunner : MonoBehaviour
 
             playerData.gamemode = PlayerGamemode.Alive;
             ServerProperties.Instance.AlivePlayers++;
-            playerData.playerController.SpawnCharacter(playerData.playerController.connectionToClient,
+            playerData.playerController.SpawnCharacter(
                 "PlayerCharacter",
                 render.position + vecOffset);
             spiralPlates.RemoveAt(0);

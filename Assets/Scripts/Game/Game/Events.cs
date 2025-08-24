@@ -5,6 +5,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Rendering.Universal;
 using Unity.VisualScripting;
+using Plate;
 
 [Serializable]
 public enum EventType

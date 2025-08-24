@@ -17,15 +17,16 @@ public class LobbyUI : MonoBehaviour {
     public static LobbyUI Instance { get; private set; } = null;
 
     [SerializeField]
-    public GameObject[] lobbyOnlyObjects;
+    private static GameObject[] lobbyOnlyObjects;
     [SerializeField]
-    public Transform FadePanel;
+    private static Transform FadePanel;
     [SerializeField]
-    public Transform Panels;
-    public Transform CurrentPanel { get; private set; }
-
-    private CanvasGroup lobbyPannelsGroup;
-    static NotificationData QuitGameNotData;
+    private static Transform Panels;
+    [SerializeField]
+    public static Transform CurrentPanel { get; private set; }
+    [SerializeField]
+    private static CanvasGroup lobbyPannelsGroup;
+    private static NotificationData QuitGameNotData;
 
     private Canvas canvas;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -33,6 +34,7 @@ public class LobbyUI : MonoBehaviour {
         Instance = null;
     }
     private void Awake() {
+        Debug.Assert(transform.parent == null, "LobbyUI must be a root object in the scene!");
         if (Instance != null && Instance != this) {
             Debug.LogError("Deleting duplicate LobbyUI");
             Destroy(gameObject); // Ensure only one instance
@@ -43,7 +45,9 @@ public class LobbyUI : MonoBehaviour {
         
 
         canvas = GetComponent<Canvas>();
+        Panels = transform.GetChild(0);
         lobbyPannelsGroup = Panels.GetComponent<CanvasGroup>();
+        FadePanel = transform.GetChild(transform.childCount - 1);
 
         CurrentPanel = Panels.GetChild(0);
         //CurrentPanel = defaultPanel;

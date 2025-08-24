@@ -97,7 +97,7 @@ public class CustomBasicAuthenticator : BasicAuthenticator
                     kickIPs.Remove(conn.address);
             }
             if (crashReason == null)
-                if (ServerProperties.Instance.MaxPlayers <= NetworkServer.connections.Count)
+                if (ServerProperties.Instance.MaxPlayers < NetworkServer.connections.Count)
                     crashReason = $"The maximum player count of {ServerProperties.Instance.MaxPlayers} has been reached";
         }
 

@@ -80,8 +80,10 @@ public class CustomNetworkManager : NetworkManager
             LobbyJoin.singleton.JoinGameFail("Disconnected from server.");
         
     }
-    public override void OnServerConnect(NetworkConnectionToClient conn) {
-        base.OnServerConnect(conn);
+    public override void OnServerConnect(NetworkConnectionToClient client) {
+        base.OnServerConnect(client);
+        if (client is LocalConnectionToClient)
+            serverIdentity.AssignClientAuthority(client);
     }
     public override void OnServerDisconnect(NetworkConnectionToClient conn) {
         if (serverProperties == null)
@@ -103,7 +105,7 @@ public class CustomNetworkManager : NetworkManager
         }
         base.OnServerDisconnect(conn);
     }
-    public override void OnServerAddPlayer(NetworkConnectionToClient conn) {
+    public override void OnServerAddPlayer(NetworkConnectionToClient client) {
         InstantiateParameters parameters = new InstantiateParameters() {
             scene = gameObject.scene,
             worldSpace = false,
@@ -113,17 +115,52 @@ public class CustomNetworkManager : NetworkManager
         player.transform.position = Vector3.zero;
         // instantiating a "Player" prefab gives it the name "Player(clone)"
         // => appending the connectionId is WAY more useful for debugging!
-        player.name = $"{playerPrefab.name} [connId={conn.connectionId}]";
+        player.name = $"{playerPrefab.name} [connId={client.connectionId}]";
         //serverProperties.PlayerCount++;
-        NetworkServer.AddPlayerForConnection(conn, player);
+        NetworkServer.AddPlayerForConnection(client, player);
 
-        player.GetComponent<PlayerController>().ServerStartUp();
+        int plrIdx = ServerProperties.Instance.PlayerCount;
 
-        if (conn is LocalConnectionToClient)
-            serverIdentity.AssignClientAuthority(conn);
+        PlayerData playerData = new PlayerData(player.GetComponent<PlayerController>(), client.address,
+            ServerProperties.Instance.SinglePlayer ? "You" : "Player" + plrIdx.ToString(),
+            PlayerGamemode.Menu
+        );
+        ServerProperties.Instance.players.Add(playerData);
+
 
         //if (ServerProperties.Instance.SinglePlayer)
             //StartGame();
+    }
+    private bool waitingForSceneChange = true;
+    private bool waitingForPlayers = true;
+    protected void StartGame() {
+        if (waitingForSceneChange || waitingForPlayers)
+            return;
+        GameObject gameRunner = SharedFunctions.FindInactiveWithTag("GameRunner");
+        gameRunner.GetComponent<GameRunner>().StartGame();
+    }
+    public override void OnServerSceneChanged(string sceneName) {
+        base.OnServerSceneChanged(sceneName);
+
+        if (sceneName == "MainMenu") {
+            waitingForSceneChange = true;
+            waitingForPlayers = true;
+            return;
+        }
+        waitingForSceneChange = false;
+        StartGame();
+    }
+    public override void OnServerReady(NetworkConnectionToClient client) {
+        base.OnServerReady(client);
+        foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values) {
+            if (!conn.isReady) {
+                waitingForPlayers = true;
+                return;
+            }
+        }
+        waitingForPlayers = false;
+        StartGame();
+        //Debug.Log("Client is ready on server.");
     }
     //public void StartGame() {
     //    GameEvents.Instance.OnClientBegin();

@@ -2848,7 +2848,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24.05
+  m_fontSize: 24
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -6783,7 +6783,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 45.55
+  m_fontSize: 45.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -8867,9 +8867,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6caf0ae2efde2d488e78d5bc1c33095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lobbyOnlyObjects: []
-  FadePanel: {fileID: 1518542755}
-  Panels: {fileID: 454961325}
 --- !u!114 &1396556392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8966,7 +8963,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 45.55
+  m_fontSize: 45.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -12933,7 +12930,7 @@ MonoBehaviour:
   - {fileID: 6865002775998532502, guid: 0c83d6db519306845982ebcea94b861a, type: 3}
   - {fileID: 3862277631971027947, guid: 7ae956b4f54394e80818898d8f4d30c6, type: 3}
   - {fileID: 3178038205933030832, guid: 2202de448a074ca4bb9a7041d0f853a0, type: 3}
-  exceptionsDisconnect: 1
+  exceptionsDisconnect: 0
   snapshotSettings:
     bufferTimeMultiplier: 2
     bufferLimit: 32

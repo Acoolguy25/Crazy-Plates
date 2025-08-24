@@ -168,7 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   events: []
   eventColors: []
-  debugEventNo: 
+  debugEventNo: 0000
 --- !u!114 &253970553 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2157727070607826934, guid: ff06ebad3a829cd439dcbe46ee282b6e, type: 3}
@@ -777,6 +777,10 @@ PrefabInstance:
     - target: {fileID: 7548826759159043592, guid: ff06ebad3a829cd439dcbe46ee282b6e, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7548826759159043592, guid: ff06ebad3a829cd439dcbe46ee282b6e, type: 3}
+      propertyPath: m_TagString
+      value: GameRunner
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2239,6 +2243,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6232515176957565949, guid: 81afa5174e9d70c4b81ae4e4ea80414c, type: 3}
+      propertyPath: gameRunner
+      value: 
+      objectReference: {fileID: 253970553}
     - target: {fileID: 6232515176957565949, guid: 81afa5174e9d70c4b81ae4e4ea80414c, type: 3}
       propertyPath: gameCanvasMain
       value: 

@@ -60,10 +60,7 @@ public class CharMovement : NetworkBehaviour {
     private bool _hasAnimator;
 
     //private bool IsCurrentDeviceMouse => _playerInput != null && _playerInput.currentControlScheme == "KeyboardMouse";
-    [ClientCallback]
-    private void Awake() {
-        if (!authority)
-            return;
+    public override void OnStartAuthority() {
         _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
 
         _hasAnimator = TryGetComponent(out _animator);
@@ -79,7 +76,7 @@ public class CharMovement : NetworkBehaviour {
     }
     [ClientCallback]
     private void FixedUpdate() {
-        if (!authority)
+        if (!isOwned)
             return;
         if (_animator != null && !_animator.enabled) return;
 
@@ -181,8 +178,10 @@ public class CharMovement : NetworkBehaviour {
             _rb.linearVelocity += new Vector3(0f, Gravity * Time.fixedDeltaTime, 0f);
         }
     }
-
+    [ClientCallback]
     private void OnFootstep(AnimationEvent animationEvent) {
+        if (!isOwned)
+            return;
         if (animationEvent.animatorClipInfo.weight > 0.5f && FootstepAudioClips.Length > 0) {
             int index = Random.Range(0, FootstepAudioClips.Length);
             var clip = FootstepAudioClips[index];
@@ -196,8 +195,10 @@ public class CharMovement : NetworkBehaviour {
             Destroy(audioGO, clip.length / source.pitch);
         }
     }
-
+    [ClientCallback]
     private void OnLand(AnimationEvent animationEvent) {
+        if (!isOwned)
+            return;
         if (animationEvent.animatorClipInfo.weight > 0.5f) {
             AudioSource.PlayClipAtPoint(LandingAudioClip, transform.position, FootstepAudioVolume * 8);
         }

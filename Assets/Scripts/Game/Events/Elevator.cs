@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using DG.Tweening;
 using Unity.Mathematics;
+using Plate;
 
 public class Elevator : MonoBehaviour
 {

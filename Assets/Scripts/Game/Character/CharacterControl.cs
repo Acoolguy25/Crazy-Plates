@@ -28,11 +28,12 @@ public class CharacterControl : NetworkBehaviour
     private Collider main_collider;
     private Animator charAnimator;
     private CharMovement thirdPersonController;
+    [ClientCallback]
     void Start()
     {
         //Debug.Log($"START CALLED: AUTHORITY: {authority} | {isServer} | {isClient}");
-        if (!authority)
-            return;
+        //if (!authority)
+            //return;
         //transform.position = new Vector3(0, 10, 0);
         main_collider = GetComponent<Collider>();
         charAnimator = GetComponent<Animator>();
