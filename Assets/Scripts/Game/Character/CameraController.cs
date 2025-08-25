@@ -38,9 +38,18 @@ public class CameraController : MonoBehaviour
         }
     }
     private void Awake() {
+        if (Instance != null && Instance != this) {
+            Destroy(gameObject);
+            Destroy(this);
+            return;
+        }
         Assert.IsTrue(Instance == null, "CameraController already initalized!");
         Instance = this;
 
-        SetActiveCamera("ThirdPerson");
+    }
+
+    private void Start() {
+        DontDestroyOnLoad(this);   
+        SetActiveCamera("Orbit");
     }
 }

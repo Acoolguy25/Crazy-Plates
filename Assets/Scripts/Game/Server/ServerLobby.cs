@@ -18,6 +18,11 @@ public class ServerLobby : NetworkBehaviour
     }
 #endif
     private void Awake() {
+        if (singleton != null && singleton != this) {
+            Destroy(gameObject);
+            Destroy(this);
+            return;
+        }
         Debug.Assert(singleton == null, "There can only be one ServerLobby instance.");
         singleton = this;
     }
@@ -53,6 +58,7 @@ public class ServerLobby : NetworkBehaviour
     [Server]
     public IEnumerator ServerGameStart() {
         RpcGameStarting();
+        ServerEvents.Instance.ServerEventsBegin();
         yield return new WaitForSecondsRealtime(2.5f);
         CustomNetworkManager.singleton2.ServerChangeScene("Default");
     }
@@ -90,8 +96,15 @@ public class ServerLobby : NetworkBehaviour
         LobbyUI.Instance.DisconnectConnection(LeaveWillingly: false);
     }
     [ClientRpc]
+    public void BackToLobby(double endTime) {
+        LobbyUI.Instance.BackToLobby((float) System.Math.Max(0d, endTime - SharedFunctions.GetNetworkTime()), false, null);
+    }
+    [ClientRpc]
     public void RpcGameStarting() {
         GameStarting = true;
         GameLobby.singleton.GameStartingFunc();
+    }
+    public void Start() {
+        DontDestroyOnLoad(this);
     }
 }

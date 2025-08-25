@@ -22,4 +22,7 @@ public class ServerEvents: MonoBehaviour {
 
         Instance = this;
     }
+    public void ServerEventsBegin() {
+        PlayerDied = null;
+    }
 }

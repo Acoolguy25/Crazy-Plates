@@ -10,20 +10,21 @@ using UnityEngine;
 
 namespace Plate {
     public class CustomTweenParams {
-        [SyncVar] public Ease ease;
-        [SyncVar] public int loops;
-        [SyncVar] public LoopType loopType;
-        [SyncVar] public Vector3 strength = Vector3.zero;
+        public Ease ease;
+        public int loops;
+        public LoopType loopType;
+        public Vector3 strength = Vector3.zero;
     }
     public class TweenInstance {
-        [SyncVar] public string name = "<unk>";
+        public string name = "<unk>";
+        public string enumerator = "<unk>";
         public Tween tween;
         public Vector3 value = Vector3.zero;
-        [SyncVar] public CustomTweenParams tweenParams;
-        [SyncVar] public bool isRelative = true;
-        [SyncVar] public Vector3 goal;
-        [SyncVar] public double startTime;
-        [SyncVar] public float duration;
+        public CustomTweenParams tweenParams;
+        public bool isRelative = true;
+        public Vector3 goal;
+        public double startTime;
+        public float duration;
 
         public Action onFinished;
     };
@@ -58,16 +59,17 @@ namespace Plate {
     public class TweenEnumerator {
         public string name;
         //public Coroutine enumerator = null;
-        public SyncList<TweenInstance> activeInstances = new();
+        public List<TweenInstance> activeInstances = new();
         public Action<TweenEnumerator, Vector3, Vector3> callback;
         public Vector3 absoluteValue;
         public Vector3 tempOffset = Vector3.zero;
-        [SyncVar] public Vector3 permOffset = Vector3.zero;
+        public Vector3 permOffset = Vector3.zero;
         public Vector3 prevValue = Vector3.zero;
     };
     public class PlateProperties2 : NetworkBehaviour {
         
         private Dictionary<Transform, PlateAddable> addables_list = new();
+        private readonly SyncList<TweenInstance> tweenInstances = new();
         public Vector3 shakeStrength { get; private set; } = Vector3.zero;
         public Transform[] addable_containers;
         public void InsertPlateAddable(PlateAddable addable) {
@@ -94,7 +96,7 @@ namespace Plate {
         public Transform render;
         //public Transform all_addables, pos_addables, pos_rot_addables;
 
-        private readonly SyncDictionary<string, TweenEnumerator> tweenEnumerators = new();
+        private readonly Dictionary<string, TweenEnumerator> tweenEnumerators = new();
         public float mass_density = 1f;
         public float stability { get; private set; } = 1f;
 
@@ -134,8 +136,11 @@ namespace Plate {
             }
             tweenInstance.tween = null;
         }
-        void OnAddToSyncList(TweenEnumerator tweenEnum, TweenInstance tweenInstance) {
+        void OnAddToSyncList(string tweenEnumName, TweenInstance tweenInstance) {
+            TweenEnumerator tweenEnum = tweenEnumerators[tweenEnumName];
             CustomTweenParams my_params = tweenInstance.tweenParams;
+            tweenEnum.activeInstances.Add(tweenInstance);
+
             float timeProgressed = (float)(SharedFunctions.GetNetworkTime() - tweenInstance.startTime);
             tweenInstance.tween = DOTween.To(() => tweenInstance.value, delegate (Vector3 x) {
                 tweenInstance.value = x;
@@ -151,29 +156,38 @@ namespace Plate {
             else
                 tweenInstance.tween.ManualUpdate(timeProgressed, timeProgressed);
         }
-        [Client]
-        void OnAddToSyncListClient(TweenEnumerator tweenEnum, TweenInstance tweenInstance) {
-            OnAddToSyncList(tweenEnum, tweenInstance);
+        void OnAddTweenInstance(int idx) {
+            TweenInstance tweenInstance = tweenInstances[idx];
+            if (tweenEnumerators.ContainsKey(tweenInstance.enumerator)) {
+                OnAddToSyncList(tweenInstance.enumerator, tweenInstance);
+            }
+            else {
+                Debug.LogError("Unknown TweenInstance Key: " + tweenInstance.name);
+            }
         }
         void Start() {
             rb = GetComponent<Rigidbody>();
-            if (isServer) {
-                tweenEnumerators.Add("localScale", new TweenEnumerator{
-                    name = "localScale",
-                    absoluteValue = render.localScale,
-                });
-                tweenEnumerators.Add("position", new TweenEnumerator{
-                    name = "position",
-                    absoluteValue = transform.position + render.localScale.y / 2 * Vector3.up,
-                });
-                tweenEnumerators.Add("rotation", new TweenEnumerator{
-                    name = "rotation",
-                    absoluteValue = transform.localRotation.eulerAngles,
-                });
-            }
-            tweenEnumerators.OnAdd += OnTweenEnumeratorAdded;
+            tweenEnumerators.Add("localScale", new TweenEnumerator{
+                name = "localScale",
+                absoluteValue = render.localScale,
+            });
+            tweenEnumerators.Add("position", new TweenEnumerator{
+                name = "position",
+                absoluteValue = transform.position + render.localScale.y / 2 * Vector3.up,
+            });
+            tweenEnumerators.Add("rotation", new TweenEnumerator{
+                name = "rotation",
+                absoluteValue = transform.localRotation.eulerAngles,
+            });
+            
             foreach (string tweenEnumKey in tweenEnumerators.Keys) {
                 OnTweenEnumeratorAdded(tweenEnumKey);
+            }
+            for(int i = 0; i < tweenInstances.Count; i++) {
+                OnAddTweenInstance(i);
+            }
+            if (isClient) {
+                tweenInstances.OnAdd += OnAddTweenInstance;
             }
         }
         private void OnTweenEnumeratorAdded(string key) {
@@ -212,15 +226,6 @@ namespace Plate {
                     Debug.LogError("Unknown TweenEnumerator Key: " + key);
                     return;
                 }
-                tweenEnum.activeInstances.OnAdd += ((int idx) =>
-                {
-                    //Debug.Log($"Adding tween {tweenInstance.name} to {tweenEnum.name} list");
-                    OnAddToSyncList(tweenEnum, tweenEnum.activeInstances[idx]);
-                });
-                foreach (TweenInstance tweenInstance in tweenEnum.activeInstances) {
-                    //Debug.Log($"Adding existing tween {tweenInstance.name} to {tweenEnum.name} list");
-                    OnAddToSyncList(tweenEnum, tweenInstance);
-                }
             }
             tweenEnum.prevValue = tweenEnum.absoluteValue;
             tweenEnum.callback(tweenEnum, tweenEnum.absoluteValue, tweenEnum.prevValue);
@@ -257,12 +262,13 @@ namespace Plate {
                 }
             }
         }
+        [Server]
         private void AddTweenToList(string name, TweenInstance tweenInstance) {
             //Debug.Log($"Adding tween to {name} list: {tweenInstance.name}");
-            TweenEnumerator enumer = tweenEnumerators[name];
-            enumer.activeInstances.Add(tweenInstance);
-            if (!NetworkServer.active)
-                OnAddToSyncList(enumer, tweenInstance);
+            //if (!NetworkServer.active)
+            tweenInstance.enumerator = name;
+            tweenInstances.Add(tweenInstance);
+            //OnAddToSyncList(name, tweenInstance);
         }
         public void CreateShakeTween(string fromName,
             Vector3 strength, float duration = 0.3f, Tuple<float, float> delayRange = null, bool forceOverride = false) {

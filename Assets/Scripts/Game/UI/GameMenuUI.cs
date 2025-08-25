@@ -82,7 +82,10 @@ public class GameMenuUI : MonoBehaviour
     public void QuitGame(bool Instant = false)
     {
         Assert.IsNotNull(LobbyUI.Instance, "QuitGame called but LobbyUI undefined");
-        LobbyUI.Instance.BackToLobby(Instant);
+        if (Instant)
+            LobbyUI.Instance.BackToLobby(0f);
+        else
+            LobbyUI.Instance.BackToLobby();
     }
     private void OnApplicationPause(bool pause) {
         if (pause && StarterAssetsInputs.Instance.GetControlsEnabled("Menu"))

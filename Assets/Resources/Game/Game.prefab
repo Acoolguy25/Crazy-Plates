@@ -10,9 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 2119089633756369302}
   - component: {fileID: 2157727070607826934}
+  - component: {fileID: 811720095001296449}
+  - component: {fileID: 5812984449621551680}
   m_Layer: 0
   m_Name: Game
-  m_TagString: Untagged
+  m_TagString: GameRunner
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44,3 +46,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2032968bff1daf46bf59897264064a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  n: 2
+  sep_x: 12
+  sep_z: 12
+  platePrefab: {fileID: 9102512124408570787, guid: 52ca5a9742c2d034ea905ef3e2d7d16b, type: 3}
+  gameStartDelay: 5
+  allEventsAtOnce: 0
+  runGame: 1
+  gameRunning: 0
+  debugObjects:
+  - {fileID: 0}
+  debugFrameRate: -440
+--- !u!114 &811720095001296449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7548826759159043592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67f06c8203098dc4d8daeaf5199c845d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  events: []
+  eventColors: []
+  debugEventNo: 
+--- !u!114 &5812984449621551680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7548826759159043592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82058f71eab0b7e4f87a8dd022785dbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EnableOnStart:
+  - {fileID: 0}
+  - {fileID: 0}

@@ -24,20 +24,23 @@ public class DeathUI : MonoBehaviour
     }
     public IEnumerator PlayerDied() {
         Assert.IsNotNull(LobbyUI.Instance, "Lobby Scene is not loaded!");
+
+        CameraController.Instance.SetActiveCamera("Death");
         if (ServerProperties.Instance.SinglePlayer) {
             gameCanvasMain.enabled = false;
             StarterAssetsInputs.Instance.SetControlsEnabled("Menu", false);
             _gameCanvasElements.defaultGroup.alpha = 1f;
             _gameCanvasElements.deathGroup.alpha = 0f;
-
             gameCanvasMain.SetCanvasGroup(null, 2f);
 
-            CameraController.Instance.SetActiveCamera("Death");
             LobbyUI.TweenTimeScale(0f, 6f);
 
             yield return new WaitForSecondsRealtime(4f);
             if (_gameCanvasElements != null && _gameCanvasElements.deathGroup != null)
                 gameCanvasMain.SetCanvasGroup(_gameCanvasElements.deathGroup, 1.8f);
+        }
+        else {
+            _gameCanvasElements.GetComponent<LockUI>().Lock();
         }
         yield return null;
     }
@@ -48,7 +51,7 @@ public class DeathUI : MonoBehaviour
         LobbyUI.LobbyLock.Unlock();
         SingleplayerMenu.Instance.SingleplayerStartActivated();
     }
-    public void BackToLobby(bool Instant = false) {
-        LobbyUI.Instance.BackToLobby(Instant);
+    public void BackToLobby() {
+        LobbyUI.Instance.BackToLobby();
     }
 }

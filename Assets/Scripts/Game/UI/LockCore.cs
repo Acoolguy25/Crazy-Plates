@@ -20,6 +20,7 @@ public class LockCore : MonoBehaviour {
     private void ChangeLockCount(int amount, bool started = false) {
         Assert.IsTrue(exemptions >= 0, "Exemptions are negative for " + gameObject.name);
         Assert.IsTrue(lockCount >= 0, "LockCount is negative: " + lockCount.ToString() + " for " + gameObject.name);
+        Assert.IsTrue(globalCount >= 0, "GlobalCount is negative: " + globalCount.ToString() + " | " + gameObject.name);
         Assert.IsTrue(amount + lockCount >= 0, "LockCount is less than amount: " + lockCount.ToString() + " < " + 
             amount.ToString() + " | " + gameObject.name);
         lockCount += amount;
@@ -27,6 +28,12 @@ public class LockCore : MonoBehaviour {
         bool setLocked = total > 0;
         if (locked != setLocked || started)
             SetLocked(setLocked, started);
+
+#if UNITY_EDITOR
+        if (gameObject.name == "Panels") {
+            //Debug.Log("Total Lock: " + lockCount + " | " + globalCount + " | " + exemptions);
+        }
+#endif
     }
     protected virtual void Awake() {
         instances.Add(this);

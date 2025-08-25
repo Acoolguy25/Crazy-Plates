@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Assertions;
+using System.Collections;
+using System;
 
 public static class SharedFunctions
 {
@@ -22,7 +24,7 @@ public static class SharedFunctions
         return list;
     }
     public static GameObject FindInactiveWithTag(string tag) {
-        foreach (var go in Object.FindObjectsByType<GameObject>(
+        foreach (var go in UnityEngine.Object.FindObjectsByType<GameObject>(
                      FindObjectsInactive.Include, FindObjectsSortMode.None)) {
             if (go.CompareTag(tag))
                 return go;

@@ -82,8 +82,13 @@ public class NotificationScript : MonoBehaviour {
     static void Init() {
         DataList.Clear();
         Visible = true;
+        notificationGroup = null;
     }
     private void Awake() {
+        if (notificationGroup != null) {
+            Destroy(gameObject);
+            return;
+        }
         notificationGroup = GetComponent<CanvasGroup>();
         notificationLock = GetComponent<LockUI>();
         //notificationLock.Lock();

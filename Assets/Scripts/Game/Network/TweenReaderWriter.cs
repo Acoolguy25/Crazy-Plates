@@ -2,28 +2,44 @@ using Mirror;
 using UnityEngine;
 using DG.Tweening;
 using Plate;
-public static class TweenReaderWriter {
+public static class DGTweenEaseSerializer {
+    public static void WriteEase(this NetworkWriter writer, Ease value) {
+        writer.WriteInt((int) value);
+    }
+    public static void WriteLoopType(this NetworkWriter writer, LoopType value) {
+        writer.WriteInt((int)value);
+    }
+    public static Ease ReadEase(this NetworkReader reader) {
+        return (Ease)reader.ReadInt();
+    }
+    public static LoopType ReadLoopType(this NetworkReader reader) {
+        return (LoopType)reader.ReadInt();
+    }
+}
+public static class CustomTweenParamsSerializer {
     // -------- CustomTweenParams --------
     public static void WriteCustomTweenParams(this NetworkWriter writer, CustomTweenParams value) {
-        writer.Write((int)value.ease);
-        writer.Write(value.loops);
-        writer.Write((int)value.loopType);
+        writer.WriteEase(value.ease);
+        writer.WriteInt(value.loops);
+        writer.WriteLoopType(value.loopType);
         writer.WriteVector3(value.strength);
     }
 
     public static CustomTweenParams ReadCustomTweenParams(this NetworkReader reader) {
         return new CustomTweenParams
         {
-            ease = reader.Read<Ease>(),
-            loops = reader.Read<int>(),
-            loopType = reader.Read<LoopType>(),
+            ease = reader.ReadEase(),
+            loops = reader.ReadInt(),
+            loopType = reader.ReadLoopType(),
             strength = reader.ReadVector3()
         };
     }
-
+}
+public static class TweenInstanceSerializer {
     // -------- TweenInstance --------
     public static void WriteTweenInstance(this NetworkWriter writer, TweenInstance value) {
         writer.WriteString(value.name);
+        writer.WriteString(value.enumerator);
         writer.WriteVector3(value.value);
         writer.WriteCustomTweenParams(value.tweenParams);
         writer.WriteBool(value.isRelative);
@@ -36,6 +52,7 @@ public static class TweenReaderWriter {
         return new TweenInstance
         {
             name = reader.ReadString(),
+            enumerator = reader.ReadString(),
             value = reader.ReadVector3(),
             tweenParams = reader.ReadCustomTweenParams(),
             isRelative = reader.ReadBool(),
@@ -46,6 +63,8 @@ public static class TweenReaderWriter {
             onFinished = null     // not serializable
         };
     }
+}
+public static class TweenEnumeratorSerializer {
 
     // -------- TweenEnumerator --------
     public static void WriteTweenEnumerator(this NetworkWriter writer, TweenEnumerator value) {
@@ -69,7 +88,7 @@ public static class TweenReaderWriter {
             tempOffset = reader.ReadVector3(),
             permOffset = reader.ReadVector3(),
             prevValue = reader.ReadVector3(),
-            activeInstances = new SyncList<TweenInstance>()
+            activeInstances = new()
         };
 
         int count = reader.ReadInt();

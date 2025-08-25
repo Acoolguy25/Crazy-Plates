@@ -74,6 +74,12 @@ public class CharMovement : NetworkBehaviour {
         _jumpTimeoutDelta = JumpTimeout;
         _fallTimeoutDelta = FallTimeout;
     }
+    public override void OnStartClient() {
+        base.OnStartClient();
+        if (isOwned)
+            return;
+
+    }
     [ClientCallback]
     private void FixedUpdate() {
         if (!isOwned)

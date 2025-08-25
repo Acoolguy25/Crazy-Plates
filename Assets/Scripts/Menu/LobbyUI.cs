@@ -10,6 +10,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 public class LobbyUI : MonoBehaviour {
     public static LockUI LobbyLock;
@@ -36,8 +38,9 @@ public class LobbyUI : MonoBehaviour {
     private void Awake() {
         Debug.Assert(transform.parent == null, "LobbyUI must be a root object in the scene!");
         if (Instance != null && Instance != this) {
-            Debug.LogError("Deleting duplicate LobbyUI");
+            //Debug.LogError("Deleting duplicate LobbyUI");
             Destroy(gameObject); // Ensure only one instance
+            Destroy(this);
             return;
         }
         Assert.IsNull(Instance, "LobbyUI is not null in Awake()");
@@ -82,8 +85,8 @@ public class LobbyUI : MonoBehaviour {
     }
     private void Start() {
         DontDestroyOnLoad(gameObject);
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        SceneManager.sceneUnloaded += OnSceneUnloaded;
+        //SceneManager.sceneLoaded += OnSceneLoaded;
+        //SceneManager.sceneUnloaded += OnSceneUnloaded;
         CheckForSinglePlayer();
     }
     public void ChangeToPanel(Transform panel = null) {
@@ -109,8 +112,8 @@ public class LobbyUI : MonoBehaviour {
         if (!started)
             LobbyLock.ToggleLock(!enabled);
     }
-    public void BackToLobby(bool Instant = false) {
-        StartCoroutine(_BackToLobby(Instant));
+    public void BackToLobby(float duration = 2f, bool disconnect = true, string loadScene = "MainMenu") {
+        StartCoroutine(_BackToLobby(duration, disconnect, loadScene));
     }
     public void DisconnectConnection(bool LeaveWillingly = true) {
         if (LeaveWillingly)
@@ -141,27 +144,40 @@ public class LobbyUI : MonoBehaviour {
     public void ResetTimeScale() {
         TweenTimeScale(1f, 0f);
     }
-    private IEnumerator _BackToLobby(bool Instant) {
+    private IEnumerator _BackToLobby(float duration, bool disconnect, string loadScene) {
         if (GameMenuUI.Instance)
             GameMenuUI.Instance.DisableAllUI();
 
-        if (!Instant) {
-            LobbyUI.Instance.FadeBlackScreen(1);
-            yield return new WaitForSecondsRealtime(2f); // wait for screen to fade to black
+        if (duration > 0f) {
+            if (duration > 3f) {
+                yield return new WaitForSecondsRealtime(duration - 3f);
+                duration = 3f;
+            }
+            LobbyUI.Instance.FadeBlackScreen(1, duration);
+            yield return new WaitForSecondsRealtime(duration); // wait for screen to fade to black
         }
-        DisconnectConnection();
+        if (disconnect)
+            DisconnectConnection();
         for (int i = 0; i < SceneManager.sceneCount; i++) {
             Scene scene = SceneManager.GetSceneAt(i);
-            if (scene != gameObject.scene && scene.isLoaded) {
+            if (loadScene != null && scene.name != loadScene && scene.isLoaded) {
                 var op = SceneManager.UnloadSceneAsync(scene);
                 yield return op;
             }
         }
+        if (loadScene != null) {
+            Scene menuScene = SceneManager.GetSceneByName(loadScene);
+            if (!menuScene.isLoaded) {
+                AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(loadScene, LoadSceneMode.Additive);
+                yield return asyncOperation;
+            }
+        }
 
+        CameraController.Instance.SetActiveCamera("Orbit");
         //LobbyLock.Unlock();
         ResetTimeScale();
-        LobbyUI.Instance.SetCanvasVisibility(true); // re-enable everything!
-        if (!Instant) {
+        //LobbyUI.Instance.SetCanvasVisibility(true); // re-enable everything!
+        if (duration > 0f && loadScene != null) {
             LobbyUI.Instance.FadeBlackScreen(0);
             yield return new WaitForSeconds(2f);
         }
@@ -173,13 +189,13 @@ public class LobbyUI : MonoBehaviour {
         Debug.Log("User has quit the game");
         Application.Quit(0);
     }
-    public void OnSceneLoaded(Scene scene, LoadSceneMode mode){
-        if (scene.name != "MainMenu")
-            SetCanvasVisibility(false);
-        //FadeBlackScreen(0f);
-    }
-    public void OnSceneUnloaded(Scene scene) {
-        if (scene.name != "MainMenu")
-            SetCanvasVisibility(true);
-    }
+    //public void OnSceneLoaded(Scene scene, LoadSceneMode mode){
+    //    if (scene.name != "MainMenu")
+    //        SetCanvasVisibility(false);
+    //    //FadeBlackScreen(0f);
+    //}
+    //public void OnSceneUnloaded(Scene scene) {
+    //    if (scene.name != "MainMenu")
+    //        SetCanvasVisibility(true);
+    //}
 }

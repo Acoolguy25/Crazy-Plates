@@ -13,7 +13,7 @@ public class CharacterControl : NetworkBehaviour
     //public GameObject cineObject;
     [Header("Public Variables")]
     [SyncVar] public bool isRagdoll = true;
-    [SyncVar] public bool isDead = false;
+    [SyncVar(hook = nameof(KillCharacterHook))] public bool isDead = false;
     [SyncVar] public uint health = 0;
     [SyncVar] public uint maxHealth = 0;
 
@@ -45,9 +45,20 @@ public class CharacterControl : NetworkBehaviour
         rigidBodies = transform.GetChild(0).GetComponentsInChildren<Rigidbody>();
         colliders = transform.GetChild(0).GetComponentsInChildren<Collider>();
         joints = GetComponentsInChildren<Joint>();
-        
-        SetRagdoll(false);
 
+        main_collider.enabled = isOwned;
+
+        if (isOwned)
+            SetRagdoll(false);
+        else {
+            foreach (Collider col in colliders)
+                col.enabled = false;
+            foreach (Rigidbody rigidbody in rigidBodies)
+                rigidbody.isKinematic = true;
+        }
+
+        if (isDead)
+            KillCharacterHook(false, true);
         //mainCam = Camera.main;
         //var vcam = mainCam.GetComponent<CinemachineCamera>();
         //vcam.Follow = cineObject.transform;
@@ -72,16 +83,17 @@ public class CharacterControl : NetworkBehaviour
         gameObject.SendMessageUpwards("OnDied", SendMessageOptions.DontRequireReceiver);
         //transform.parent.SendMessage("OnDied", SendMessageOptions.DontRequireReceiver);
         if (isServer && connectionToClient != null) { // player died
-            ServerProperties.Instance.AlivePlayers--;
             ServerEvents.Instance.PlayerDied?.Invoke(GetComponent<PlayerController>());
-            KillCharacterRpc(connectionToClient);
+            //KillCharacterRpc(connectionToClient);
         }
+        if (!ServerProperties.Instance.SinglePlayer)
+            UnifiedDelay.Instance.Delay(3f, () => NetworkServer.Destroy(gameObject));
     }
-    [TargetRpc]
-    public void KillCharacterRpc(NetworkConnectionToClient _) {
+    [Client]
+    public void KillCharacterHook(bool oldVal, bool newVal) {
         SetRagdoll(true);
-        gameObject.SendMessageUpwards("OnDiedRpc", SendMessageOptions.DontRequireReceiver);
-        //transform.parent.SendMessage("OnDiedRpc", SendMessageOptions.DontRequireReceiver);
+        gameObject.SendMessageUpwards("OnDiedClient", SendMessageOptions.DontRequireReceiver);
+        //transform.parent.SendMessage("OnDiedClient", SendMessageOptions.DontRequireReceiver);
     }
     [Server]
     public void TakeDamage(uint damage) {

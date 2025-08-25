@@ -1,6 +1,7 @@
-using UnityEngine;
 using Mirror;
 using TMPro;
+using Unity.VisualScripting;
+using UnityEngine;
 
 public class GameLobby : MonoBehaviour
 {
@@ -17,6 +18,11 @@ public class GameLobby : MonoBehaviour
     }
 #endif
     private void Awake() {
+        if (singleton != null && singleton != this) {
+            Destroy(gameObject);
+            Destroy(this);
+            return;
+        }
         Debug.Assert(singleton == null, "There can only be one GameLobby instance.");
         singleton = this;
     }
@@ -33,10 +39,12 @@ public class GameLobby : MonoBehaviour
     }
     [Client]
     public void RefreshBtns() {
-        if (ServerProperties.Instance.PlayerCount < ServerProperties.playersNeeded) {
+        if (ServerProperties.Instance.PlayerCount < GameRunner.MinPlayersMultiPlayer) {
+#if !UNITY_EDITOR
             startGameBtn.interactable = false;
+#endif
             startGameText.text = $"Need Players";
-            titleText.text = $"Waiting For Players ({ServerProperties.Instance.PlayerCount}/{ServerProperties.playersNeeded})";
+            titleText.text = $"Waiting For Players ({ServerProperties.Instance.PlayerCount}/{GameRunner.MinPlayersMultiPlayer})";
         }
         else {
             startGameBtn.interactable = true;
@@ -96,6 +104,10 @@ public class GameLobby : MonoBehaviour
     [Client]
     public void StartGameBtn() {
         ServerLobby.singleton.CmdStartGame();
+    }
+    [Client]
+    public void LeaveGameBtn() {
+        MultiplayerMenu.singleton.MultiplayerExitLobby();
     }
     [Client]
     public void GameStartingFunc() {

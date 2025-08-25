@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Splines;
 using UnityEngine.UIElements;
 
-public class MovementControl : MonoBehaviour {
+public class MovementControl : NetworkBehaviour {
     [Tooltip("Indicates if the character is grounded")]
     public bool IsGrounded = false;
 
@@ -27,8 +27,7 @@ public class MovementControl : MonoBehaviour {
     //public float radiusMultiple = 2.25f;
     //public float heightMultiple = 2f;
     public static ushort noTouchDelay = 0;
-
-    void Start() {
+    public override void OnStartAuthority() {
         charCntl = GetComponent<CharacterControl>();
         rb = GetComponent<Rigidbody>();
         boxCollider = GetComponent<BoxCollider>();
@@ -40,7 +39,9 @@ public class MovementControl : MonoBehaviour {
         contact.lastFollowSize = followInstance.localScale;
         contact.lastFollowRot = followInstance.rotation;
     }
+    [ClientCallback]
     void FixedUpdate() {
+        if (!isOwned) return;
         if (charCntl.isRagdoll) {
             contacts = new();
             IsGrounded = false;

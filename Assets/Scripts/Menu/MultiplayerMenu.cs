@@ -18,7 +18,12 @@ public class MultiplayerMenu : MonoBehaviour
     }
 #endif
     private void Awake() {
-        Debug.Assert(singleton == null, "There can only be one MultiplayerMenu instance.");
+        if (singleton != null && singleton != this) {
+            Destroy(gameObject);
+            Destroy(this);
+            return;
+        }
+        //Debug.Assert(singleton == null, "There can only be one MultiplayerMenu instance.");
         singleton = this;
     }
     public void MultiplayerExitActivated() {
@@ -49,12 +54,12 @@ public class MultiplayerMenu : MonoBehaviour
 
         LockCore.UnlockAll();
     }
-    public void MultiplayerLeaveLobby() {
+    private void MultiplayerLeaveLobby() {
         NotificationData leaveLobbyNotiData = new NotificationData("Leave Lobby?",
         "Are you sure you want to leave the lobby?", NotificationScript.YesNoButtons, OnLeaveLobby);
         NotificationScript.AddNotification(leaveLobbyNotiData);
     }
-    public void MultiplayerDeleteLobby() {
+    public void MultiplayerExitLobby() {
         if (!NetworkClient.activeHost) {
             MultiplayerLeaveLobby();
             return;

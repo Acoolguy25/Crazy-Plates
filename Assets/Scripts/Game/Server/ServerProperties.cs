@@ -23,7 +23,7 @@ public class ServerProperties : NetworkBehaviour
     public string GameCode = string.Empty;
 
     // Non sync vars
-    public static ushort playersNeeded = 1;
+    //public static ushort playersNeeded = 1;
 
     public double GameDuration {
         get {

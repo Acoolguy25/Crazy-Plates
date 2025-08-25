@@ -66,7 +66,6 @@
     <Compile Include="Assets\Scripts\Game\Game\PlateProperties2.cs" />
     <Compile Include="Assets\Scripts\Game\Character\MovementControl.cs" />
     <Compile Include="Assets\Scripts\Debug\TempGameRunner.cs" />
-    <Compile Include="Assets\Scripts\Menu\LobbyRunner.cs" />
     <Compile Include="Assets\Scripts\Game\UI\GameCanvasMain.cs" />
     <Compile Include="Assets\Scripts\Game\Game\GameRunner.cs" />
     <Compile Include="Assets\Scripts\Menu\MultiplayerMenu.cs" />
@@ -84,6 +83,7 @@
     <Compile Include="Assets\Scripts\Game\Network\PlayerSync.cs" />
     <Compile Include="Assets\Scripts\Game\UI\GameCanvasElems.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CharacterControl.cs" />
+    <Compile Include="Assets\Scripts\Menu\OrbitCamera.cs" />
     <Compile Include="Assets\Scripts\Game\Character\ThirdPersonController.cs" />
     <Compile Include="Assets\Scripts\Game\Network\SharedFunctions.cs" />
     <Compile Include="Assets\Scripts\Game\Persistence\Encryption.cs" />
@@ -121,6 +121,7 @@
     <Compile Include="Assets\Scripts\Game\Game\PlateProperties.cs" />
     <Compile Include="Assets\Scripts\Menu\TextUpdater.cs" />
     <Compile Include="Assets\Scripts\Game\Game\GameEvents.cs" />
+    <Compile Include="Assets\Scripts\Generic\UnifiedDelay.cs" />
     <Compile Include="Assets\Scripts\Menu\MultiOptions\OptionSlider.cs" />
     <Compile Include="Assets\Scripts\Game\Network\TweenReaderWriter.cs" />
     <Compile Include="Assets\Scripts\Game\Character\CameraController.cs" />

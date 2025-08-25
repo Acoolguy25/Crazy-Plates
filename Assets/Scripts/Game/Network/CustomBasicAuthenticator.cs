@@ -86,7 +86,10 @@ public class CustomBasicAuthenticator : BasicAuthenticator
         string crashReason = null;
         double kickTime;
         if (!(conn is LocalConnectionToClient)) {
-            if (banIPs.Any((ip) => ip == conn.address)) {
+            if (ServerProperties.Instance.SinglePlayer) {
+                crashReason = "Single Player Server. No external connections allowed.";
+            }
+            else if (banIPs.Any((ip) => ip == conn.address)) {
                 crashReason = "You are banned from this server.";
             }
             else if (kickIPs.TryGetValue(conn.address, out kickTime)) {

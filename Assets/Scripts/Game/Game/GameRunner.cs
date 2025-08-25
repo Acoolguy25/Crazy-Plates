@@ -13,7 +13,7 @@ using Plate;
 public class GameRunner : MonoBehaviour
 {
     [Header("Placement Settings")]
-    public int n = 3;              // Grid size (n x n)
+    public int n = 2;              // Grid size (n x n)
     public float sep_x = 0.5f;     // Space between plates in X
     public float sep_z = 0.5f;     // Space between plates in Z
 
@@ -23,13 +23,17 @@ public class GameRunner : MonoBehaviour
 
     [Header("Private Variables")]
     private Events eventsScript;
-    private Coroutine gameCoroutine;
+    private Coroutine gameCoroutine = null;
 
     [Header("Game Settings")]
     public float gameStartDelay = 5f;
+    public float gameEndDelay = 10f;
     public bool allEventsAtOnce = false; // If true, all events will be run at once, otherwise one by one
     private float TimeBetweenEvents;
     private bool activeServer => NetworkServer.active;
+
+    public static int MinPlayersSinglePlayer = 1;
+    public static int MinPlayersMultiPlayer = 2;
     
 
     [Header("Debug")]
@@ -41,7 +45,9 @@ public class GameRunner : MonoBehaviour
     public GameObject[] debugObjects;
     public int debugFrameRate = -1;
 
+    public static GameRunner singleton;
     void Awake() {
+        singleton = this;
         if (!debugMode)
             return;
         if (!activeServer && !SceneManager.GetSceneByName("MainMenu").isLoaded) {
@@ -88,7 +94,7 @@ public class GameRunner : MonoBehaviour
     {
         if (activeServer)
             yield return new WaitUntil(() => NetworkServer.active && NetworkTime.time > 0);
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR && !DEVELOPMENT_BUILD
             GameEvents.Instance.GameMessage = new GameMessage(
                 "Game will begin in {0}",
                 SharedFunctions.GetNetworkTime() + gameStartDelay);
@@ -245,19 +251,39 @@ public class GameRunner : MonoBehaviour
 
         gameCoroutine = StartCoroutine(RunGame());
     }
-
+    [Server]
     public void OnDied(PlayerController player) {
-        if (ServerProperties.Instance.AlivePlayers <= (ServerProperties.Instance.SinglePlayer? 0: 1))
-            EndGame();
+        PlayerData playerData = player
+        if (player.gamemode == PlayerGamemode.Alive) {
+            ServerProperties.Instance.AlivePlayers--;
+            if (ServerProperties.Instance.AlivePlayers < (ServerProperties.Instance.SinglePlayer ? MinPlayersSinglePlayer : MinPlayersMultiPlayer))
+                EndGame();
+        }
     }
-
+    [Server]
     public void EndGame() {
         Assert.IsNotNull(gameCoroutine, "EndGame() called but game not started!");
         StopCoroutine(gameCoroutine);
         GameEvents.Instance.SurvivalTime = ServerProperties.Instance.GameDuration;
         ServerProperties.Instance.GameInProgress = false;
+        List<string> alivePlayers = new();
+        foreach (PlayerData player in ServerProperties.Instance.players) {
+            if (player.gamemode == PlayerGamemode.Alive) {
+                alivePlayers.Add(player.displayName);
+            }
+        }
+        GameEvents.Instance.GameMessage = new GameMessage(
+                (alivePlayers.Count > 0? string.Join(", ", alivePlayers): "Nobody") + " has won! ({0})",
+                SharedFunctions.GetNetworkTime() + gameEndDelay);
+        GameEvents.Instance.DescMessage = "The game lasted " + SingleplayerTimeGUI.DisplayTimePassed(GameEvents.Instance.SurvivalTime);
+        ServerLobby.singleton.BackToLobby(SharedFunctions.GetNetworkTime() + gameEndDelay);
+        UnifiedDelay.Instance.Delay(gameEndDelay, ResetGame);
     }
-
+    [Server]
+    public void ResetGame() {
+        ServerLobby.GameStarting = false;
+        CustomNetworkManager.singleton2.ServerChangeScene("MainMenu");
+    }
     private Vector3 GetPrefabWorldSize(GameObject prefab)
     {
         Renderer rend = prefab.GetComponent<Renderer>();

@@ -10,21 +10,6 @@ public enum PlayerGamemode: byte {
     Spectator,
     Menu
 }
-public struct PlayerData {
-    public PlayerController playerController;
-    public string ipAddress;
-    public string displayName;
-    public PlayerGamemode gamemode;
-    public NetworkConnection serverConnection => playerController.connectionToServer;
-    public NetworkConnectionToClient clientConnection => playerController.connectionToClient;
-    public bool isLocalPlayer => playerController.isLocalPlayer;
-    public PlayerData(PlayerController playerController, string ip, string displayName, PlayerGamemode gamemode) {
-        this.playerController = playerController;
-        this.ipAddress = ip;
-        this.displayName = displayName;
-        this.gamemode = gamemode;
-    }
-}
 
 public class PlayerController : NetworkBehaviour
 {
@@ -34,16 +19,21 @@ public class PlayerController : NetworkBehaviour
     [Header("Shared Public Variables")]
     public CharacterControl characterControl { get; private set; }
     //public Transform cineObject; // reference
-                                 //[Header("Private Server Variables")]
-                                 //public NetworkConnectionToClient clientConnection;
-                                 //private Vector3 MoveToSpawnpoint() {
-                                 //    int spawnPoints = ServerProperties.Instance.SpawnPoints.Count;
-                                 //    Assert.IsTrue(spawnPoints > 0, "No Spawnpoints Left!");
-                                 //    int spawnIdx = Random.Range(0, spawnPoints);
-                                 //    Vector3 spawnLoc = ServerProperties.Instance.SpawnPoints[spawnIdx];
-                                 //    ServerProperties.Instance.SpawnPoints.RemoveAt(spawnIdx);
-                                 //    return spawnLoc;
-                                 //}
+    //[Header("Private Server Variables")]
+    //public NetworkConnectionToClient clientConnection;
+    //private Vector3 MoveToSpawnpoint() {
+    //    int spawnPoints = ServerProperties.Instance.SpawnPoints.Count;
+    //    Assert.IsTrue(spawnPoints > 0, "No Spawnpoints Left!");
+    //    int spawnIdx = Random.Range(0, spawnPoints);
+    //    Vector3 spawnLoc = ServerProperties.Instance.SpawnPoints[spawnIdx];
+    //    ServerProperties.Instance.SpawnPoints.RemoveAt(spawnIdx);
+    //    return spawnLoc;
+    //}
+    [Header("Sync Public Variables")]
+    [SyncVar] public string ipAddress;
+    [SyncVar] public string displayName;
+    [SyncVar] public PlayerGamemode gamemode;
+
     //[SyncVar(hook = nameof(OnActiveCharacterChanged))]
     public Transform activeCharacter = null;
 #if UNITY_EDITOR
@@ -103,6 +93,19 @@ public class PlayerController : NetworkBehaviour
         //SpawnCharacterRpc(connectionToClient, Reflection.Serialize(activeCharacter), position);
         activeCharacter.gameObject.GetComponent<PlayerSync>().correspondingNetId = Reflection.Serialize(transform);
     }
+    private void CharacterDestroyed() {
+        if (activeCharacter == null) {
+            return;
+        }
+        Debug.Log("Character Destroyed!");
+        activeCharacter = null;
+        if (isLocalPlayer)
+            CameraController.Instance.SetActiveCamera("Orbit");
+    }
+    [ClientCallback]
+    private void OnTransformChildrenChanged() {
+        CharacterDestroyed();
+    }
     //[TargetRpc]
     //public void SpawnCharacterRpc(NetworkConnectionToClient client, uint activeCharacter_, Vector3 position) {
     public void AddedTransform(Transform activeCharacter_) {
@@ -114,14 +117,18 @@ public class PlayerController : NetworkBehaviour
 
         if (isLocalPlayer) {
             CameraController.Instance.SetCameraTarget(activeCharacter.Find("PlayerCameraRoot"));
+            CameraController.Instance.SetActiveCamera("ThirdPerson");
         }
         characterControl = activeCharacter.GetComponent<CharacterControl>();
         //Debug.Break();
     }
     [Client]
-    private void OnDiedRpc() {
+    private void OnDiedClient() {
+        if (!isLocalPlayer)
+            return;
         Assert.IsTrue(isOwned, "OnDeath: I don't have authority!");
         Assert.IsTrue(characterControl.isDead, "Character is not dead and is supposed to be!");
+
         StartCoroutine(DeathUI.Instance.PlayerDied());
         if (ServerProperties.Instance.SinglePlayer) {
             if (GameEvents.Instance.SurvivalTime > SaveManager.SaveInstance.singleplayerTime) {

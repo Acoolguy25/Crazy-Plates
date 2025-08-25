@@ -7,14 +7,19 @@ using Mirror.BouncyCastle.Bcpg;
 
 public class SingleplayerMenu : MonoBehaviour
 {
-    public static SingleplayerMenu Instance;
+    public static SingleplayerMenu Instance = null;
     public TextMeshProUGUI SingleplayerTimeText;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
         Instance = null;
     }
     private void Awake() {
-        Assert.IsNull(Instance, "SinglePlayerMenu is not null in Awake()");
+        if (Instance != null && Instance != this) {
+            Destroy(gameObject);
+            Destroy(this);
+            return;
+        }
+        //Assert.IsNull(Instance, "SinglePlayerMenu is not null in Awake()");
         Instance = this;
     }
     public void UpdateSinglePlayerTime(double newTime) {

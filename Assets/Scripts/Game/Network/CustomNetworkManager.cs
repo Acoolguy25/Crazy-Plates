@@ -22,6 +22,11 @@ public class CustomNetworkManager : NetworkManager
 
     private NetworkIdentity serverIdentity;
     public override void Awake() {
+        if (singleton2 != null && singleton2 != this) {
+            Destroy(gameObject);
+            Destroy(this);
+            return;
+        }
         singleton2 = this;
         serverLobby = serverProperties.GetComponent<ServerLobby>();
         serverIdentity = serverProperties.GetComponent<NetworkIdentity>();
@@ -92,9 +97,7 @@ public class CustomNetworkManager : NetworkManager
         foreach (PlayerData player in serverProperties.players) {
             if (player.clientConnection == conn) {
                 found = true;
-                if (player.gamemode == PlayerGamemode.Alive) {
-                    serverProperties.AlivePlayers--;
-                }
+                ServerEvents.Instance.PlayerDied?.Invoke(player.playerController);
                 //serverProperties.PlayerCount--;
                 serverProperties.players.Remove(player);
                 break;
@@ -223,6 +226,8 @@ public class CustomNetworkManager : NetworkManager
         base.OnClientTransportException(exception);
     }
     public override void OnClientSceneChanged() {
+        LobbyUI.Instance.SetCanvasVisibility(networkSceneName == "MainMenu");
+
         LobbyUI.Instance.FadeBlackScreen(0f);
         base.OnClientSceneChanged();
     }
