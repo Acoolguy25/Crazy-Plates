@@ -12,7 +12,7 @@ public class CharacterControl : NetworkBehaviour
     //private Camera mainCam;
     //public GameObject cineObject;
     [Header("Public Variables")]
-    [SyncVar] public bool isRagdoll = true;
+    [SyncVar(hook = nameof(OnRagdollChange))] public bool isRagdoll = true;
     [SyncVar(hook = nameof(KillCharacterHook))] public bool isDead = false;
     [SyncVar] public uint health = 0;
     [SyncVar] public uint maxHealth = 0;
@@ -57,7 +57,7 @@ public class CharacterControl : NetworkBehaviour
                 rigidbody.isKinematic = true;
         }
 
-        if (isDead)
+        if (isDead && isClient)
             KillCharacterHook(false, true);
         //mainCam = Camera.main;
         //var vcam = mainCam.GetComponent<CinemachineCamera>();
@@ -83,7 +83,7 @@ public class CharacterControl : NetworkBehaviour
         gameObject.SendMessageUpwards("OnDied", SendMessageOptions.DontRequireReceiver);
         //transform.parent.SendMessage("OnDied", SendMessageOptions.DontRequireReceiver);
         if (isServer && connectionToClient != null) { // player died
-            ServerEvents.Instance.PlayerDied?.Invoke(GetComponent<PlayerController>());
+            ServerEvents.Instance.PlayerDied?.Invoke(GetComponentInParent<PlayerController>());
             //KillCharacterRpc(connectionToClient);
         }
         if (!ServerProperties.Instance.SinglePlayer)
@@ -91,9 +91,12 @@ public class CharacterControl : NetworkBehaviour
     }
     [Client]
     public void KillCharacterHook(bool oldVal, bool newVal) {
-        SetRagdoll(true);
         gameObject.SendMessageUpwards("OnDiedClient", SendMessageOptions.DontRequireReceiver);
         //transform.parent.SendMessage("OnDiedClient", SendMessageOptions.DontRequireReceiver);
+    }
+    [Client]
+    protected void OnRagdollChange(bool oldVal, bool newVal) {
+        SetRagdoll(newVal);
     }
     [Server]
     public void TakeDamage(uint damage) {
@@ -110,10 +113,11 @@ public class CharacterControl : NetworkBehaviour
     {
         SetRagdoll(set);
     }
+    private bool localRagdoll = true;
     void SetRagdoll(bool ragdollActive)
     {
         ragdollActive = ragdollActive || isDead;
-        if (isRagdoll == ragdollActive) return; // No change needed
+        if (localRagdoll == ragdollActive) return; // No change needed
         thirdPersonController.enabled = !ragdollActive;
         main_collider.enabled = !ragdollActive;
         charAnimator.enabled = !ragdollActive;
@@ -146,7 +150,7 @@ public class CharacterControl : NetworkBehaviour
             charAnimator.Update(0f);
             charAnimator.Rebind();
         }
-        isRagdoll = ragdollActive;
+        isRagdoll = localRagdoll = ragdollActive;
         //Debug.Log("CharacterControl: Ragdoll state set to " + ragdollActive);
     }
 }

@@ -34,7 +34,7 @@ public class ServerProperties : NetworkBehaviour
         }
     }
     
-    readonly public SyncList<PlayerData> players = new();
+    readonly public SyncList<uint> players = new();
 
     //[Header("Server Properties")]
     //public List<Vector3> SpawnPoints;

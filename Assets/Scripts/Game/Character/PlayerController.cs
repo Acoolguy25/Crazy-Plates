@@ -4,6 +4,7 @@ using UnityEngine.Assertions;
 using Unity.Cinemachine;
 using StarterAssets;
 using Unity.VisualScripting;
+using System;
 
 public enum PlayerGamemode: byte {
     Alive,
@@ -30,9 +31,13 @@ public class PlayerController : NetworkBehaviour
     //    return spawnLoc;
     //}
     [Header("Sync Public Variables")]
-    [SyncVar] public string ipAddress;
-    [SyncVar] public string displayName;
-    [SyncVar] public PlayerGamemode gamemode;
+    [SyncVar(hook = nameof(ipAddressChanged))] public string ipAddress;
+    private void ipAddressChanged(string _, string _2) { PropertyChanged?.Invoke(); }
+    [SyncVar(hook = nameof(displayNameChanged))] public string displayName;
+    private void displayNameChanged(string _, string _2) { PropertyChanged?.Invoke(); }
+    [SyncVar(hook = nameof(gamemodeChanged))] public PlayerGamemode gamemode;
+    private void gamemodeChanged(PlayerGamemode _, PlayerGamemode _2) { PropertyChanged?.Invoke(); }
+    public Action PropertyChanged;
 
     //[SyncVar(hook = nameof(OnActiveCharacterChanged))]
     public Transform activeCharacter = null;

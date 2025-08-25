@@ -60,16 +60,17 @@ public class GameLobby : MonoBehaviour
     [Client]
     private void OnPlayersChanged() {
         OptionBaseData[] playerList = new OptionBaseData[ServerProperties.Instance.players.Count];
-        foreach (PlayerData player in ServerProperties.Instance.players)
+        foreach (uint playerIdx in ServerProperties.Instance.players)
         {
+            PlayerController player = Reflection.Deserialize<PlayerController>(playerIdx);
             OptionPlayerListData playerListData = new OptionPlayerListData()
             {
-                name = player.ipAddress,
-                description = $"{player.displayName}{(player.isLocalPlayer ? " (You)" : "")}",
+                name = player.netId.ToString(),
+                //description = $"{player.displayName}{(player.isLocalPlayer ? " (You)" : "")}",
                 isEnabled = NetworkClient.activeHost && !player.isLocalPlayer,
                 playerData = player
             };
-            playerList[ServerProperties.Instance.players.IndexOf(player)] = playerListData;
+            playerList[ServerProperties.Instance.players.IndexOf(playerIdx)] = playerListData;
         }
         playerListCore.Init(new MultiOptionsPanel.MultiOptionsPanelData()
         {

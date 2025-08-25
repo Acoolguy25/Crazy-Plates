@@ -11,7 +11,7 @@ public class PlayerSync : NetworkBehaviour {
     [Client]
     protected void Check(uint oldNetId, uint newNetId) {
         if (newNetId != 0) {
-            Transform newParent = Reflection.Deserialize(newNetId);
+            Transform newParent = Reflection.Deserialize<Transform>(newNetId);
             transform.SetParent(newParent);
             newParent.SendMessage("AddedTransform", transform);
         }

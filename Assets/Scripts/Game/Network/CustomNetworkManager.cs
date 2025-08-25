@@ -94,12 +94,13 @@ public class CustomNetworkManager : NetworkManager
         if (serverProperties == null)
             return;
         bool found = false;
-        foreach (PlayerData player in serverProperties.players) {
-            if (player.clientConnection == conn) {
+        foreach (uint playerIdx in serverProperties.players) {
+            PlayerController player = Reflection.Deserialize<PlayerController>(playerIdx);
+            if (player.connectionToClient == conn) {
                 found = true;
-                ServerEvents.Instance.PlayerDied?.Invoke(player.playerController);
+                ServerEvents.Instance.PlayerDied?.Invoke(player);
                 //serverProperties.PlayerCount--;
-                serverProperties.players.Remove(player);
+                serverProperties.players.Remove(playerIdx);
                 break;
             }
         }
@@ -124,11 +125,16 @@ public class CustomNetworkManager : NetworkManager
 
         int plrIdx = ServerProperties.Instance.PlayerCount;
 
-        PlayerData playerData = new PlayerData(player.GetComponent<PlayerController>(), client.address,
-            ServerProperties.Instance.SinglePlayer ? "You" : "Player" + plrIdx.ToString(),
-            PlayerGamemode.Menu
-        );
-        ServerProperties.Instance.players.Add(playerData);
+        PlayerController playerData = player.GetComponent<PlayerController>();
+        //(player.GetComponent<PlayerController>(), client.address,
+        //    ServerProperties.Instance.SinglePlayer ? "You" : "Player" + plrIdx.ToString(),
+        //    PlayerGamemode.Menu
+        //);
+        playerData.ipAddress = client.address;
+        playerData.displayName = ServerProperties.Instance.SinglePlayer ? "You" : "Player" + plrIdx.ToString();
+        playerData.gamemode = PlayerGamemode.Menu;
+
+        ServerProperties.Instance.players.Add(Reflection.Serialize(playerData));
 
 
         //if (ServerProperties.Instance.SinglePlayer)

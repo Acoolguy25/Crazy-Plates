@@ -237,11 +237,11 @@ public class GameRunner : MonoBehaviour
             Transform plate = spiralPlates[0];
             Transform render = plate.GetComponent<PlateProperties2>().render;
             Vector3 vecOffset = (render.lossyScale.y) * Vector3.up;
-            PlayerData playerData = ServerProperties.Instance.players[playerIdx];
+            PlayerController playerData = Reflection.Deserialize<PlayerController>(ServerProperties.Instance.players[playerIdx]);
 
             playerData.gamemode = PlayerGamemode.Alive;
             ServerProperties.Instance.AlivePlayers++;
-            playerData.playerController.SpawnCharacter(
+            playerData.SpawnCharacter(
                 "PlayerCharacter",
                 render.position + vecOffset);
             spiralPlates.RemoveAt(0);
@@ -253,9 +253,9 @@ public class GameRunner : MonoBehaviour
     }
     [Server]
     public void OnDied(PlayerController player) {
-        PlayerData playerData = player
         if (player.gamemode == PlayerGamemode.Alive) {
             ServerProperties.Instance.AlivePlayers--;
+            player.gamemode = PlayerGamemode.Spectator;
             if (ServerProperties.Instance.AlivePlayers < (ServerProperties.Instance.SinglePlayer ? MinPlayersSinglePlayer : MinPlayersMultiPlayer))
                 EndGame();
         }
@@ -267,7 +267,8 @@ public class GameRunner : MonoBehaviour
         GameEvents.Instance.SurvivalTime = ServerProperties.Instance.GameDuration;
         ServerProperties.Instance.GameInProgress = false;
         List<string> alivePlayers = new();
-        foreach (PlayerData player in ServerProperties.Instance.players) {
+        foreach (uint playerIdx in ServerProperties.Instance.players) {
+            PlayerController player = Reflection.Deserialize<PlayerController>(playerIdx);
             if (player.gamemode == PlayerGamemode.Alive) {
                 alivePlayers.Add(player.displayName);
             }
