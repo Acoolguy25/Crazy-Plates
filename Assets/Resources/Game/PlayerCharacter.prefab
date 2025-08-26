@@ -2061,6 +2061,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4208e840e9988ef42adc002f8f53d7c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   IsGrounded: 0
 --- !u!54 &292765614822560957
 Rigidbody:
@@ -2171,7 +2174,7 @@ MonoBehaviour:
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 1
-  coordinateSpace: 0
+  coordinateSpace: 1
   timelineOffset: 1
   showGizmos: 0
   showOverlay: 0

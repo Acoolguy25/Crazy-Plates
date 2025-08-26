@@ -2,6 +2,7 @@ using StarterAssets;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.Assertions;
+using Mirror;
 
 public class DeathUI : MonoBehaviour
 {
@@ -44,12 +45,14 @@ public class DeathUI : MonoBehaviour
         }
         yield return null;
     }
+    [Client]
     public void SinglePlayer_RetryGame() {
         _gameCanvasElements.deathGroup.interactable = false;
-        GameMenuUI.Instance.DisableAllUI();
+        //GameMenuUI.Instance.DisableAllUI();
 
-        LobbyUI.LobbyLock.Unlock();
-        SingleplayerMenu.Instance.SingleplayerStartActivated();
+        //LobbyUI.LobbyLock.Unlock();
+        //SingleplayerMenu.Instance.SingleplayerStartActivated();
+        ServerLobby.singleton.CmdStartGame();
     }
     public void BackToLobby() {
         LobbyUI.Instance.BackToLobby();

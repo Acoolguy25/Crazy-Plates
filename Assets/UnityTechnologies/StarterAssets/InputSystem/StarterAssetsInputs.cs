@@ -38,10 +38,10 @@ namespace StarterAssets
         private void Awake() {
             Assert.IsNull(Instance, "StarterAssetInputs is not null in Awake()");
             Instance = this;
+            _inputAction = GetComponent<PlayerInput>();
         }
         private void Start()
         {
-			_inputAction = GetComponent<PlayerInput>();
 			SetControlsEnabled("Menu", true);
         }
 		public void OnDiedRpc() {

@@ -28,7 +28,6 @@ public class CharacterControl : NetworkBehaviour
     private Collider main_collider;
     private Animator charAnimator;
     private CharMovement thirdPersonController;
-    [ClientCallback]
     void Start()
     {
         //Debug.Log($"START CALLED: AUTHORITY: {authority} | {isServer} | {isClient}");
@@ -48,7 +47,7 @@ public class CharacterControl : NetworkBehaviour
 
         main_collider.enabled = isOwned;
 
-        if (isOwned)
+        if (isOwned || isServer)
             SetRagdoll(false);
         else {
             foreach (Collider col in colliders)
@@ -83,11 +82,13 @@ public class CharacterControl : NetworkBehaviour
         gameObject.SendMessageUpwards("OnDied", SendMessageOptions.DontRequireReceiver);
         //transform.parent.SendMessage("OnDied", SendMessageOptions.DontRequireReceiver);
         if (isServer && connectionToClient != null) { // player died
-            ServerEvents.Instance.PlayerDied?.Invoke(GetComponentInParent<PlayerController>());
+            PlayerController player = GetComponentInParent<PlayerController>();
+            ServerEvents.Instance.PlayerDied?.Invoke(player);
             //KillCharacterRpc(connectionToClient);
+            //if (!ServerProperties.Instance.SinglePlayer)
+            UnifiedDelay.Instance.Delay(ServerProperties.Instance.SinglePlayer? 6f: 3f, player.DespawnCharacter);
         }
-        if (!ServerProperties.Instance.SinglePlayer)
-            UnifiedDelay.Instance.Delay(3f, () => NetworkServer.Destroy(gameObject));
+        
     }
     [Client]
     public void KillCharacterHook(bool oldVal, bool newVal) {
@@ -107,11 +108,6 @@ public class CharacterControl : NetworkBehaviour
         if (health == 0 && maxHealth != 0) {
             KillCharacter();
         }
-    }
-    [ClientRpc]
-    public void SetRagdoll_FromServer(bool set)
-    {
-        SetRagdoll(set);
     }
     private bool localRagdoll = true;
     void SetRagdoll(bool ragdollActive)
@@ -150,7 +146,9 @@ public class CharacterControl : NetworkBehaviour
             charAnimator.Update(0f);
             charAnimator.Rebind();
         }
-        isRagdoll = localRagdoll = ragdollActive;
+        if (isServer)
+            isRagdoll = ragdollActive;
+        localRagdoll = ragdollActive;
         //Debug.Log("CharacterControl: Ragdoll state set to " + ragdollActive);
     }
 }

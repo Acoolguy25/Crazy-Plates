@@ -78,6 +78,7 @@ public class NotificationScript : MonoBehaviour {
     private static Transform buttonsContainer;
     private static LockUI notificationLock;
     private static Tween hideTween = null;
+    private static LockReason notificationLockReason = new LockReason("Notification", LockTag.Lobby);
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
         DataList.Clear();
@@ -155,12 +156,12 @@ public class NotificationScript : MonoBehaviour {
         Visible = show;
         if (!started) {
             if (show) {
-                LockCore.LockAll();
+                LockCore.LockAll(notificationLockReason);
                 notificationLock.AddExemption(LockCore.globalCount); // draw over it!
             }
             else {
                 notificationLock.RemoveExemption(LockCore.globalCount); // draw over it!
-                LockCore.UnlockAll();
+                LockCore.UnlockAll(notificationLockReason);
             }
         }
 

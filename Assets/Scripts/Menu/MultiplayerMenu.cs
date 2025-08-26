@@ -11,6 +11,7 @@ public class MultiplayerMenu : MonoBehaviour
     public ServerProperties serverProperties;
     private MultiOptionsPanel scriptOptions;
     public static MultiplayerMenu singleton;
+    private static LockReason CreateLockReason = new LockReason("CreateLobby", LockTag.Lobby);
 #if UNITY_EDITOR
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
@@ -31,6 +32,12 @@ public class MultiplayerMenu : MonoBehaviour
         MultiplayerChangePanel(StartPanel);
     }
     public void MultiplayerChangePanel(Transform panel) {
+#if PLATFORM_WEBGL && !UNITY_EDITOR
+        if (panel.name == "CreateLobby") {
+            NotificationScript.AddNotification(new NotificationData("Create Lobby Restriction", "You cannot create a lobby in WebGL due to browser restrictions.\nIf you want to create a lobby, please download the Windows build.", NotificationScript.OkOnlyButtons));
+            return;
+        }
+#endif
         CurrentPanel = panel;
         foreach (Transform child in StartPanel.parent) {
             child.gameObject.SetActive(panel == child);
@@ -38,7 +45,7 @@ public class MultiplayerMenu : MonoBehaviour
         OptionsPanel.gameObject.SetActive(panel == CreatePanel);
     }
     public void MultiplayerCreateLobby() {
-        LockCore.LockAll();
+        LockCore.LockAll(CreateLockReason);
 
         try {
             CustomNetworkManager.singleton2.Init(scriptOptions.GetKeyValuePairs(), singleplayer: false);
@@ -52,7 +59,7 @@ public class MultiplayerMenu : MonoBehaviour
                 $"Failed To Create Server: {e.Message}", NotificationScript.OkOnlyButtons));
         }
 
-        LockCore.UnlockAll();
+        LockCore.UnlockAll(CreateLockReason);
     }
     private void MultiplayerLeaveLobby() {
         NotificationData leaveLobbyNotiData = new NotificationData("Leave Lobby?",

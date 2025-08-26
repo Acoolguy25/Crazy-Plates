@@ -10,7 +10,8 @@ using System.Collections;
 public class ServerLobby : NetworkBehaviour
 {
     public static ServerLobby singleton;
-    public static bool GameStarting = false;
+    [SyncVar(hook = nameof(OnGameStartingChanged))]
+    public bool GameStarting = false;
 #if UNITY_EDITOR
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
@@ -43,6 +44,7 @@ public class ServerLobby : NetworkBehaviour
     public override void OnStartServer() {
         CreateJoinCode();
         GameStarting = false;
+        base.OnStartServer();
     }
     [Command(requiresAuthority = true)]
     public void CreateNewGameCode() {
@@ -50,6 +52,10 @@ public class ServerLobby : NetworkBehaviour
     }
     [Command(requiresAuthority = true)]
     public void CmdStartGame() {
+        StartGame();
+    }
+    [Command(requiresAuthority = true)]
+    private void StartGame() {
         if (GameStarting)
             return;
         GameStarting = true;
@@ -57,6 +63,22 @@ public class ServerLobby : NetworkBehaviour
     }
     [Server]
     public IEnumerator ServerGameStart() {
+        while (true) {
+            bool isReady = true;
+            foreach (var keyValPair in NetworkServer.connections) {
+                NetworkConnectionToClient conn = keyValPair.Value;
+                if (conn.connectionId == 1)
+                    continue;
+                if (!conn.isReady) {
+                    isReady = false;
+                    break;
+                }
+            }
+            if (isReady)
+                break;
+            else
+                yield return null;
+        }
         RpcGameStarting();
         ServerEvents.Instance.ServerEventsBegin();
         yield return new WaitForSecondsRealtime(2.5f);
@@ -102,8 +124,34 @@ public class ServerLobby : NetworkBehaviour
     [ClientRpc]
     public void RpcGameStarting() {
         GameStarting = true;
-        GameLobby.singleton.GameStartingFunc();
+        LobbyUI.Instance.GameStartingFunc();
     }
+    [Client]
+    public override void OnStartAuthority() {
+        base.OnStartAuthority();
+        if (ServerProperties.Instance.SinglePlayer)
+            CmdStartGame();
+    }
+    [Server]
+    public void GameEnd() {
+        GameEndRpc();
+    }
+    [Client]
+    public void OnGameStartingChanged(bool oldVal, bool newVal) {
+        if (!newVal)
+            LobbyUI.Instance.FadeBlackScreen(0f);
+    }
+    [ClientRpc]
+    public void GameEndRpc() {
+        if (ServerProperties.Instance.SinglePlayer) {
+            if (GameEvents.Instance.SurvivalTime > SaveManager.SaveInstance.singleplayerTime) {
+                SaveManager.SaveInstance.singleplayerTime = GameEvents.Instance.SurvivalTime;
+                SaveManager.SaveGame();
+                SingleplayerMenu.Instance.UpdateSinglePlayerTime(SaveManager.SaveInstance.singleplayerTime);
+            }
+        }
+    }
+    
     public void Start() {
         DontDestroyOnLoad(this);
     }

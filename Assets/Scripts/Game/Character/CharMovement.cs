@@ -85,6 +85,7 @@ public class CharMovement : NetworkBehaviour {
         if (!isOwned)
             return;
         if (_animator != null && !_animator.enabled) return;
+        if (!_input) return;
 
         JumpAndGravity();
         GroundedCheck();

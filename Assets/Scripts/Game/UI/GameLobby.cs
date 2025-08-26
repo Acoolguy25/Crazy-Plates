@@ -38,17 +38,29 @@ public class GameLobby : MonoBehaviour
         startGameBtn.gameObject.SetActive(NetworkClient.activeHost);
     }
     [Client]
+    private void SetStartButton(string text = null) {
+        if (text == null) {
+            startGameText.text = "Start Game";
+            startGameBtn.interactable = true;
+        }
+        else {
+            startGameText.text = text;
+            #if !UNITY_EDITOR
+                startGameBtn.interactable = false;
+            #endif
+        }
+    }
     public void RefreshBtns() {
-        if (ServerProperties.Instance.PlayerCount < GameRunner.MinPlayersMultiPlayer) {
-#if !UNITY_EDITOR
-            startGameBtn.interactable = false;
-#endif
-            startGameText.text = $"Need Players";
+        if (!NetworkClient.ready) {
+            SetStartButton("Loading..");
+            titleText.text = $"Multiplayer";
+        }
+        else if (ServerProperties.Instance.PlayerCount < GameRunner.MinPlayersMultiPlayer) {
+            SetStartButton("Need Players");
             titleText.text = $"Waiting For Players ({ServerProperties.Instance.PlayerCount}/{GameRunner.MinPlayersMultiPlayer})";
         }
         else {
-            startGameBtn.interactable = true;
-            startGameText.text = $"Start Game";
+            SetStartButton();
             titleText.text = $"Multiplayer ({ServerProperties.Instance.PlayerCount}/{ServerProperties.Instance.MaxPlayers})";
         }
     }
@@ -102,16 +114,17 @@ public class GameLobby : MonoBehaviour
             }
         ));
     }
+    public static LockReason startGameLock = new LockReason("StartGame", LockTag.Game);
     [Client]
     public void StartGameBtn() {
+        if (!NetworkClient.ready)
+            return;
+        LockCore.LockAll(startGameLock);
+        LobbyUI.lockedAll = true;
         ServerLobby.singleton.CmdStartGame();
     }
     [Client]
     public void LeaveGameBtn() {
         MultiplayerMenu.singleton.MultiplayerExitLobby();
-    }
-    [Client]
-    public void GameStartingFunc() {
-        LobbyUI.Instance.FadeBlackScreen(1f);
     }
 }

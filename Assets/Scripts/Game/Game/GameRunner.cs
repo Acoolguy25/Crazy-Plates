@@ -248,6 +248,7 @@ public class GameRunner : MonoBehaviour
         }
 
         ServerEvents.Instance.PlayerDied += OnDied;
+        ServerLobby.singleton.GameStarting = false;
 
         gameCoroutine = StartCoroutine(RunGame());
     }
@@ -262,27 +263,41 @@ public class GameRunner : MonoBehaviour
     }
     [Server]
     public void EndGame() {
+        if (!gameRunning)
+            return;
+        gameRunning = false;
         Assert.IsNotNull(gameCoroutine, "EndGame() called but game not started!");
         StopCoroutine(gameCoroutine);
         GameEvents.Instance.SurvivalTime = ServerProperties.Instance.GameDuration;
         ServerProperties.Instance.GameInProgress = false;
-        List<string> alivePlayers = new();
-        foreach (uint playerIdx in ServerProperties.Instance.players) {
-            PlayerController player = Reflection.Deserialize<PlayerController>(playerIdx);
-            if (player.gamemode == PlayerGamemode.Alive) {
-                alivePlayers.Add(player.displayName);
+        ServerLobby.singleton.GameEnd();
+        if (!ServerProperties.Instance.SinglePlayer) {
+            List<string> alivePlayers = new();
+            foreach (uint playerIdx in ServerProperties.Instance.players) {
+                PlayerController player = Reflection.Deserialize<PlayerController>(playerIdx);
+                if (player.gamemode == PlayerGamemode.Alive) {
+                    alivePlayers.Add(player.displayName);
+                }
             }
+            GameEvents.Instance.GameMessage = new GameMessage(
+                    (alivePlayers.Count > 0 ? string.Join(", ", alivePlayers) : "Nobody") + " has won! ({0})",
+                    SharedFunctions.GetNetworkTime() + gameEndDelay);
+            GameEvents.Instance.DescMessage = "The game lasted " + SingleplayerTimeGUI.DisplayTimePassed(GameEvents.Instance.SurvivalTime);
+            ServerLobby.singleton.BackToLobby(SharedFunctions.GetNetworkTime() + gameEndDelay);
+            //UnifiedDelay.Instance.Delay(gameEndDelay, ResetGame);
+            StartCoroutine(ResetGame());
         }
-        GameEvents.Instance.GameMessage = new GameMessage(
-                (alivePlayers.Count > 0? string.Join(", ", alivePlayers): "Nobody") + " has won! ({0})",
-                SharedFunctions.GetNetworkTime() + gameEndDelay);
-        GameEvents.Instance.DescMessage = "The game lasted " + SingleplayerTimeGUI.DisplayTimePassed(GameEvents.Instance.SurvivalTime);
-        ServerLobby.singleton.BackToLobby(SharedFunctions.GetNetworkTime() + gameEndDelay);
-        UnifiedDelay.Instance.Delay(gameEndDelay, ResetGame);
     }
     [Server]
-    public void ResetGame() {
-        ServerLobby.GameStarting = false;
+    private IEnumerator ResetGame() {
+        yield return new WaitForSecondsRealtime(gameEndDelay);
+        if (!NetworkServer.active)
+            yield break;
+        foreach (uint playerIdx in ServerProperties.Instance.players) {
+            PlayerController player = Reflection.Deserialize<PlayerController>(playerIdx);
+            player.DespawnCharacter();
+            player.gamemode = PlayerGamemode.Menu;
+        }
         CustomNetworkManager.singleton2.ServerChangeScene("MainMenu");
     }
     private Vector3 GetPrefabWorldSize(GameObject prefab)

@@ -31,9 +31,11 @@ public class CustomBasicAuthenticator : BasicAuthenticator
             return;
         }
         allowExternalConnections = options != null && !Convert.ToBoolean(options["LANOnly"]);
-        serverIPAddress = Convert.ToString(options["ServerIP"]);
-        if (!IsValidIPv4(serverIPAddress))
-            throw new ArgumentException("ServerIP is invalid");
+        if (options != null) {
+            serverIPAddress = Convert.ToString(options["ServerIP"]);
+            if (!IsValidIPv4(serverIPAddress))
+                throw new ArgumentException("ServerIP is invalid");
+        }
         Debug.Log($"Local IP Address: {serverIPAddress}");
         CustomNetworkManager.singleton2.networkAddress = allowExternalConnections ? "0.0.0.0" : serverIPAddress;
         try {
@@ -57,6 +59,9 @@ public class CustomBasicAuthenticator : BasicAuthenticator
         ClientReject();
     }
     public static string GetLocalIPAddress() {
+#if !UNITY_EDITOR && PLATFORM_WEBGL
+        return "";
+#endif
         foreach (var ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList) {
             if (ip.AddressFamily == AddressFamily.InterNetwork) // IPv4 only
             {

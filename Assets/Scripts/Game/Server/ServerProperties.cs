@@ -45,7 +45,7 @@ public class ServerProperties : NetworkBehaviour
         Instance = null;
     }
 #endif
-    public void Begin()
+    public void BeforeStartServer()
     {
         if (Instance != this && Instance != null)
         {
@@ -53,12 +53,14 @@ public class ServerProperties : NetworkBehaviour
             return;
         }
         Instance = this;
+        players.Reset();
         return;
     }
     [Client]
     private void OnGameCodeChanged(string oldCode, string newCode) {
         GameLobby.singleton.OnGameCodeChanged(newCode);
     }
+    [Server]
     public override void OnStartServer() {
         AlivePlayers = 0;
         //PlayerCount = 0;
@@ -69,5 +71,13 @@ public class ServerProperties : NetworkBehaviour
         players.Clear();
 
         DOTween.defaultTimeScaleIndependent = false;
+    }
+    [Client]
+    public override void OnStartClient() {
+        if (!SinglePlayer) {
+            GameLobby.singleton.Begin();
+            if (LobbyJoin.singleton)
+                LobbyJoin.singleton.StopJoin();
+        }
     }
 }

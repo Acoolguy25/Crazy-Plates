@@ -41,7 +41,7 @@ public class MovementControl : NetworkBehaviour {
     }
     [ClientCallback]
     void FixedUpdate() {
-        if (!isOwned) return;
+        if (!isOwned || !charCntl) return;
         if (charCntl.isRagdoll) {
             contacts = new();
             IsGrounded = false;

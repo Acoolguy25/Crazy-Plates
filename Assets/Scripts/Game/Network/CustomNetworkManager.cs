@@ -46,18 +46,21 @@ public class CustomNetworkManager : NetworkManager
             transport = GetComponent<DummyTransport>();
         else
             transport = GetComponent<SimpleWebTransport>();
-        serverProperties = SharedFunctions.FindInactiveWithTag("ServerProperties").GetComponent<ServerProperties>();
-        serverProperties.gameObject.SetActive(true);
+        GameObject serverPropGameObj = SharedFunctions.FindInactiveWithTag("ServerProperties");
+        serverProperties = serverPropGameObj.GetComponent<ServerProperties>();
+        serverPropGameObj.SetActive(true);
         //transport = GetComponent<KcpTransport>();
         Transport.active = transport;
         if (options != null) {
             serverProperties.MaxPlayers = Convert.ToUInt16(options["MaxPlayers"]);
             CustomBasicAuthenticator.allowExternalConnections = !Convert.ToBoolean(options["LANOnly"]);
         }
-        else
+        else {
+            serverProperties.MaxPlayers = 1;
             CustomBasicAuthenticator.allowExternalConnections = false;
+        }
         serverProperties.SinglePlayer = singleplayer;
-        serverProperties.Begin();
+        serverProperties.BeforeStartServer();
         
         CustomBasicAuthenticator.Begin(options: options, clientOnly: clientOnly);
         if (password != null)
@@ -72,18 +75,16 @@ public class CustomNetworkManager : NetworkManager
     {
         base.OnClientConnect();
         //Debug.Log("Client connected to server.");
-        serverProperties.Begin();
-        GameLobby.singleton.Begin();
-        if (LobbyJoin.singleton)
-            LobbyJoin.singleton.StopJoin();
+        
     }
     public override void OnClientDisconnect() {
         base.OnClientDisconnect();
         //Debug.Log("Client disconnected from server.");
-        GameLobby.singleton.End();
-        if (LobbyJoin.singleton)
-            LobbyJoin.singleton.JoinGameFail("Disconnected from server.");
-        
+        if (!serverProperties.SinglePlayer) {
+            GameLobby.singleton.End();
+            if (LobbyJoin.singleton)
+                LobbyJoin.singleton.JoinGameFail("Disconnected from server.");
+        }
     }
     public override void OnServerConnect(NetworkConnectionToClient client) {
         base.OnServerConnect(client);
@@ -91,8 +92,10 @@ public class CustomNetworkManager : NetworkManager
             serverIdentity.AssignClientAuthority(client);
     }
     public override void OnServerDisconnect(NetworkConnectionToClient conn) {
-        if (serverProperties == null)
+        if (serverProperties == null) {
+            base.OnServerDisconnect(conn);
             return;
+        }
         bool found = false;
         foreach (uint playerIdx in serverProperties.players) {
             PlayerController player = Reflection.Deserialize<PlayerController>(playerIdx);
@@ -104,7 +107,7 @@ public class CustomNetworkManager : NetworkManager
                 break;
             }
         }
-        if (!found) {
+        if (!found && conn.connectionId != 1) {
             Debug.LogWarning($"Player with connection ID {conn.connectionId} not found in player list on disconnect.");
         }
         base.OnServerDisconnect(conn);
@@ -142,35 +145,46 @@ public class CustomNetworkManager : NetworkManager
     }
     private bool waitingForSceneChange = true;
     private bool waitingForPlayers = true;
+    [Server]
     protected void StartGame() {
         if (waitingForSceneChange || waitingForPlayers)
             return;
         GameObject gameRunner = SharedFunctions.FindInactiveWithTag("GameRunner");
+        //UnifiedDelay.Instance.Delay(3f, gameRunner.GetComponent<GameRunner>().StartGame);
         gameRunner.GetComponent<GameRunner>().StartGame();
+    }
+    public override void ServerChangeScene(string newSceneName) {
+        waitingForSceneChange = true;
+        base.ServerChangeScene(newSceneName);
+        waitingForPlayers = ArePlayersReady();
     }
     public override void OnServerSceneChanged(string sceneName) {
         base.OnServerSceneChanged(sceneName);
 
         if (sceneName == "MainMenu") {
-            waitingForSceneChange = true;
-            waitingForPlayers = true;
             return;
         }
         waitingForSceneChange = false;
         StartGame();
     }
-    public override void OnServerReady(NetworkConnectionToClient client) {
-        base.OnServerReady(client);
+    public bool ArePlayersReady() {
         foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values) {
+            if (!conn.isAuthenticated)
+                continue;
             if (!conn.isReady) {
-                waitingForPlayers = true;
-                return;
+                return false;
             }
         }
-        waitingForPlayers = false;
+        return true;
+    }
+    public override void OnServerReady(NetworkConnectionToClient client) {
+        base.OnServerReady(client);
+        
+        waitingForPlayers = ArePlayersReady();
         StartGame();
         //Debug.Log("Client is ready on server.");
     }
+    
     //public void StartGame() {
     //    GameEvents.Instance.OnClientBegin();
     //    foreach (var gameObj in EnableOnStart)
@@ -231,10 +245,18 @@ public class CustomNetworkManager : NetworkManager
         
         base.OnClientTransportException(exception);
     }
+    public override void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) {
+        bool before = SceneManager.GetActiveScene().name == "MainMenu";
+        bool isNow = newSceneName == "MainMenu";
+        if (before != isNow) {
+            LobbyUI.Instance.SetCanvasVisibility(isNow);
+        }
+        base.OnClientChangeScene(newSceneName, sceneOperation, customHandling);
+    }
     public override void OnClientSceneChanged() {
-        LobbyUI.Instance.SetCanvasVisibility(networkSceneName == "MainMenu");
+        if (networkSceneName == "MainMenu")
+            LobbyUI.Instance.FadeBlackScreen(0f);
 
-        LobbyUI.Instance.FadeBlackScreen(0f);
         base.OnClientSceneChanged();
     }
 }

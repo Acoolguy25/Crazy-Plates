@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine.Assertions;
 using TMPro;
 using Mirror.BouncyCastle.Bcpg;
+using Mirror;
 
 public class SingleplayerMenu : MonoBehaviour
 {
@@ -31,32 +32,30 @@ public class SingleplayerMenu : MonoBehaviour
     }
     public void SingleplayerStartActivated()
     {
-        LobbyUI.LobbyLock.Lock();
-        StartCoroutine(SingleplayerStartGame());
+        if (NetworkClient.active)
+            return;
+        LockCore.LockAll(GameLobby.startGameLock);
+        LobbyUI.lockedAll = true;
+        CustomNetworkManager.singleton2.Init(singleplayer: true, clientOnly: true);
+        CustomNetworkManager.singleton2.StartHost();
+        //StartCoroutine(SingleplayerStartGame());
     }
-    private IEnumerator SingleplayerStartGame(string sceneName = "Default")
-    {
-        LobbyUI.Instance.FadeBlackScreen(1);
-        yield return new WaitForSecondsRealtime(2.5f); // wait for screen to fade to black
-        LobbyUI.Instance.DisconnectConnection();
-        LobbyUI.Instance.ResetTimeScale();
-        Scene scene = SceneManager.GetSceneByName(sceneName);
-        if (scene.isLoaded) {
-            AsyncOperation unload_op = SceneManager.UnloadSceneAsync(sceneName, UnloadSceneOptions.None);
-            yield return unload_op;
-        }
-         // enable everything!
-        AsyncOperation op2 = null;
-        try {
-            op2 = SceneManager.UnloadSceneAsync("Default", UnloadSceneOptions.None);
-        }
-        catch { }
-        if (op2 != null)
-            yield return op2;
-        AsyncOperation op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-        yield return op;
-        Scene newlyLoadedScene = SceneManager.GetSceneByName("Default");
-        Assert.IsTrue(newlyLoadedScene != null && newlyLoadedScene.isLoaded, "[SinglePlayerMenu] Scene is not loaded!");
-        LobbyUI.Instance.FadeBlackScreen(0);
-    }
+    //private IEnumerator SingleplayerStartGame(string sceneName = "Default")
+    //{
+    //    LobbyUI.Instance.FadeBlackScreen(1);
+    //    yield return new WaitForSecondsRealtime(2.5f); // wait for screen to fade to black
+    //    LobbyUI.Instance.DisconnectConnection();
+    //    LobbyUI.Instance.ResetTimeScale();
+    //    Scene scene = SceneManager.GetSceneByName(sceneName);
+    //    if (scene.isLoaded) {
+    //        AsyncOperation unload_op = SceneManager.UnloadSceneAsync(sceneName, UnloadSceneOptions.None);
+    //        yield return unload_op;
+    //    }
+    //     // enable everything!
+    //    AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
+    //    yield return op;
+    //    Scene newlyLoadedScene = SceneManager.GetSceneByName(sceneName);
+    //    Assert.IsTrue(newlyLoadedScene != null && newlyLoadedScene.isLoaded, "[SinglePlayerMenu] Scene is not loaded!");
+    //    LobbyUI.Instance.FadeBlackScreen(0);
+    //}
 }

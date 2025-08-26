@@ -7,28 +7,31 @@ using UnityEngine.Assertions;
 using UnityEngine.UI;
 
 public static class GenericTweens {
-    public static void SetCanvasGroupEnabled(LockUI lockUI, bool enabled) {
+    public static void SetCanvasGroupEnabled(LockUI lockUI, LockReason lockReason, bool enabled) {
         Assert.IsNotNull(lockUI, "SetCanvasGroupEnabled called but lockUI is null");
         //canvasGroup.interactable = enabled;
         //canvasGroup.blocksRaycasts = enabled;
         if (lockUI.genericLock != enabled) {
             //Debug.Log($"SetCanvasGroup {(enabled? "Enabled": "Disabled")} {lockUI.name}");
-            lockUI.ToggleLock(enabled);
+            if (lockReason != default)
+                lockUI.ToggleLock(lockReason, enabled);
+            else
+                lockUI.ToggleLock(enabled);
             lockUI.genericLock = enabled;
         }
     }
-    public static Tween TweenCanvasGroup(CanvasGroup canvasGroup, float alpha, float duration, LockUI lockUI = null) {
+    public static Tween TweenCanvasGroup(CanvasGroup canvasGroup, float alpha, float duration, LockUI lockUI = null, LockReason lockReason = default) {
         Assert.IsNotNull(canvasGroup, "TweenCanvasGroup called but canvasGroup is null!");
         canvasGroup.DOKill();
         if (alpha == 0f && lockUI)
-            SetCanvasGroupEnabled(lockUI, true);
+            SetCanvasGroupEnabled(lockUI, lockReason, true);
         Tween tween = DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, alpha, duration)
         .SetUpdate(true) // UI always uses unscaled time
         .SetTarget(canvasGroup)
         .SetAutoKill(true);
         if (alpha == 1f && lockUI) {
             //tween.onComplete += () => SetCanvasGroupEnabled(lockUI, false);
-            tween.onKill += () => SetCanvasGroupEnabled(lockUI, false);
+            tween.onKill += () => SetCanvasGroupEnabled(lockUI, lockReason, false);
         }
         return tween;
     }

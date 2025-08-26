@@ -1,6 +1,7 @@
 using DG.Tweening;
 using Mirror;
 using StarterAssets;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -16,6 +17,8 @@ public class GameMenuUI : MonoBehaviour
     //private CanvasGroup gameGroup;
     private LockUI gameLock;
     private LockUI menuLock;
+    //private LockControlMap menuControlMapLock;
+    private LockReason MenuLockReason = new LockReason("Menu", LockTag.Menu);
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Init() {
@@ -33,6 +36,8 @@ public class GameMenuUI : MonoBehaviour
         gameLock = gameCanvas.GetComponent<LockUI>();
 
         menuLock = menuGroup.GetComponent<LockUI>();
+        //menuControlMapLock = StarterAssetsInputs.Instance.AddComponent<LockControlMap>();
+        //menuControlMapLock.actionName = "Menu";
         MenuActive = false; //menuGroup.alpha == 1f;
     }
     private void Start() {
@@ -51,8 +56,10 @@ public class GameMenuUI : MonoBehaviour
         MenuActive = enabled;
         menuGroup.DOKill();
         GenericTweens.TweenCanvasGroup(menuGroup, enabled ? 1 : 0, duration, menuLock);
-        if (duration != 0f)
-            gameLock.ToggleLock(enabled);
+        if (duration != 0f) {
+            gameLock.ToggleLock(MenuLockReason, enabled);
+            //menuControlMapLock.ToggleLock(MenuLockReason, !enabled);
+        }
         //menuGroup.DOFade(enabled? 1: 0, duration).SetUpdate(true);
         //menuGroup.interactable = menuGroup.blocksRaycasts = enabled;
         //gameGroup.interactable = gameGroup.blocksRaycasts = !enabled;
@@ -73,15 +80,18 @@ public class GameMenuUI : MonoBehaviour
     {
         SetMenuEnabled(!MenuActive);
     }
-    public void DisableAllUI()
+    public void DisableAllUI(bool includeMenuOnSinglePlayer = false)
     {
         //menuGroup.interactable = gameGroup.interactable = false;
-        menuLock.Lock();
+        if (ServerProperties.Instance.SinglePlayer || includeMenuOnSinglePlayer)
+            menuLock.Lock();
         gameLock.Lock();
     }
     public void QuitGame(bool Instant = false)
     {
         Assert.IsNotNull(LobbyUI.Instance, "QuitGame called but LobbyUI undefined");
+        menuLock.Lock();
+        SetMenuEnabled(false);
         if (Instant)
             LobbyUI.Instance.BackToLobby(0f);
         else

@@ -5,6 +5,7 @@ using TMPro;
 using Unity.VisualScripting;
 using Mirror;
 using Mirror.SimpleWeb;
+using UnityEngine.SceneManagement;
 
 public class LobbyJoin : MonoBehaviour {
     public static bool DidLeave;
@@ -84,6 +85,10 @@ public class LobbyJoin : MonoBehaviour {
         if (DidLeave)
             return;
         NotificationScript.AddNotification(new NotificationData(title, message, NotificationScript.OkOnlyButtons));
+        Scene scene = SceneManager.GetActiveScene();
+        if (scene.name != "MainMenu" && scene.isLoaded)
+            //SceneManager.LoadSceneAsync("MainMenu");
+            LobbyUI.Instance.BackToLobby(0f, false);
         StopJoin();
         isJoining = false;
     }

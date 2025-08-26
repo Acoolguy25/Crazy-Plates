@@ -29,6 +29,9 @@ public class LobbyUI : MonoBehaviour {
     [SerializeField]
     private static CanvasGroup lobbyPannelsGroup;
     private static NotificationData QuitGameNotData;
+    private static Coroutine backToLobbyCoroutine = null;
+    private static LockReason LobbyUILockReason = new LockReason("LobbyLock", LockTag.Lobby);
+    public static bool lockedAll;
 
     private Canvas canvas;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -96,29 +99,36 @@ public class LobbyUI : MonoBehaviour {
         panel.gameObject.SetActive(true);
         CurrentPanel = panel;
     }
+    private static LockReason FadeScreenReason = new LockReason("FadeScreen", LockTag.Lobby);
     public void FadeBlackScreen(float alpha, float duration = 2f, bool start = false) {
         Image fadePanelGroup = FadePanel.GetComponent<Image>();
         GenericTweens.TweenImage(fadePanelGroup, alpha, duration);
         if (!start)
-            LockCore.ToggleLockAll(alpha == 1f); // Lock the lobby when fading to black
+            LockCore.ToggleLockAll(FadeScreenReason, alpha == 1f); // Lock the lobby when fading to black
 
         //FadePanel.GetComponent<Image>().CrossFadeAlpha(alpha, duration, true);
     }
     public void SetCanvasVisibility(bool enabled, bool started = false) {
         lobbyPannelsGroup.alpha = enabled ? 1 : 0;
         //foreach (var obj in lobbyOnlyObjects) {
-            //obj.SetActive(enabled);
+        //obj.SetActive(enabled);
         //}
-        if (!started)
-            LobbyLock.ToggleLock(!enabled);
+        //if (!started)
+        //    LobbyLock.ToggleLock(!enabled);
+        LobbyLock.ToggleLock(LobbyUILockReason, !enabled);
     }
     public void BackToLobby(float duration = 2f, bool disconnect = true, string loadScene = "MainMenu") {
-        StartCoroutine(_BackToLobby(duration, disconnect, loadScene));
+        if (backToLobbyCoroutine != null)
+            return;
+        backToLobbyCoroutine = StartCoroutine(_BackToLobby(duration, disconnect, loadScene));
     }
     public void DisconnectConnection(bool LeaveWillingly = true) {
         if (LeaveWillingly)
             LobbyJoin.DidLeave = true;
         Debug.Log("Disconnecting from server...");
+        if (NetworkClient.active && NetworkManager.networkSceneName != "MainMenu" && NetworkManager.networkSceneName != "") {
+            SetCanvasVisibility(true);
+        }
         if (NetworkServer.active && NetworkClient.isConnected) {
             NetworkManager.singleton.StopHost(); // Host mode
         }
@@ -158,17 +168,17 @@ public class LobbyUI : MonoBehaviour {
         }
         if (disconnect)
             DisconnectConnection();
-        for (int i = 0; i < SceneManager.sceneCount; i++) {
-            Scene scene = SceneManager.GetSceneAt(i);
-            if (loadScene != null && scene.name != loadScene && scene.isLoaded) {
-                var op = SceneManager.UnloadSceneAsync(scene);
-                yield return op;
-            }
-        }
+        //for (int i = 0; i < SceneManager.sceneCount; i++) {
+        //    Scene scene = SceneManager.GetSceneAt(i);
+        //    if (loadScene != null && scene.name != loadScene && scene.isLoaded) {
+        //        var op = SceneManager.UnloadSceneAsync(scene);
+        //        yield return op;
+        //    }
+        //}
         if (loadScene != null) {
             Scene menuScene = SceneManager.GetSceneByName(loadScene);
             if (!menuScene.isLoaded) {
-                AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(loadScene, LoadSceneMode.Additive);
+                AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(loadScene);
                 yield return asyncOperation;
             }
         }
@@ -176,17 +186,27 @@ public class LobbyUI : MonoBehaviour {
         CameraController.Instance.SetActiveCamera("Orbit");
         //LobbyLock.Unlock();
         ResetTimeScale();
-        //LobbyUI.Instance.SetCanvasVisibility(true); // re-enable everything!
+        LockCore.UnlockTag(LockTag.Game);
+        LockCore.UnlockTag(LockTag.Menu);
+        SetCanvasVisibility(true); // re-enable everything!
         if (duration > 0f && loadScene != null) {
             LobbyUI.Instance.FadeBlackScreen(0);
             yield return new WaitForSeconds(2f);
         }
+        backToLobbyCoroutine = null;
+    }
+    [Client]
+    public void GameStartingFunc() {
+        FadeBlackScreen(1f);
+        if (lockedAll)
+            LockCore.UnlockAll(GameLobby.startGameLock);
     }
     public void QuitGameButton() {
         NotificationScript.AddNotification(QuitGameNotData);
     }
     public void OnQuit() {
         Debug.Log("User has quit the game");
+        FadeBlackScreen(1f, 0f);
         Application.Quit(0);
     }
     //public void OnSceneLoaded(Scene scene, LoadSceneMode mode){

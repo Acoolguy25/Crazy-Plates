@@ -7,7 +7,6 @@ public class TempGameRunner : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public GameObject[] EnableOnStart;
-    [ClientCallback]
     private void Start() //public IEnumerator Start()
     {
         //yield return new WaitForSeconds(5f);

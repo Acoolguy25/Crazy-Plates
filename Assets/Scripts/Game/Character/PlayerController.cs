@@ -81,8 +81,7 @@ public class PlayerController : NetworkBehaviour
     [Server]
     public void SpawnCharacter(string characterName, Vector3 position) {
         if (activeCharacter) {
-            NetworkServer.Destroy(activeCharacter.gameObject);
-            activeCharacter = null;
+            DespawnCharacter();
         }
         for (int i = 0; i < CharacterPrefabs.Length; i++) {
             if (CharacterPrefabs[i].name == characterName) {
@@ -93,26 +92,33 @@ public class PlayerController : NetworkBehaviour
         }
         Debug.Assert(activeCharacter, $"CharacterName \"{characterName}\" not found!");
         activeCharacter.name = characterName;
+        activeCharacter.gameObject.GetComponent<PlayerSync>().correspondingNetId = Reflection.Serialize(transform);
         NetworkServer.Spawn(activeCharacter.gameObject, connectionToClient);
         //NetworkServer.ReplacePlayerForConnection(client, activeCharacter.gameObject);
         //SpawnCharacterRpc(connectionToClient, Reflection.Serialize(activeCharacter), position);
-        activeCharacter.gameObject.GetComponent<PlayerSync>().correspondingNetId = Reflection.Serialize(transform);
     }
-    private void CharacterDestroyed() {
-        if (activeCharacter == null) {
+    public void DespawnCharacter() {
+        if (!NetworkServer.active)
             return;
+        if (activeCharacter != null) {
+            ClientCharacterDestroyedRpc();
+            NetworkServer.Destroy(activeCharacter.gameObject);
+            activeCharacter = null;
         }
-        Debug.Log("Character Destroyed!");
+    }
+    [ClientRpc]
+    public void ClientCharacterDestroyedRpc() {
+        //Debug.Log("Character Destroyed!");
+        //Transform character = Reflection.Deserialize<Transform>(characterId);
+        //if (activeCharacter == character) {
         activeCharacter = null;
         if (isLocalPlayer)
             CameraController.Instance.SetActiveCamera("Orbit");
-    }
-    [ClientCallback]
-    private void OnTransformChildrenChanged() {
-        CharacterDestroyed();
+        //}
     }
     //[TargetRpc]
     //public void SpawnCharacterRpc(NetworkConnectionToClient client, uint activeCharacter_, Vector3 position) {
+    [Client]
     public void AddedTransform(Transform activeCharacter_) {
         activeCharacter = activeCharacter_;
         //activeCharacter = transform.Find(activeCharacter_);
@@ -135,12 +141,5 @@ public class PlayerController : NetworkBehaviour
         Assert.IsTrue(characterControl.isDead, "Character is not dead and is supposed to be!");
 
         StartCoroutine(DeathUI.Instance.PlayerDied());
-        if (ServerProperties.Instance.SinglePlayer) {
-            if (GameEvents.Instance.SurvivalTime > SaveManager.SaveInstance.singleplayerTime) {
-                SaveManager.SaveInstance.singleplayerTime = GameEvents.Instance.SurvivalTime;
-                SaveManager.SaveGame();
-                SingleplayerMenu.Instance.UpdateSinglePlayerTime(SaveManager.SaveInstance.singleplayerTime);
-            }
-        }
     }
 }
