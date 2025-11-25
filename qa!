@@ -1,0 +1,198 @@
+[33mcommit 674939d5cafd0d33bfdb7fcb6cb9befff9c8db98[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Tue Aug 26 05:09:44 2025 -0500
+
+    Multiplayer Official Release
+
+[33mcommit beb568e84c3ec1c7d32f264fbeb207fdbbc1e05d[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sun Aug 24 22:09:18 2025 -0500
+
+    Multiplayer WIP 0x7
+
+[33mcommit 5ce6c32141fd7609fab09fa138659e9158ec469e[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sun Aug 24 21:31:05 2025 -0500
+
+    Before PlayerData removal
+
+[33mcommit 7323b1980f73c8c00428e7f08df1fb56455f7d7c[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sun Aug 24 14:05:51 2025 -0500
+
+    Multiplayer WIP 0x6
+
+[33mcommit 5bd54ee76d14934d39332785726f404e7ad995f0[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sat Aug 23 22:26:18 2025 -0500
+
+    Multiplayer WIP 0x5
+
+[33mcommit 40217b9926ad5ec1a69c1455c09a8293a0abb08c[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sat Aug 23 20:15:14 2025 -0500
+
+    Multiplayer WIP 0x4
+
+[33mcommit f33f19f3fabc237f692b585a9acb95f33c55bfcf[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Fri Aug 22 22:13:18 2025 -0500
+
+    Port fix
+
+[33mcommit 4947667d7c4217f6c7ecdc113d9304c1f0627022[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Fri Aug 22 19:04:10 2025 -0500
+
+    ServerIP and ServerPort Added
+
+[33mcommit 16c8d206977d15254b5f643ac37548a6a9bae5b2[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Fri Aug 22 10:05:52 2025 -0500
+
+    Multiplayer WIP 0x3
+
+[33mcommit e3b4dd647ee4751258156e7243820311eabb3e67[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Fri Aug 22 10:01:03 2025 -0500
+
+    Multiplayer WIP 0x2
+
+[33mcommit 1d0d85cc3b1bc988cbdbd86d38b122e63c921562[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Fri Aug 22 09:08:05 2025 -0500
+
+    Multiplayer WIP 0x1
+
+[33mcommit 2a5459f5cfc3d35740933da9b39476ae1677544e[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Wed Aug 20 22:23:10 2025 -0500
+
+    Added authentication+game codes, max players, and lobby UI buttons
+
+[33mcommit 7f68409dfcbee0a23a8244eb045a809908286e78[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Wed Aug 20 02:59:00 2025 -0500
+
+    Multiplayer Progress 1
+
+[33mcommit 91957aeecdfba6be2ee6311e4668720745458784[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sun Aug 17 10:54:21 2025 -0500
+
+    Before Network Changes
+
+[33mcommit 76240e2e01990b78f03febc82b86b6b74ac322cc[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sat Aug 16 16:42:28 2025 -0500
+
+    Build Fixes, Saving System
+
+[33mcommit 5d0d6fb2152aefbe6af8fa29698f78031a8fb9a3[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Fri Aug 15 22:32:29 2025 -0500
+
+    After instant reload
+
+[33mcommit fab65176bb6ed53f103d58006c431b6aa4447972[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Fri Aug 15 20:37:39 2025 -0500
+
+    Before Multiplayer
+
+[33mcommit 4ecd12c9eae03967ca7f21180979bf081d6eec34[m
+Merge: 8b12856 33e7338
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Fri Aug 8 11:06:02 2025 -0500
+
+    Merge branches 'main' and 'main' of https://github.com/Acoolguy25/Crazy-Plates
+
+[33mcommit 8b1285670665cfe76faa0a035c292c5fa103d57f[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Fri Aug 8 11:05:36 2025 -0500
+
+    gitignore change
+
+[33mcommit 33e73389fc2e328941b4e2d681938d3e9734d357[m
+Author: ItsAFairGameBro <163351800+ItsAFairGameBro@users.noreply.github.com>
+Date:   Fri Aug 8 11:02:56 2025 -0500
+
+    Singleplayer working, height fix needed (switching devices, do not use)
+
+[33mcommit b67e377d1c43d85796535329b4b72144787f0e5c[m
+Author: ItsAFairGameBro <163351800+ItsAFairGameBro@users.noreply.github.com>
+Date:   Thu Aug 7 16:37:00 2025 -0500
+
+    Switched Build to Web (skull)
+
+[33mcommit 24a1f1ce344baf795a2fc85e65e518414832ff76[m
+Author: ItsAFairGameBro <163351800+ItsAFairGameBro@users.noreply.github.com>
+Date:   Thu Aug 7 16:35:20 2025 -0500
+
+    Singleplayer minus timer
+
+[33mcommit b285dc9de34430258288b1b2bc29616f56ab5d83[m
+Author: ItsAFairGameBro <163351800+ItsAFairGameBro@users.noreply.github.com>
+Date:   Tue Aug 5 01:24:09 2025 -0500
+
+    Quittable and Replayable Singleplayer
+
+[33mcommit 303148a57ba7ed84d98e5ea830ff10551ddbc35e[m
+Author: ItsAFairGameBro <163351800+ItsAFairGameBro@users.noreply.github.com>
+Date:   Tue Aug 5 00:34:50 2025 -0500
+
+    After new InputSystem and MenuScreen Start
+
+[33mcommit 939de5894648ffde5fcde37c858c578801bd6bb3[m
+Author: ItsAFairGameBro <163351800+ItsAFairGameBro@users.noreply.github.com>
+Date:   Mon Aug 4 16:41:12 2025 -0500
+
+    Before combined input system
+
+[33mcommit 833c7c995577d1c49243d9edddd63d516e9de2cb[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Tue Jul 22 15:09:48 2025 -0500
+
+    Before Trip
+
+[33mcommit b88b827bff953e736dfa60db64deb5fadc6d2f1e[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sat Jul 19 10:23:54 2025 -0500
+
+    Before Sync
+
+[33mcommit 72b5dcea3fdf4b37a53b9ec619799dc562dba94a[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sun Jul 13 19:10:25 2025 -0500
+
+    Box Collider Fixes; Character Camera  Fixes
+
+[33mcommit 5d7ae9440a22a76fe287a7f9428f6b9e6a1e45ba[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sun Jul 6 21:20:33 2025 -0500
+
+    07.06.25
+
+[33mcommit ac07f83cf83a8675ace91f7b0a2872aecf8a5f4d[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sun Jun 29 10:32:32 2025 -0500
+
+    Everything works push
+
+[33mcommit a1b1ed02a9e88312a67344d1b398b1861b59b837[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sat Jun 28 20:43:30 2025 -0500
+
+    6.28.2025
+
+[33mcommit fdd27a22e96f732258bf1c8fda07f2de91c6e2bb[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sun Jun 22 10:41:21 2025 -0500
+
+    initial push
+
+[33mcommit ef25c3e964e6f7a020b5dfb7aeae84edb5bf70b5[m
+Author: Acoolguy25 <ryan.bahary@gmail.com>
+Date:   Sun Jun 22 10:38:31 2025 -0500
+
+    commit message

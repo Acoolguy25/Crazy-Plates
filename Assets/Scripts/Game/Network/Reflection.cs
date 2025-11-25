@@ -4,7 +4,8 @@ using System.Collections.Generic;
 public static class Reflection {
     [Server]
     public static uint Serialize(Component comp) {
-        Debug.Assert(comp.TryGetComponent<NetworkIdentity>(out var identity), "NetworkIdentity component not found on the Transform.");
+        bool success = comp.TryGetComponent<NetworkIdentity>(out var identity);
+        Debug.Assert(success, "NetworkIdentity component not found on the Transform.");
         return identity.netId;
     }
     public static T Deserialize<T>(uint netId) {
